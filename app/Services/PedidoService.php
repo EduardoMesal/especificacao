@@ -1,0 +1,110 @@
+<?php
+namespace App\Services;
+
+use App\Models\Pedido;
+use App\Models\Cliente;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+class PedidoService
+{
+
+    public function index(array $dados = []): array     {
+        $pedidos = Pedido::where('excluido',  null)->orderBy('id', 'DESC')->with('cliente');
+        $clientes = Cliente::where('excluido', null)->get();
+        
+        if (!empty($dados['nome'])) {
+            $pedidos->where('nome', 'like', '%' . $dados['nome'] . '%');
+        }
+
+        $query = [
+            'pedidos' => $pedidos->paginate(20)->withQueryString(),
+            'clientes' => $clientes 
+        ];
+
+        return $query;
+    }
+
+    public function get_criar()
+    {
+        $clientes = Cliente::where('excluido', null)->get();
+
+        return $clientes;
+    }
+
+    public function criar(array $dados)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $pedido = new Pedido();
+
+            $pedido->nome = $dados['nome'];
+            $pedido->cliente_id = $dados['cliente_id'];
+            $pedido->criado = date('Y-m-d H:i:s');
+
+            $response = $pedido->save();
+
+            if (!$response) {
+                throw new \Exception('Erro ao salvar os dados.');
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function get_editar(int | string $id)
+    {
+        $pedido = Pedido::where('id', $id)
+            ->where('excluido', null)
+            ->with(['cliente' => function ($query) {
+                $query->whereNull('excluido'); 
+            }])
+            ->with(['especificacoes' => function ($query) {
+                $query->whereNull('excluido'); 
+            }])
+            ->first();
+
+        $clientes = Cliente::where('excluido', null)->get();
+
+        return compact('pedido', 'clientes');
+    }
+
+    public function editar(array $dados, int $pedidoId)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $pedido = Pedido::where('id', $pedidoId)->where('excluido', null)->first();
+
+            if (!$pedido) {
+                throw new \Exception('Nenhum pedido foi encontrado.', 404);
+            }
+
+            if ($dados['nome'] && $dados['nome'] !== $pedido->nome) {
+                $pedido->nome = $dados['nome'];
+            }
+
+            if ($dados['cliente_id'] && $dados['cliente_id'] !== $pedido->cliente_id) {
+                $pedido->cliente_id = $dados['cliente_id'];
+            }
+
+            $response = $pedido->save();
+
+            if (!$response) {
+                throw new \Exception('Erro ao salvar os dados.');
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+}

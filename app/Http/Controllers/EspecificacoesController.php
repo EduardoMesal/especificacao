@@ -1,0 +1,510 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Especificacao;
+use App\Models\Cliente;
+use App\Models\Pedido;
+use App\Models\Caracteristica;
+use App\Models\Amostra;
+use App\Models\Produto;
+use App\Models\Atributo;
+use App\Models\AtributoEspecificacao;
+use App\Models\Maquina;
+use App\Models\ImagemAmostra;
+use App\Models\EspecificacaoObservacao;
+use App\Models\AtributoAmostraEspecificacao;
+use App\Models\AtributoProdutoEspecificacao;
+use App\Models\ImagemAtributoAmostra;
+use App\Models\ImagemAtributoProduto;
+use App\Models\AtributoAmostraIndiceEspecificacao;
+use App\Models\AtributoProdutoIndiceEspecificacao;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
+use App\Http\Requests\EspecificacoesControllerRequest;
+use App\Services\EspecificacaoService;
+use App\Services\DeleteDefaultService;
+
+class EspecificacoesController extends Controller
+{   
+    public function index(Request $request, EspecificacaoService $especificacaoService)
+    {
+        $dados = [
+            'nome' => $request->input('nome'),
+            'codigo_focco' => $request->input('codigo_focco'),
+            'serie' => $request->input('serie'),
+            'maquina_id' => $request->input('maquina_id'),
+            'cliente_nome' => $request->input('cliente_nome'),
+        ];
+
+        $query = $especificacaoService->index($dados);
+
+        return view('Especificacoes/index', [
+            'codigo_focco' => $dados['codigo_focco'] ?? '',
+            'serie' => $dados['serie'] ?? '',
+            'nome' => $dados['nome'] ?? '',
+            'cliente_nome' => $dados['cliente_nome'] ?? '',
+            'maquinas' => $query['maquinas'],
+            'especificacoes' => $query['especificacoes'],
+        ]);
+    }
+
+    public function criar_etapa1(Request $request, EspecificacaoService $especificacaoService)
+    {
+        $dados = [
+            'nome' => $request->input('nome'),
+        ];
+
+        $maquinas = $especificacaoService->get_criar_etapa1($dados);
+
+        return view('Especificacoes/criar/etapa1', [
+            'nome' => $dados['nome'] ?? '',
+            'maquinas' => $maquinas,
+        ]);
+    }
+
+    public function criar_etapa2($slug, EspecificacaoService $especificacaoService)
+    {
+        $query = $especificacaoService->get_criar_etapa2($slug);
+
+        if (!$query['maquina']) {
+            return redirect('/dashboard')->with([
+                'error' => 'Nenhuma máquina foi encontrada.'
+            ]);
+        }
+
+        return view('Especificacoes/criar/etapa2', [
+            'maquina' => $query['maquina'],
+            'pedidos' => $query['pedidos'],
+        ]);
+    }
+
+    public function criar_action(EspecificacoesControllerRequest $request, $id, EspecificacaoService $especificacaoService)
+    {   
+        try {
+            $data = $request->only(['codigo_focco', 'pedido_id', 'serie', 'caracteristicas', 'att']);
+
+            $especificacaoService->criar($data, $id);
+
+            return response()->json([
+                'success' => true,
+                'title' => 'Feito',
+                'icon' => 'success',
+                'message' => 'Cadastro feito com sucesso',
+            ], 201);
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'erro' => $e->getMessage(),
+                'message' => $e->getMessage() ?? 'Ocorreu um erro durante o processamento. Tente novamente.',
+            ], 500);
+        }
+    }
+
+
+    public function editar($id, EspecificacaoService $especificacaoService)
+    {
+        $query = $especificacaoService->get_editar($id);
+
+        if (!$query['especificacao']) {
+           return redirect('/dashboard')->with([
+                'error' => 'Nenhuma especificação foi encontrada.'
+            ]);
+        }
+
+        if (!$query['especificacao']->maquina) {
+            return redirect('/dashboard')->with([
+                'error' => 'Especificação não encontrada ou sem máquina associada.'
+            ]);
+        }
+
+        // if (!$query['clientes']) {
+        //     return redirect('/dashboard')->with([
+        //         'error' => 'Nenhum cliente foi encontrado.'
+        //     ]);
+        // }
+
+        return view('Especificacoes/editar', [
+            'especificacao' => $query['especificacao'],
+            // 'clientes' => $query['clientes'],
+            'pedidos' => $query['pedidos'],
+            'atributosSelecionados' => $query['atributosSelecionados'],
+        ]);
+    }
+    
+    public function editar_action(EspecificacoesControllerRequest $request, $id, EspecificacaoService $especificacaoService)
+    {
+        $user = Auth::User();
+
+        try {
+            $data = $request->only(['cliente_id', 'codigo_focco', 'serie', 'caracteristicas', 'att', 'status', 'pedido_id', 'att_ids_originais']);
+            
+            $especificacaoService->editar($data, $id, $user);
+
+            return response()->json([
+                'success' => true,
+                'title' => 'Feito',
+                'icon' => 'success',
+                'message' => 'Cadastro feito com sucesso',
+            ], 201);
+        } catch (\Exception $e) {
+            
+           return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'erro' => $e->getMessage(),
+                'message' => $e->getCode() === 404
+                    ? $e->getMessage()
+                    : 'Ocorreu um erro durante o processamento. Tente novamente.',
+            ], 500);
+        }
+    }
+
+    public function especificacao(Request $request, $id, EspecificacaoService $especificacaoService)
+    {
+        $dados = $request->only([
+            'lang',
+        ]);
+
+        $query = $especificacaoService->especificacao($id, $dados);
+
+        if (!$query['especificacao']) {
+           return redirect('/dashboard')->with([
+                'error' => 'Nenhuma especificação foi encontrada.'
+            ]);
+        }
+
+        if (!$query['especificacao']->maquina) {
+           return redirect('/dashboard')->with([
+                'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
+            ]);
+        }
+
+        return view('Especificacoes/especificacao', [
+            'especificacao' => $query['especificacao'],
+            'listaComparacao' => $query['listaComparacao'],
+            'amostrasEspecificacoes' => $query['amostrasEspecificacoes'],
+            'maquinaAmostras' => $query['maquinaAmostras'],
+            'produtosEspecificacoes' => $query['produtosEspecificacoes'],
+            'maquinaProdutos' => $query['maquinaProdutos'],
+            'resumoItens' => $query['resumoItens'],
+            'dadosPorAmostra' => $query['dadosAgrupadoAmostras'],
+            'dadosPorProduto' => $query['dadosAgrupadoProdutos'],
+        ]);
+    }
+
+    public function excluir($id, DeleteDefaultService $deleteDefaultService)
+    {
+        if (!$id) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'ID não fornecido',
+            ], 400);
+        }
+
+        try {
+    
+           $deleteDefaultService->remove(new Especificacao(), 'id', null, $id, null);
+
+           return response()->json([
+                'success' => true,
+                'title' => 'Feito',
+                'icon' => 'success',
+                'message' => 'Excluído com sucesso',
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'erro' => $e->getMessage(),
+                'message' => 'Ocorreu um erro durante o processamento. Tente novamente.',
+            ], 500);
+        }
+    }
+
+    public function excluir_caracteristica(Request $request, $id, DeleteDefaultService $deleteDefaultService)
+    {
+        if (!$id) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'ID não fornecido',
+            ], 400);
+        }
+
+        $atributoEspecificacao = AtributoEspecificacao::where('caracteristica_id', $id)->where('especificacao_id', $request->especificacao_id)->first();
+        
+        if (!$atributoEspecificacao) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Especificação não encontrada',
+            ], 404);
+        }
+
+        if ($atributoEspecificacao) {
+
+            DB::beginTransaction();
+
+            try {
+
+                $response = $atributoEspecificacao->delete();
+
+                if (!$response) {
+                    throw new \Exception('Erro ao excluir a especificação.');
+                }
+
+                if ($response) {
+                    DB::commit();
+                    return response()->json([
+                        'success' => true,
+                        'title' => 'Feito',
+                        'icon' => 'success',
+                        'message' => 'Excluído com sucesso',
+                    ], 200);
+                }
+            } catch (\Exception $e) {
+                DB::rollBack();
+        
+                return response()->json([
+                    'success' => false,
+                    'title' => 'Oops...',
+                    'icon' => 'error',
+                    'erro' => $e->getMessage(),
+                    'message' => 'Ocorreu um erro durante o processamento. Tente novamente.',
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'title' => 'Oops...',
+            'icon' => 'error',
+            'message' => 'Falha ao excluir especificação',
+        ], 500);
+    }
+
+
+     public function exportarWord(Request $request, $id, EspecificacaoService $especificacaoService)
+    {
+        $document = $especificacaoService->exportarWord($id, $request);
+
+        if (!$document) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Especificação não encontrada',
+            ], 404);
+        }
+
+        return $document;
+    }
+
+    public function comparacao(Request $request, $id)
+    {
+        $especificacaoBaseId = $request->input('especificacaoBaseId');
+
+        $idioma = $request->input('idioma') ?? 'pt';
+
+        $atributosComparar = AtributoEspecificacao::where('especificacao_id', $id)
+        ->with([
+            'caracteristica.secao' => function ($query) {
+                $query->select('id', 'ordem');
+            },
+            'caracteristica' => function ($query) use($idioma) {
+                $query->select('id', 'tipo', 'excluido', 'secao_id', 'comparavel')
+                ->with([
+                    'caracteristicasIdiomas' => function ($q) use($idioma) {
+                        $q->whereHas('idiomas', function ($sub) use($idioma) {
+                            $sub->where('codigo', $idioma);
+                        })
+                        ->limit(1);
+                    },
+                ]);
+            },
+            'atributo' => function ($query) use($idioma) {
+                $query->whereNull('excluido')
+                ->with([
+                    'atributosIdiomas' => function ($q) use($idioma) {
+                        $q->where('nome', 'not like', '%N/A%')
+                        ->where('nome', 'not like', '%n/a%')
+                        ->whereHas('idiomas', function ($sub) use($idioma) {
+                            $sub->where('codigo', $idioma);
+                        })
+                        ->limit(1);
+                    },
+                ]);
+            },
+        ])
+        ->get()
+        ->sortBy(function ($item) {
+            $comparavel = $item->caracteristica->comparavel ?? 0;
+            $ordemSecao = $item->caracteristica->secao->ordem ?? 9999;
+            return [$comparavel ? 0 : 1, $ordemSecao];
+        })
+        ->values();
+
+        $atributosBase = AtributoEspecificacao::where('especificacao_id', $especificacaoBaseId)
+        ->with([
+            'caracteristica.secao' => function ($query) {
+                $query->select('id', 'ordem');
+            },
+            'caracteristica' => function ($query) use($idioma) {
+                $query->with([
+                    'caracteristicasIdiomas' => function ($q) use($idioma) {
+                        $q->whereHas('idiomas', function ($sub) use($idioma) {
+                            $sub->where('codigo', $idioma);
+                        });
+                    },
+                ]);
+            },
+            'atributo' => function ($query) use($idioma) {
+                $query->whereNull('excluido')
+                ->with([
+                    'atributosIdiomas' => function ($q) use($idioma) {
+                        $q->where('nome', 'not like', '%N/A%')
+                        ->where('nome', 'not like', '%n/a%')
+                        ->whereHas('idiomas', function ($sub) use($idioma) {
+                            $sub->where('codigo', $idioma);
+                        });
+                    },
+                ]);
+            },
+        ])
+        ->get()
+        ->sortBy(function ($item) {
+            $comparavel = $item->caracteristica->comparavel ?? 0;
+            $ordemSecao = $item->caracteristica->secao->ordem ?? 9999;
+
+            return [$comparavel ? 0 : 1, $ordemSecao];
+        })
+        ->values();
+
+        $iguaisRaw = [];
+        $diferentesComparado = [];
+        $diferentesBase = [];
+
+        foreach ($atributosComparar as $atributoComparado) {
+            $attrBase = $atributosBase->first(function ($base) use ($atributoComparado) {
+                return $base->caracteristica_id === $atributoComparado->caracteristica_id;
+            });
+
+            if ($attrBase) {
+                $conteudoComparado = trim(strtolower($atributoComparado->conteudo ?? ''));
+                $conteudoBase = trim(strtolower($attrBase->conteudo ?? ''));
+                $attrComparado = $atributoComparado->atributo_id;
+                $attrBaseId = $attrBase->atributo_id;
+
+                $ambosVazios = (empty($conteudoComparado) && empty($conteudoBase) && empty($attrComparado) && empty($attrBaseId));
+
+                $iguais = false;
+
+                if ($ambosVazios) {
+                    $iguais = true;
+                } elseif ($conteudoComparado === $conteudoBase && $conteudoComparado !== '') {
+                    $iguais = true;
+                } elseif ($attrComparado === $attrBaseId && !empty($attrComparado)) {
+                    $iguais = true;
+                }
+
+                if ($iguais) {
+                    $iguaisRaw[] = $atributoComparado;
+                } else {
+                    $diferentesComparado[] = $atributoComparado;
+                    $diferentesBase[] = $attrBase;
+                }
+            }
+        }
+
+        return response()->json([
+            'iguais' => self::formatarItens(
+                collect($iguaisRaw)->values()->all()
+            ),
+            'diferentes' => [
+                'comparado' => self::formatarItens(
+                    collect($diferentesComparado)->values()->all()
+                ),
+                'base' => self::formatarItens(
+                    collect($diferentesBase)->values()->all()
+                ),
+            ]
+        ]);
+    }
+
+    private static function formatarItens(array $itens)
+    {
+        $agrupados = [];
+
+        foreach ($itens as $item) {
+            $tipo = $item->caracteristica->tipo ?? '';
+            $nomeCaract = $item->caracteristica->caracteristicasIdiomas->first()->nome ?? '';
+            $nomeAttr = $item->atributo?->atributosIdiomas->first()->nome ?? null;
+            $conteudo = $item->conteudo ?? null;
+            $unidade = $item->caracteristica->caracteristicasIdiomas->first()->unidade ?? '';
+
+            $valor = 'Não informado';
+
+            if ($tipo === 'texto') {
+                if (!empty($conteudo) && strtolower($conteudo) !== 'n/a') {
+                    $valor = $conteudo;
+                }
+                $linha = "{$nomeCaract}: {$valor}";
+                if ($unidade) $linha .= " {$unidade}";
+                $linha .= ';';
+                $agrupados[] = $linha;
+
+            } elseif ($tipo === 'multiplos') {
+                $linha = "{$nomeAttr}: ";
+                $linha .= (!empty($conteudo) && strtolower($conteudo) !== 'n/a') ? $conteudo : 'Não informado';
+                if ($unidade) $linha .= " {$unidade}";
+                $linha .= ';';
+                $agrupados[$nomeCaract][] = $linha;
+
+            } elseif ($tipo === 'selecionavel') {
+                $valor = $nomeAttr ?? 'Não informado';
+
+                $linha = "{$nomeCaract}: {$valor}";
+                if ($unidade) {
+                    $linha .= " {$unidade}";
+                }
+                $linha .= ';';
+                $agrupados[] = $linha;
+            } else {
+                $linha = "{$nomeCaract}: Não informado;";
+                $agrupados[] = $linha;
+            }
+        }
+
+        $resultado = [];
+        
+        foreach ($agrupados as $chave => $valor) {
+            if (is_array($valor)) {
+                $linhas = implode("<br/>\n", $valor);
+                $resultado[] = "{$chave}:<br/>\n{$linhas}";
+            } else {
+                $resultado[] = $valor;
+            }
+        }
+
+        return $resultado;
+    }
+
+}
