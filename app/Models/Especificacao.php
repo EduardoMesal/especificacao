@@ -19,6 +19,7 @@ class Especificacao extends Model
         'codigo_focco',
         'serie',
         'status',
+        'revisao_selecionada_id',
         'criado',
         'modificado',
         'excluido',
@@ -27,6 +28,11 @@ class Especificacao extends Model
     public function maquina()
     {
         return $this->belongsTo(Maquina::class, 'maquina_id');
+    }
+
+    public function revisaoSelecionada()
+    {
+        return $this->belongsTo(Revisao::class, 'revisao_selecionada_id', 'id');
     }
 
     public function atributos()

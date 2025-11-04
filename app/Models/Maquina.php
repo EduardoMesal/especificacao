@@ -18,6 +18,7 @@ class Maquina extends Model
         'slug',
         'imagem',
         'equipamento_id',
+        'ncm',
         'criado',
         'modificado',
         'excluido',

@@ -3,31 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Especificacao;
-use App\Models\Cliente;
-use App\Models\Pedido;
-use App\Models\Caracteristica;
-use App\Models\Amostra;
-use App\Models\Produto;
-use App\Models\Atributo;
 use App\Models\AtributoEspecificacao;
-use App\Models\Maquina;
-use App\Models\ImagemAmostra;
-use App\Models\EspecificacaoObservacao;
-use App\Models\AtributoAmostraEspecificacao;
-use App\Models\AtributoProdutoEspecificacao;
-use App\Models\ImagemAtributoAmostra;
-use App\Models\ImagemAtributoProduto;
-use App\Models\AtributoAmostraIndiceEspecificacao;
-use App\Models\AtributoProdutoIndiceEspecificacao;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\DB;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\IOFactory;
 use App\Http\Requests\EspecificacoesControllerRequest;
 use App\Services\EspecificacaoService;
 use App\Services\DeleteDefaultService;
@@ -180,13 +159,13 @@ class EspecificacoesController extends Controller
         $query = $especificacaoService->especificacao($id, $dados);
 
         if (!$query['especificacao']) {
-           return redirect('/dashboard')->with([
+            return redirect('/dashboard')->with([
                 'error' => 'Nenhuma especificação foi encontrada.'
             ]);
         }
 
         if (!$query['especificacao']->maquina) {
-           return redirect('/dashboard')->with([
+            return redirect('/dashboard')->with([
                 'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
             ]);
         }
@@ -201,6 +180,8 @@ class EspecificacoesController extends Controller
             'resumoItens' => $query['resumoItens'],
             'dadosPorAmostra' => $query['dadosAgrupadoAmostras'],
             'dadosPorProduto' => $query['dadosAgrupadoProdutos'],
+            'resumoItensRevisoes' => $query['resumoItensRevisoes'],
+            'revisoes' => $query['revisoes'],
         ]);
     }
 
@@ -324,7 +305,11 @@ class EspecificacoesController extends Controller
 
         $idioma = $request->input('idioma') ?? 'pt';
 
+        $especificacaoBase = Especificacao::where('id', $especificacaoBaseId)->where('excluido', null)->first();
+        $especificacao = Especificacao::where('id', $id)->where('excluido', null)->first();
+
         $atributosComparar = AtributoEspecificacao::where('especificacao_id', $id)
+        ->where('revisao_id', $especificacao->revisao_selecionada_id)
         ->with([
             'caracteristica.secao' => function ($query) {
                 $query->select('id', 'ordem');
@@ -363,6 +348,7 @@ class EspecificacoesController extends Controller
         ->values();
 
         $atributosBase = AtributoEspecificacao::where('especificacao_id', $especificacaoBaseId)
+        ->where('revisao_id', $especificacaoBase->revisao_selecionada_id)
         ->with([
             'caracteristica.secao' => function ($query) {
                 $query->select('id', 'ordem');
@@ -507,4 +493,24 @@ class EspecificacoesController extends Controller
         return $resultado;
     }
 
+    public function revisao(Request $request, EspecificacaoService $especificacaoService)
+    {
+        $dados = [
+            'especificacao_id' => $request->input('especificacao_id'),
+            'revisao_id' => $request->input('revisao_id'),
+        ];
+
+        $revisao = $especificacaoService->revisao($dados);
+
+        if (!$revisao) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Revisão não encontrada.',
+            ], 404);
+        }
+
+        return $revisao;
+    }
 }

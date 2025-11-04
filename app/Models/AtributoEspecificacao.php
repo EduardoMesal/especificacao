@@ -17,6 +17,7 @@ class AtributoEspecificacao extends Model
         'especificacao_id',
         'atributo_id',
         'caracteristica_id',
+        'revisao_id',
         'observacao_personalizada',
         'conteudo',
     ];
@@ -34,6 +35,11 @@ class AtributoEspecificacao extends Model
     public function caracteristica()
     {
         return $this->belongsTo(Caracteristica::class, 'caracteristica_id');
+    }
+
+    public function revisao()
+    {
+        return $this->belongsTo(Revisao::class, 'revisao_id');
     }
     
 }

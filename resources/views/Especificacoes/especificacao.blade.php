@@ -103,8 +103,11 @@
                                         <li class="nav-item mt-5 nav-active">
                                             <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#resumo" role="tab">Resumo</a>
                                         </li>
-                                        <li class="nav-item mt-5">
+                                        <!-- <li class="nav-item mt-5">
                                             <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#historico" role="tab">Históricos</a>
+                                        </li> -->
+                                        <li class="nav-item mt-5">
+                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#revisoes" role="tab">Revisões</a>
                                         </li>
                                         <li class="nav-item mt-5">
                                             <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" id="tabSimilares" href="#similares" role="tab">Similares</a>
@@ -130,9 +133,16 @@
                                                 <div class="card">
                                                     <div class="card-body adjustCardBody">
                                                         <div class="col-lg-12 single-schedules-inner">
+                                                            <div class="mb-8">
+                                                                <select data-original="<?= $especificacao->revisao_selecionada_id ?>" class="form-select form-select-solid selectRv" data-control="select2" data-hide-search="true" data-placeholder="Selecionar revisão" name="revisao">
+                                                                    @foreach ($revisoes as $rev)
+                                                                        <option @if($especificacao->revisao_selecionada_id == $rev->id) selected @endif value="{{ $rev->id }}">{{ $rev->nome }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
                                                             <div class="d-flex gap-2 justify-content-center justify-content-md-end mb-8 buttonAccordion">
                                                                 <a href="{{ route('Especificacoes.editar', ['id' => $especificacao->id]) }}" class="btn btn-sm btn-primary">
-                                                                <i class="bi bi-pencil-fill"></i> Editar especificação
+                                                                    <i class="bi bi-pencil-fill"></i> Editar especificação
                                                                 </a>
                                                                 <div class="card-toolbar">
                                                                     <button class="btn btn-sm btn-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-overflow="true">
@@ -508,7 +518,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="tab-pane mb-8" id="historico" role="tabpanel">
+                                        <!-- <div class="tab-pane mb-8" id="historico" role="tabpanel">
                                             <div class="row">
                                                 <div class="col-xl-12">
                                                     <div class="card">
@@ -535,6 +545,106 @@
                                                                         @endif
                                                                     </div>
                                                                 </section>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                        <div class="tab-pane mb-8" id="revisoes" role="tabpanel">
+                                            <div class="row">
+                                                <div class="col-xl-12">
+                                                    <div class="card">
+                                                        <div class="card-body adjustCardBody">
+                                                            <div class="col-lg-12 single-schedules-inner">
+                                                                @if(count($resumoItens) > 0)
+                                                                    @foreach ($resumoItensRevisoes as $key => $rev)
+                                                                        <div class="accordion">
+                                                                            <div class="accordion-item">
+                                                                                <h2 class="accordion-header" id="headingEspecificacoes">
+                                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes--{{$key}}" aria-expanded="false" aria-controls="collapseEspecificacoes--{{$key}}">
+                                                                                        {{ $rev['revisao'] }}
+                                                                                    </button>
+                                                                                </h2>
+                                                                                <div id="collapseEspecificacoes--{{$key}}" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
+                                                                                    <div class="accordion-body">
+                                                                                        @foreach($rev['itens'] as $resumo)
+                                                                                            @php
+                                                                                                $renderizados = [];
+                                                                                                $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
+                                                                                            @endphp
+                                                                                            <ul class="list-group resumoContent">
+                                                                                                {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
+                                                                                                @if($resumo['tipo'] === 'multiplos')
+                                                                                                    @if(!in_array($resumo['caracteristica'], $renderizados))
+                                                                                                        @php $renderizados[] = $resumo['caracteristica']; @endphp
+
+                                                                                                        <li class="list-group-item">
+                                                                                                            <div>{!! $resumo['caracteristica'] !!}:</div>
+                                                                                                            @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
+                                                                                                                <div>
+                                                                                                                    {{ $item['atributo'] }}: 
+                                                                                                                    @if($item['conteudo'])
+                                                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
+                                                                                                                    @else
+                                                                                                                        <span>Não informado;</span>
+                                                                                                                    @endif
+                                                                                                                </div>
+                                                                                                                @if($item['observacao'])
+                                                                                                                    <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
+                                                                                                                @endif
+                                                                                                            @endforeach
+                                                                                                        </li>
+                                                                                                    @endif
+
+                                                                                                {{-- SELECIONÁVEL ou TEXTO --}}
+                                                                                                @else
+                                                                                                    <li class="list-group-item {{ $resumo['excluido'] ? 'disabledList' : ''}}">
+                                                                                                        @if($resumo['comparavel'])
+                                                                                                            <div class="isComparavel" 
+                                                                                                                data-bs-toggle="tooltip" 
+                                                                                                                data-bs-placement="top"
+                                                                                                                data-bs-custom-class="custom-tooltip"
+                                                                                                                data-bs-title="Este item é comparável.">
+                                                                                                                <i class="bi bi-bookmark-fill"></i>
+                                                                                                            </div>
+                                                                                                        @endif
+
+                                                                                                        <div>
+                                                                                                            {!! $resumo['caracteristica'] !!}:
+                                                                                                            @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
+                                                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
+                                                                                                            @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
+                                                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
+                                                                                                            @else
+                                                                                                                <span>Não informado;</span>
+                                                                                                            @endif
+                                                                                                        </div>
+
+                                                                                                        @if($resumo['observacao'])
+                                                                                                            <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
+                                                                                                        @endif
+
+                                                                                                        @if($resumo['excluido'])
+                                                                                                            <form class="responseAjax" action="{{ route('Especificacoes.excluir_caracteristica', ['id' => $resumo['caracteristica_id']]) }}" method="post">
+                                                                                                                @csrf
+                                                                                                                @method('DELETE')
+                                                                                                                <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
+                                                                                                                <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
+                                                                                                                    <i class="bi bi-trash-fill"></i>Excluir
+                                                                                                                </button>
+                                                                                                            </form>
+                                                                                                        @endif
+                                                                                                    </li>
+                                                                                                @endif
+                                                                                            </ul>
+                                                                                        @endforeach
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
@@ -871,6 +981,28 @@
 <script>
 
 $(document).ready(function() {
+
+    $('select.selectRv').on('change', function() {
+        
+        if (!this.value) {
+            const original = $(this).data('original');
+            $(this).val(original).trigger('change.select2');
+            return;
+        }
+        
+        $.ajax({
+            url: `/especificacoes/revisao`,
+            method: 'post',
+            data: {
+                especificacao_id: @json($especificacao->id),
+                revisao_id: $(this).val(),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                window.location.href = `/especificacao/${@json($especificacao->id)}`;
+            }
+        });
+    });
 
     $(document).on('focusin', function(e) {
         if ($(e.target).closest(".tox-dialog").length)

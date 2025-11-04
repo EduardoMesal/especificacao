@@ -64,13 +64,13 @@
                                                 <button type="hidden" id="trocar-button" style="display: none;">Trocar</button>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 fv-row">
+                                        <div class="col-md-4 fv-row">
                                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                 <span class="required">Nome</span>
                                             </label>
                                             <input type="text" value="{{optional($maquina->maquinasIdiomas->first())->nome}}" class="form-control form-control-solid" placeholder="Preencha o campo nome" name="nome" />
                                         </div>
-                                        <div class="col-md-6 fv-row selectArea">
+                                        <div class="col-md-4 fv-row selectArea">
                                             <label class="fs-6 fw-bold mb-2">Equipamento de origem</label>
                                             <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar equipamento" name="equipamento_id">
                                                 @foreach($equipamentos as $item)
@@ -79,6 +79,12 @@
                                                     </option>
                                                 @endforeach
                                            </select>
+                                        </div>
+                                        <div class="col-md-4 fv-row">
+                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                <span class="required">NCM</span>
+                                            </label>
+                                            <input type="text" value="{{$maquina->ncm}}" class="form-control form-control-solid" placeholder="Preencha o campo ncm" name="ncm" />
                                         </div>
                                         <div class="col-md-12 fv-row selectArea">
                                             <label class="fs-6 fw-bold mb-2">Amostras</label>

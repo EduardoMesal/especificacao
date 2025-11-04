@@ -157,6 +157,7 @@ class MaquinaService
             $maquina = Maquina::create([
                 'criado' => Carbon::now(),
                 'slug' => $slug,
+                'ncm' => $dados['ncm'],
                 'equipamento_id' => $dados['equipamento_id'],
                 'imagem' => $photoName,
                 'criado' => Carbon::now(),
@@ -388,8 +389,13 @@ class MaquinaService
                     $maquina->slug = $slug;
                  
                 }
+
                 if ($dados['equipamento_id'] && $dados['equipamento_id'] !== $maquina->equipamento_id) {
                     $maquina->equipamento_id = $dados['equipamento_id'];
+                }
+
+                if ($dados['ncm'] && $dados['ncm'] !== $maquina->ncm) {
+                    $maquina->ncm = $dados['ncm'];
                 }
 
                 if (isset($dados['imagem']) && $dados['imagem'] && $dados['imagem']->isValid()) {

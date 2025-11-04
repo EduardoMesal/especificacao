@@ -16,6 +16,7 @@ class MaquinaRequest extends FormRequest
     {
         return [
             'nome' => 'required',
+            'ncm' => 'required',
             'equipamento_id' => 'required|exists:equipamento_origem,id',
             'caracteristicas' => 'required|array',
             // 'caracteristicas.*' => 'exists:caracteristicas,id',
@@ -26,6 +27,7 @@ class MaquinaRequest extends FormRequest
     {
         return [
             'nome.required' => 'Preencha o campo nome.',
+            'ncm.required' => 'Preencha o campo ncm.',
             'equipamento_id.required' => 'Preencha o campo equipamento de origem.',
             'equipamento_id.exists' => 'O equipamento de origem selecionado não existe.',
             'caracteristicas.required' => 'Selecione pelo menos uma característica.',

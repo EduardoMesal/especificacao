@@ -60,6 +60,7 @@ Route::post('/resetar/senha', [UsuariosController::class, 'resetpassword'])->nam
 Route::middleware(['adm', '2fa'])->group(function () {
     Route::post('/upload-imagem', [DashboardController::class, 'uploadImage'])->name('Upload.imagem');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard.index');
+    Route::post('/especificacoes/revisao/', [EspecificacoesController::class, 'revisao'])->name('Especificacoes.revisao');
     Route::get('/especificacao/{id}', [EspecificacoesController::class, 'especificacao'])->name('Especificacoes.especificacao');
 
     Route::prefix('/especificacoes')->group(function () {

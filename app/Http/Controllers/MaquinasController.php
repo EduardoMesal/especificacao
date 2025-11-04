@@ -57,7 +57,7 @@ class MaquinasController extends Controller
     {
         try {
     
-            $data = $request->only(['imagem', 'nome', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
+            $data = $request->only(['imagem', 'nome', 'ncm', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
 
             $maquinaService->criar($data);
 
@@ -109,7 +109,7 @@ class MaquinasController extends Controller
     {
         try {
     
-            $data = $request->only(['imagem', 'nome', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
+            $data = $request->only(['imagem', 'nome', 'ncm', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
             $idioma = $request->get('lang', 'pt');
 
             $maquinaService->editar($data, $id, $idioma);
