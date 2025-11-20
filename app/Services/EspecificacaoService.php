@@ -17,8 +17,13 @@ use App\Models\AtributoProdutoEspecificacao;
 use App\Models\ImagemAtributoAmostra;
 use App\Models\ImagemAtributoProduto;
 use App\Models\AtributoAmostraIndiceEspecificacao;
+use App\Models\AtributoAmostraIndicePedido;
 use App\Models\AtributoProdutoIndiceEspecificacao;
+use App\Models\AtributoProdutoIndicePedido;
+use App\Models\EspecificacaoAmostraPedido;
+use App\Models\EspecificacaoProdutoPedido;
 use App\Models\Revisao;
+use BcMath\Number;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -759,6 +764,7 @@ class EspecificacaoService
         ->values();
 
         $resumoItens = [];
+        $resumoItensInseridos = 0;
 
         foreach ($atributosSelecionados as $dado) {
             
@@ -806,9 +812,17 @@ class EspecificacaoService
                         'tipo' => $tipo,
                         'excluido' => $excluido
                     ];
+
+                    if(!empty($atributoNome) || !empty($conteudo)){
+                        $resumoItensInseridos += 1;
+                    }
                 }
             } 
         }
+
+        $porcentagemResumo = count($resumoItens) > 0 ? ($resumoItensInseridos / count($resumoItens)) * 100 : 0;
+
+        $porcentagemResumo = number_format($porcentagemResumo, 1, '.', '');
 
         $indiceAmostraId = AtributoAmostraIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
@@ -1154,7 +1168,40 @@ class EspecificacaoService
             ];
         }
 
+        //amostra de pedidos
+        $amostrasPedido = AtributoAmostraIndicePedido::where('pedido_id', $especificacao->pedido_id)
+        ->whereNull('excluido')
+        ->with(['amostra' => function ($query) use($idioma) {
+            $query->whereNull('excluido')->orderBy('id')
+                ->with([
+                    'amostrasIdiomas' => function ($q) use($idioma)  {
+                        $q->whereHas('idiomas', function ($query) use($idioma) {
+                            $query->where('codigo', $idioma);
+                        });
+                    },
+                ]);
+        }])
+        ->get();
 
+        $especificacaoAmostrasPedido = EspecificacaoAmostraPedido::where('especificacao_id', $especificacao->id)->pluck('atributo_amostra_indice_pedido_id')->toArray();
+
+
+        $produtosPedido = AtributoProdutoIndicePedido::where('pedido_id', $especificacao->pedido_id)
+        ->whereNull('excluido')
+        ->with(['produto' => function ($query) use($idioma) {
+            $query->whereNull('excluido')->orderBy('id')
+                ->with([
+                    'produtosIdiomas' => function ($q) use($idioma)  {
+                        $q->whereHas('idiomas', function ($query) use($idioma) {
+                            $query->where('codigo', $idioma);
+                        });
+                    },
+                ]);
+        }])
+        ->get();
+
+        $especificacaoProdutosPedido = EspecificacaoProdutoPedido::where('especificacao_id', $especificacao->id)->pluck('atributo_produto_indice_pedido_id')->toArray();
+        
         return compact(
             'especificacao',
             'listaComparacao',
@@ -1166,7 +1213,12 @@ class EspecificacaoService
             'dadosAgrupadoAmostras',
             'dadosAgrupadoProdutos',
             'resumoItensRevisoes',
-            'revisoes'
+            'revisoes',
+            'amostrasPedido',
+            'especificacaoAmostrasPedido',
+            'produtosPedido',
+            'especificacaoProdutosPedido',
+            'porcentagemResumo'
         );
     }
 
@@ -1818,6 +1870,62 @@ class EspecificacaoService
             $especificacao->update([
                 'revisao_selecionada_id' => $dados['revisao_id'],
             ]);
+
+            DB::commit();
+
+            return true;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function amostra_pedido(array $dados)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $registro = EspecificacaoAmostraPedido::where('atributo_amostra_indice_pedido_id', $dados['atributo_amostra_indice_pedido_id'])->where('especificacao_id', $dados['especificacao_id'])->first();
+
+            if ($dados['checked'] == 1 && !$registro) {
+                EspecificacaoAmostraPedido::create([
+                    'especificacao_id' => $dados['especificacao_id'],
+                    'atributo_amostra_indice_pedido_id' => $dados['atributo_amostra_indice_pedido_id'],
+                ]);
+
+            }elseif ($dados['checked'] == 0 && $registro) {
+                $registro->delete();
+            }
+
+            DB::commit();
+
+            return true;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function produto_pedido(array $dados)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $registro = EspecificacaoProdutoPedido::where('atributo_produto_indice_pedido_id', $dados['atributo_produto_indice_pedido_id'])->where('especificacao_id', $dados['especificacao_id'])->first();
+
+            if ($dados['checked']  == 1 && !$registro) {
+                EspecificacaoProdutoPedido::create([
+                    'especificacao_id' => $dados['especificacao_id'],
+                    'atributo_produto_indice_pedido_id' => $dados['atributo_produto_indice_pedido_id'],
+                ]);
+
+            } elseif ($dados['checked'] == 0 && $registro) {
+                $registro->delete();
+            }
 
             DB::commit();
 

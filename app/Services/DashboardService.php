@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\Especificacao;
 use App\Models\Maquina;
 use App\Models\Cliente;
+use App\Models\Pedido;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -80,11 +81,18 @@ class DashboardService
             ];
         }
 
+        $especificacoesCount = Especificacao::where('excluido', null)->whereYear('criado', Carbon::now()->year)->count();
+        $masquinasCount = Maquina::where('excluido', null)->count();
+        $pedidosCount = Pedido::where('excluido', null)->whereYear('criado', Carbon::now()->year)->count();
+
         $query = [
             'especificacoes' => $especificacoes,
             'especificacoesPerMonths' => $especificacoesPerMonths,
             'maquinas' => $maquinas,
             'clientes' => $clientes,
+            'especificacoesCount' => $especificacoesCount,
+            'masquinasCount' => $masquinasCount,
+            'pedidosCount' => $pedidosCount,
         ];
 
         return $query; 

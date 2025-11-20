@@ -5,89 +5,90 @@
 @endsection
 
 @section('content')
-<div class="post d-flex flex-column-fluid flex-lg-grow-1" id="kt_post">
-    <div id="kt_content_container" class="container-xxl card-space">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
-                    <div class="flex-grow-1">
-                        <div class="justify-content-between align-items-start flex-wrap mb-2">
-                            <div class="flex-column">
-                                <form class="form responseAjax" method="POST" action="{{route('Caracteristicas.editar_action', ['id' => $caracteristica->id, 'lang' => request('lang')])}}" novalidate enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" value="{{ $caracteristica->tipo }}" name="type" id="tipoHidden" />
-                                    <div class="mb-5 text-center">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div class="d-flex flex-column">
-                                                <h1 class="mb-5">Editar característica</h1>
-                                                <div class="form-check-left" style="width: fit-content;">
-                                                    <div class="form-check form-switch">
-                                                        <label class="form-check-label">Comparável</label>
-                                                        <input type="hidden" name="comparavel" value="0">
-                                                        <input class="form-check-input" type="checkbox" name="comparavel" value="1"  {{ old('comparavel', $caracteristica->comparavel ?? false) ? 'checked' : '' }}>
+<div class="section pt-40" id="kt_post">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
+                        <div class="flex-grow-1">
+                            <div class="justify-content-between align-items-start flex-wrap mb-2">
+                                <div class="flex-column">
+                                    <form class="form responseAjax" method="POST" action="{{route('Caracteristicas.editar_action', ['id' => $caracteristica->id, 'lang' => request('lang')])}}" novalidate enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" value="{{ $caracteristica->tipo }}" name="type" id="tipoHidden" />
+                                        <div class="mb-5 text-center">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="d-flex flex-column">
+                                                    <h2 class="mb-5">Editar característica</h2>
+                                                    <div class="form-check-left" style="width: fit-content;">
+                                                        <div class="form-check form-switch">
+                                                            <label class="form-check-label">Comparável</label>
+                                                            <input type="hidden" name="comparavel" value="0">
+                                                            <input class="form-check-input" type="checkbox" name="comparavel" value="1" {{ old('comparavel', $caracteristica->comparavel ?? false) ? 'checked' : '' }}>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="pull-right">
-                                                <div class="btn-group dropleft position-relative">
-                                                    <a href="javascript:void(0);" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                        <img src="{{ asset('/assets/img/flags/' . $idioma->icone) }}" style="width: 22px;">&nbsp;&nbsp;{!! $idioma->nome !!}
-                                                    </a>
+                                                <div class="pull-right">
+                                                    <div class="btn-group dropleft position-relative">
+                                                        <a href="javascript:void(0);" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                            <img src="{{ asset('/assets/img/flags/' . $idioma->icone) }}" style="width: 22px;">&nbsp;&nbsp;{!! $idioma->nome !!}
+                                                        </a>
 
-                                                    <ul class="dropdown-menu position-absolute top-100">
-                                                        @foreach ($idiomas as $key => $value)
+                                                        <ul class="dropdown-menu position-absolute top-100">
+                                                            @foreach ($idiomas as $key => $value)
                                                             <li class="navi-item p-2">
                                                                 <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link">
                                                                     <img src="{{ asset('/assets/img/flags/' . $value->icone) }}" class="img-thumbnail" style="max-width: 30px;">&nbsp;{!! $value->nome !!}
                                                                 </a>
                                                             </li>
-                                                        @endforeach
-                                                    </ul>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row g-9 mb-8">
-                                        <div class="col-md-6 fv-row">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="required">Nome</span>
-                                            </label>
-                                            <input type="text" value="{{ optional($caracteristica->caracteristicasIdiomas->first())->nome }}" list="list-input" id="input-datalist" class="form-control form-control-solid" placeholder="Preencha o campo nome" name="nome" />
-                                            <datalist id="list-input">
-                                              @foreach ($caracteristicas as $c)
-                                                <option>
-                                                    {{ optional($c->caracteristicasIdiomas->first())->nome }}
-                                                </option>
-                                              @endforeach
-                                            </datalist>
-                                        </div>
-                                        <div class="col-md-6 fv-row selectArea">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="required">Tipo</span>
-                                            </label>
-                                            <select class="form-select form-select-solid tipo" data-control="select2" data-hide-search="true" data-placeholder="Tipo" name="tipo">
-                                                <option @if ($caracteristica->tipo == 'selecionavel') ? selected : '' @endif value="selecionavel">Selecionável</option>
-                                                <option @if ($caracteristica->tipo == 'multiplos') ? selected : '' @endif value="multiplos">Múltiplos</option>
-                                                <option @if ($caracteristica->tipo == 'texto') ? selected : '' @endif value="texto">Texto</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 fv-row selectArea">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="required">Seção</span>
-                                            </label>
-                                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Seção" name="secao_id">
-                                                <option value=""></option>
-                                                @foreach($secoes as $item)
+                                        <div class="row g-9 mb-8">
+                                            <div class="col-md-6 fv-row input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="required">Nome</span>
+                                                </label>
+                                                <input type="text" value="{{ optional($caracteristica->caracteristicasIdiomas->first())->nome }}" list="list-input" id="input-datalist" class="bg-transparent" placeholder="Preencha o campo nome" name="nome" />
+                                                <datalist id="list-input">
+                                                    @foreach ($caracteristicas as $c)
+                                                    <option>
+                                                        {{ optional($c->caracteristicasIdiomas->first())->nome }}
+                                                    </option>
+                                                    @endforeach
+                                                </datalist>
+                                            </div>
+                                            <div class="col-md-6 fv-row selectArea input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="required">Tipo</span>
+                                                </label>
+                                                <select class="form-select form-select-solid tipo" data-control="select2" data-hide-search="true" data-placeholder="Tipo" name="tipo">
+                                                    <option @if ($caracteristica->tipo == 'selecionavel') ? selected : '' @endif value="selecionavel">Selecionável</option>
+                                                    <option @if ($caracteristica->tipo == 'multiplos') ? selected : '' @endif value="multiplos">Múltiplos</option>
+                                                    <option @if ($caracteristica->tipo == 'texto') ? selected : '' @endif value="texto">Texto</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 fv-row selectArea input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="required">Seção</span>
+                                                </label>
+                                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Seção" name="secao_id">
+                                                    <option value=""></option>
+                                                    @foreach($secoes as $item)
                                                     <option @if($caracteristica->secao_id == $item->id) selected @endif value="{{$item->id}}">{!! optional($item->secoesIdiomas->first())->nome !!}</option>
-                                                @endforeach   
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 fv-row selectArea">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="">Unidade</span>
-                                            </label>
-                                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Unidade" name="unidade">
-                                                <option value=""></option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 fv-row selectArea input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="">Unidade</span>
+                                                </label>
+                                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Unidade" name="unidade">
+                                                    <option value=""></option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'kg') selected @endif value="kg">kg</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'Hz') selected @endif value="Hz">Hz</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'mm') selected @endif value="mm">mm</option>
@@ -106,65 +107,65 @@
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'l/h') selected @endif value="l/h">l/h</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == '%') selected @endif value="%">%</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'gCO2/l') selected @endif value="gCO2/l">gCO2/l</option>
-                                            </select>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-12 mb-8 fv-row ckEditorView">
-                                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                            <span class="notRequired">Avisos</span>
-                                        </label>
-                                        <textarea name="aviso" id="texto-2" class="form-control ckText">
+                                        <div class="col-md-12 mb-8 fv-row ckEditorView">
+                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                <span class="notRequired">Avisos</span>
+                                            </label>
+                                            <textarea name="aviso" id="texto-2" class="form-control ckText">
                                         {!! preg_replace('/src=["\'](?:\.\.\/)+assets\/files\//', 'src="'.url('/assets/files/').'/', optional($caracteristica->caracteristicasIdiomas->first())->aviso) !!}
                                         </textarea>
-                                    </div>
-                                    <div class="col-md-12 fv-row obsTexto mb-8" style="{{ $caracteristica->tipo != 'texto' ? 'display:none' : '' }}">
-                                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                            <span class="">Observação</span>
-                                        </label>
-                                        <input type="text" value="{{optional($caracteristica->atributos->first()->atributosIdiomas->first())->observacao}}" class="form-control form-control-solid" placeholder="Preencha o campo observação" name="observacao" />
-                                    </div>
-                                    <div id="att" style="{{ $caracteristica->tipo == 'texto' ? 'display:none' : '' }}">
-                                        <div class="form-group">
-                                            <div data-repeater-list="att">
-                                                <input type="hidden" name="att_ids_originais" value="{{ $caracteristica->atributos->pluck('id')->implode(',') }}">
-                                                @if(count($caracteristica->atributos) > 0)
+                                        </div>
+                                        <div class="col-md-12 fv-row obsTexto mb-8 input-style-1" style="{{ $caracteristica->tipo != 'texto' ? 'display:none' : '' }}">
+                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                <span class="">Observação</span>
+                                            </label>
+                                            <input type="text" value="{{optional($caracteristica->atributos->first()->atributosIdiomas->first())->observacao}}" class="bg-transparent" placeholder="Preencha o campo observação" name="observacao" />
+                                        </div>
+                                        <div id="att" class="pt-30" style="{{ $caracteristica->tipo == 'texto' ? 'display:none' : '' }}">
+                                            <div class="form-group">
+                                                <div data-repeater-list="att">
+                                                    <input type="hidden" name="att_ids_originais" value="{{ $caracteristica->atributos->pluck('id')->implode(',') }}">
+                                                    @if(count($caracteristica->atributos) > 0)
                                                     @foreach ($caracteristica->atributos as $att)
-                                                        <div data-repeater-item>
-                                                            <input name="att_id" type="hidden" value="{{ $att->id }}" />
-                                                            <div class="form-group row mb-5">
-                                                                <div class="col-md-6 mb-5">
-                                                                    <label class="form-label required">Atributo</label>
-                                                                    <input name="att[{{ $loop->index }}][atributo]" class="form-control form-control-solid" type="text" placeholder="Atributo" value="{{ $caracteristica->tipo != 'texto' ? optional($att->atributosIdiomas->first())->nome : '' }}"/>
-                                                                </div>
-                                                                <div class="col-md-6 mb-5">
-                                                                    <label class="form-label">Observação</label>
-                                                                    <input name="att[{{ $loop->index }}][observacao]" class="form-control form-control-solid" type="text" placeholder="Observação" value="{{ $caracteristica->tipo != 'texto' ? optional($att->atributosIdiomas->first())->observacao : '' }}" />
-                                                                </div>
-                                                                <div class="mb-5">
-                                                                    <a href="javascript:;" data-repeater-delete class="btn btn-flex btn-sm btn-light-danger mt-3">
-                                                                        <i class="ki-duotone ki-trash fs-3"></i>
-                                                                        Remover
-                                                                    </a>
-                                                                </div>
+                                                    <div data-repeater-item>
+                                                        <input name="att_id" type="hidden" value="{{ $att->id }}" />
+                                                        <div class="form-group row input-style-1">
+                                                            <div class="col-md-6 mb-md-0">
+                                                                <label class="form-label required">Atributo</label>
+                                                                <input name="att[{{ $loop->index }}][atributo]" class="bg-transparent" type="text" placeholder="Atributo" value="{{ $caracteristica->tipo != 'texto' ? optional($att->atributosIdiomas->first())->nome : '' }}" />
+                                                            </div>
+                                                            <div class="col-md-6 mt-md-0 mt-4">
+                                                                <label class="form-label">Observação</label>
+                                                                <input name="att[{{ $loop->index }}][observacao]" class="bg-transparent" type="text" placeholder="Observação" value="{{ $caracteristica->tipo != 'texto' ? optional($att->atributosIdiomas->first())->observacao : '' }}" />
+                                                            </div>
+                                                            <div class="">
+                                                                <a href="javascript:;" data-repeater-delete class="btn btn-flex btn-sm btn-light-danger mt-3 btn-remove">
+                                                                    <i class="ki-duotone ki-trash fs-3"></i>
+                                                                    Remover
+                                                                </a>
                                                             </div>
                                                         </div>
+                                                    </div>
                                                     @endforeach
-                                                @else
+                                                    @else
                                                     <div id="att">
                                                         <div class="form-group">
                                                             <div data-repeater-list="att">
                                                                 <div data-repeater-item>
-                                                                    <div class="form-group row mb-5">
-                                                                        <div class="col-md-6 mb-5">
+                                                                    <div class="form-group row input-style-1">
+                                                                        <div class="col-md-6 mb-md-0">
                                                                             <label class="form-label required">Atributo</label>
-                                                                            <input name="atributo" class="form-control form-control-solid" type="text" placeholder="Atributo" />
+                                                                            <input name="atributo" class="bg-transparent" type="text" placeholder="Atributo" />
                                                                         </div>
-                                                                        <div class="col-md-6 mb-5">
+                                                                        <div class="col-md-6 mt-md-0 mt-4">
                                                                             <label class="form-label">Observação</label>
-                                                                            <input name="observacao" class="form-control form-control-solid" type="text" placeholder="Observação" />
+                                                                            <input name="observacao" class="bg-transparent" type="text" placeholder="Observação" />
                                                                         </div>
-                                                                        <div class="mb-5">
-                                                                            <a href="javascript:avoid;" data-repeater-delete class="btn btn-flex btn-sm btn-light-danger mt-3">
+                                                                        <div class="">
+                                                                            <a href="javascript:avoid;" data-repeater-delete class="btn btn-flex btn-sm btn-light-danger mt-3 btn-remove">
                                                                                 <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
                                                                                 Remover
                                                                             </a>
@@ -174,22 +175,23 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @endif
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <a href="javascript:avoid;" data-repeater-create class="btn btn-flex btn-light-primary">
+                                                    <i class="ki-duotone ki-plus fs-3"></i>
+                                                    Adicionar atributo
+                                                </a>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <a href="javascript:avoid;" data-repeater-create class="btn btn-flex btn-light-primary mt-5">
-                                                <i class="ki-duotone ki-plus fs-3"></i>
-                                                Adicionar atributo
-                                            </a>
+                                        <div class="text-center mt-5">
+                                            <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
+                                                <span class="indicator-label">Enviar</span>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="text-center">
-                                        <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
-                                            <span class="indicator-label">Enviar</span>
-                                        </button>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -197,37 +199,36 @@
             </div>
         </div>
     </div>
-</div>
 
-@endsection
+    @endsection
 
-@section('plugins')
-<script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/jquery.repeater.min.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/form-repeater.init.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/closeSave.js') }}"></script>
+    @section('plugins')
+    <script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
+    <script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
+    <script src="{{ mixAssets('/assets/js/jquery.repeater.min.js') }}"></script>
+    <script src="{{ mixAssets('/assets/js/form-repeater.init.js') }}"></script>
+    <script src="{{ mixAssets('/assets/js/closeSave.js') }}"></script>
 
-<script>
-    $(document).ready(function() {
-        $(".tipo").on("change", function () {
-            let valor = $(this).val();
-            let attDiv = $("#att");
-            let obsTexto = $(".obsTexto");
-            let obsTextoInput = $(".obsTextoInput");
-            let obsTextoInputVal = obsTextoInput.val();
+    <script>
+        $(document).ready(function() {
+            $(".tipo").on("change", function() {
+                let valor = $(this).val();
+                let attDiv = $("#att");
+                let obsTexto = $(".obsTexto");
+                let obsTextoInput = $(".obsTextoInput");
+                let obsTextoInputVal = obsTextoInput.val();
 
-            $("#tipoHidden").val(valor);
+                $("#tipoHidden").val(valor);
 
-            if (valor === "texto") {
-                obsTexto.show();
-                attDiv.hide(); // Apenas oculta o div com os atributos
-            } else {
-                obsTextoInput.val(obsTextoInputVal)
-                attDiv.show(); // Mostra novamente com os dados preservados
-                obsTexto.hide();
-            }
+                if (valor === "texto") {
+                    obsTexto.show();
+                    attDiv.hide(); // Apenas oculta o div com os atributos
+                } else {
+                    obsTextoInput.val(obsTextoInputVal)
+                    attDiv.show(); // Mostra novamente com os dados preservados
+                    obsTexto.hide();
+                }
+            });
         });
-    });
-</script>
-@endsection
+    </script>
+    @endsection

@@ -5,956 +5,553 @@
 @endsection
 
 @section('content')
-<div class="post d-flex flex-column-fluid" id="kt_post">
-    <div id="kt_content_container" class="container-xxl card-space">
-        <div class="card ">
-            <div class="card-body">
-                <div class="flex-grow-1">
-                    <div class="justify-content-between align-items-start flex-wrap mb-2">
-                        <div class="card-toolbar cardBg p-8 d-flex justify-content-between">
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-xl-2 mt-5">
-                                        <div>
-                                            <h5>Código Focco</h5>
-                                            @if($especificacao->codigo_focco)
-                                            {!! $especificacao->codigo_focco !!}
-                                            @else
-                                            -
-                                            @endif
+<div class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                   <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
+                        <div class="flex-grow-1">
+                            <div class="justify-content-between align-items-center flex-wrap">
+                                <div class="d-flex flex-md-row flex-column justify-content-between align-items-center">
+                                    <div class="btn-group dropleft btn-idiomas" style="height: fit-content;">
+                                        <a href="javascript:void(0);" class="dropdown-modal" id="modalOpenIdiomas" style="color: #000;">
+                                            <img src="{{ asset('/assets/img/flags/' . $idioma->icone) }}" style="width: 22px;">&nbsp;&nbsp;{!! $idioma->nome !!}
+                                        </a>
+                                        <div class="hidden modal-options-menu" data-modal="modalOpenIdiomas">
+                                            <ul class="modal-options modal-options-idiomas" style="margin-top: 20px;">
+                                                 @foreach ($idiomas as $key => $value)
+                                                    <li class="link-modal">
+                                                        <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link">
+                                                            <img src="{{ asset('/assets/img/flags/' . $value->icone) }}" class="img-thumbnail" style="max-width: 30px;">&nbsp;{!! $value->nome !!}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
                                         </div>
                                     </div>
-                                    <div class="col-xl-2 mt-5">
-                                        <div>
-                                            <h5>Status</h5>
-                                            @if($especificacao->status)
-                                            {!! $especificacao->status !!}
-                                            @else
-                                            -
-                                            @endif
+                                    <div class="d-flex justify-content-center buttonAccordion">
+                                        <a href="{{ route('Especificacoes.editar', ['id' => $especificacao->id]) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil"></i> Editar especificação
+                                        </a>
+                                        <div style="position: relative">
+                                            <!-- <button class="btn btn-sm btn-primary dropdown-modal" id="modalOpenExports">
+                                                <i class="bi bi-file-earmark-word-fill"></i> Exportar Word
+                                            </button>
+                                            <div class="hidden modal-options-menu" data-modal="modalOpenExports">
+                                                <ul class="modal-options" style="margin-top: 30px;">
+                                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                        <a class="link-modal" 
+                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'especificacao']) }}">
+                                                            Especificações
+                                                        </a>
+                                                    </li>
+                                                     <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                        <a class="link-modal" 
+                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'amostras']) }}">
+                                                            Amostras
+                                                        </a>
+                                                    </li>
+                                                     <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                        <a class="link-modal" 
+                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'produtos']) }}">
+                                                            Produtos
+                                                        </a>
+                                                    </li>
+                                                     <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                        <a class="link-modal" 
+                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'completa']) }}">
+                                                            Completa
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div> -->
                                         </div>
                                     </div>
-                                    <div class="col-xl-2 mt-5">
-                                        <div>
-                                            <h5>Cliente</h5>
-                                            @if($especificacao->pedido->cliente)
-                                            {!! $especificacao->pedido->cliente->nome !!}
-                                            @else
-                                            -
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-2 mt-5">
-                                        <div>
-                                            <h5>Série</h5>
-                                            @if($especificacao->serie)
-                                            {!! $especificacao->serie !!}
-                                            @else
-                                            -
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-2 mt-5">
-                                        <div>
-                                            <h5>Máquina</h5>
-                                            @if($especificacao->maquina)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-6 col-lg-6 col-sm-12">
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-sm-6">
+                        <div class="icon-card mb-4">
+                            <div class="icon blue-light">
+                                <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"></path>
+                                </svg>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10 text-bold">Código Focco</h6>
+                                <p class="mb-10">
+                                    @if($especificacao->codigo_focco)
+                                    {!! $especificacao->codigo_focco !!}
+                                    @else
+                                    -
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-sm-6">
+                        <div class="icon-card mb-4">
+                            <div class="icon success">
+                                <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                </svg>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10 text-bold">Cliente</h6>
+                                @php
+                                    $clientName = $especificacao->pedido->cliente->nome;
+                                @endphp
+                                <div class="isComparavel"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-bs-custom-class="custom-tooltip"
+                                    data-bs-title="{{ $clientName }}">
+                                    <p class="mb-10 limite-texto" style="width: 170px">
+                                        @if($especificacao->pedido->cliente)
+                                        {!! $especificacao->pedido->cliente->nome !!}
+                                        @else
+                                        -
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-sm-6">
+                        <div class="icon-card mb-4 mb-sm-0">
+                            <div class="icon orange">
+                                <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                </svg>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10 text-bold">Série</h6>
+                                <p class="mb-10">
+                                    @if($especificacao->serie)
+                                    {!! $especificacao->serie !!}
+                                    @else
+                                    -
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-sm-6">
+                        <div class="icon-card">
+                            <div class="icon primary">
+                                <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                                </svg>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10 text-bold">Máquina</h6>
+                                @php
+                                    $machineName = optional($especificacao->maquina->maquinasIdiomas->first())->nome;
+                                @endphp
+                                <div class="isComparavel"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-bs-custom-class="custom-tooltip"
+                                    data-bs-title="{{ $machineName }}">
+                                    <p class="mb-10 limite-texto" style="width: 170px">
+                                        @if($especificacao->maquina)
                                             {{ optional($especificacao->maquina->maquinasIdiomas->first())->nome }}
-                                            @else
-                                            -
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-2 mt-5">
-                                        <h5>Criado</h5>
-                                        <p>
-                                        @if($especificacao->criado)
-                                            {{ \Carbon\Carbon::parse($especificacao->criado)->format('d/m/Y H:i') }}
                                         @else
                                             -
                                         @endif
-                                        </p>
-                                    </div>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-start mt-5">
-                            <div class="pull-right">
-                                <div class="btn-group dropleft position-relative">
-                                    <a href="javascript:void(0);" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                        <img src="{{ asset('/assets/img/flags/' . $idioma->icone) }}" style="width: 22px;">&nbsp;&nbsp;{!! $idioma->nome !!}
-                                    </a>
-
-                                    <ul class="dropdown-menu position-absolute top-100">
-                                        @foreach ($idiomas as $key => $value)
-                                            <li class="navi-item p-2">
-                                                <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link">
-                                                    <img src="{{ asset('/assets/img/flags/' . $value->icone) }}" class="img-thumbnail" style="max-width: 30px;">&nbsp;{!! $value->nome !!}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-lg-6 col-sm-12 donult-bar">
+                <div class="card-style">
+                    <div class="title d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="left">
+                            <h6 class=" text-bold">Especificação</h6>
                         </div>
-                        <div class="card-toolbar mt-5">
-                            <div class="">
-                                <div class="custom-tab tab-profile">
-                                    <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
-                                        <li class="nav-item mt-5 nav-active">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#resumo" role="tab">Resumo</a>
-                                        </li>
-                                        <!-- <li class="nav-item mt-5">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#historico" role="tab">Históricos</a>
-                                        </li> -->
-                                        <li class="nav-item mt-5">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#revisoes" role="tab">Revisões</a>
-                                        </li>
-                                        <li class="nav-item mt-5">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" id="tabSimilares" href="#similares" role="tab">Similares</a>
-                                        </li>
-                                        <li class="nav-item mt-5">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#amostras" role="tab">Amostras</a>
-                                        </li>
-                                        <li class="nav-item mt-5">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#produtos" role="tab">Produtos</a>
-                                        </li>
-                                        <li class="nav-item mt-5">
-                                            <a class="nav-link pb-3 pt-0" data-bs-toggle="tab" href="#pedido" role="tab">Pedido</a>
-                                        </li>
-                                    </ul>
-                                    <div class="fakeLoading">
-                                        <div class="spinner-border" role="status">
-                                            <span class="visually-hidden">Carregando...</span>
-                                        </div>
+                    </div>
+                    <div class="chart">
+                        <div id="donutEspecificacao" style="width: 100%; height: 201px;"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes" aria-expanded="false" aria-controls="collapseEspecificacoes">
+                                Especificação
+                            </button>
+                        </h2>
+                        <div id="collapseEspecificacoes" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="card-body adjustCardBody">
+                                    <div class="mb-5 input-style-1">
+                                        <select data-original="<?= $especificacao->revisao_selecionada_id ?>" class="form-select form-select-solid selectRv" data-control="select2" data-hide-search="true" data-placeholder="Selecionar revisão" name="revisao">
+                                            @foreach ($revisoes as $rev)
+                                                <option @if($especificacao->revisao_selecionada_id == $rev->id) selected @endif value="{{ $rev->id }}">{{ $rev->nome }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    <div class="tab-content pt-4">
-                                        <div class="tab-pane active mb-8" id="resumo" role="tabpanel">
-                                            <div class="row">
-                                                <div class="card">
-                                                    <div class="card-body adjustCardBody">
-                                                        <div class="col-lg-12 single-schedules-inner">
-                                                            <div class="mb-8">
-                                                                <select data-original="<?= $especificacao->revisao_selecionada_id ?>" class="form-select form-select-solid selectRv" data-control="select2" data-hide-search="true" data-placeholder="Selecionar revisão" name="revisao">
-                                                                    @foreach ($revisoes as $rev)
-                                                                        <option @if($especificacao->revisao_selecionada_id == $rev->id) selected @endif value="{{ $rev->id }}">{{ $rev->nome }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                            <div class="d-flex gap-2 justify-content-center justify-content-md-end mb-8 buttonAccordion">
-                                                                <a href="{{ route('Especificacoes.editar', ['id' => $especificacao->id]) }}" class="btn btn-sm btn-primary">
-                                                                    <i class="bi bi-pencil-fill"></i> Editar especificação
-                                                                </a>
-                                                                <div class="card-toolbar">
-                                                                    <button class="btn btn-sm btn-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-overflow="true">
-                                                                    <i class="bi bi-file-earmark-word-fill"></i> Exportar Word
-                                                                    </button>
-                                                                    <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px" data-kt-menu="true">
-                                                                        <div class="separator mb-3 opacity-75"></div>
-                                                                        <div class="menu-item px-3 mb-3">
-                                                                            <a class="menu-link px-3" 
-                                                                                href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'especificacao']) }}">
-                                                                                Especificações
-                                                                            </a>
-                                                                            <a class="menu-link px-3" 
-                                                                                href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'amostras']) }}">
-                                                                                Amostras
-                                                                            </a>
-                                                                            <a class="menu-link px-3" 
-                                                                                href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'produtos']) }}">
-                                                                                Produtos
-                                                                            </a>
-                                                                            <a class="menu-link px-3" 
-                                                                                href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'completa']) }}">
-                                                                                Completa
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="accordion" id="accordionEspecificacoes">
-                                                                <div class="accordion-item">
-                                                                    <h2 class="accordion-header" id="headingEspecificacoes">
-                                                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes" aria-expanded="true" aria-controls="collapseEspecificacoes">
-                                                                        Resumo das especificações
-                                                                        </button>
-                                                                    </h2>
-                                                                    <div id="collapseEspecificacoes" class="accordion-collapse collapse show" aria-labelledby="headingEspecificacoes">
-                                                                        <div class="accordion-body">
-                                                                            
-                                                                        @php
-                                                                            $renderizados = [];
-                                                                            $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
-                                                                        @endphp
-                                                                            <ul class="list-group resumoContent">
-                                                                                @if(count($resumoItens) > 0)
-                                                                                    @foreach ($resumoItens as $resumo)
-                                                                                        {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
-                                                                                        @if($resumo['tipo'] === 'multiplos')
-                                                                                            @if(!in_array($resumo['caracteristica'], $renderizados))
-                                                                                                @php $renderizados[] = $resumo['caracteristica']; @endphp
+                                    <div class="accordion" id="accordionEspecificacoes">
+                                        <div class="accordion-item" style="margin-bottom: 15px;">
+                                            <h2 class="accordion-header" id="headingEspecificacoes">
+                                                <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes2" aria-expanded="true" aria-controls="collapseEspecificacoes2">
+                                                Resumo das especificações
+                                                </button>
+                                            </h2>
+                                            <div id="collapseEspecificacoes2" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
+                                                <div class="accordion-body">
+                                                    
+                                                @php
+                                                    $renderizados = [];
+                                                    $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
+                                                @endphp
+                                                    <ul class="list-group resumoContent">
+                                                        @if(count($resumoItens) > 0)
+                                                            @foreach ($resumoItens as $resumo)
+                                                                {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
+                                                                @if($resumo['tipo'] === 'multiplos')
+                                                                    @if(!in_array($resumo['caracteristica'], $renderizados))
+                                                                        @php $renderizados[] = $resumo['caracteristica']; @endphp
 
-                                                                                                <li class="list-group-item">
-                                                                                                    <div>{!! $resumo['caracteristica'] !!}:</div>
-                                                                                                    @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
-                                                                                                        <div>
-                                                                                                            {{ $item['atributo'] }}: 
-                                                                                                            @if($item['conteudo'])
-                                                                                                            {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
-                                                                                                            @else
-                                                                                                                <span>Não informado;</span>
-                                                                                                            @endif
-                                                                                                        </div>
-                                                                                                        @if($item['observacao'])
-                                                                                                            <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
-                                                                                                        @endif
-                                                                                                    @endforeach
-                                                                                                </li>
-                                                                                            @endif
-
-                                                                                        {{-- SELECIONÁVEL ou TEXTO --}}
-                                                                                        @else
-                                                                                            <li class="list-group-item {{ $resumo['excluido'] ? 'disabledList' : ''}}">
-                                                                                                @if($resumo['comparavel'])
-                                                                                                    <div class="isComparavel" 
-                                                                                                        data-bs-toggle="tooltip" 
-                                                                                                        data-bs-placement="top"
-                                                                                                        data-bs-custom-class="custom-tooltip"
-                                                                                                        data-bs-title="Este item é comparável.">
-                                                                                                        <i class="bi bi-bookmark-fill"></i>
-                                                                                                    </div>
-                                                                                                @endif
-
-                                                                                                <div>
-                                                                                                    {!! $resumo['caracteristica'] !!}:
-                                                                                                    @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
-                                                                                                        {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
-                                                                                                    @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
-                                                                                                        {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
-                                                                                                    @else
-                                                                                                        <span>Não informado;</span>
-                                                                                                    @endif
-                                                                                                </div>
-
-                                                                                                @if($resumo['observacao'])
-                                                                                                    <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
-                                                                                                @endif
-
-                                                                                                @if($resumo['excluido'])
-                                                                                                    <form class="responseAjax" action="{{ route('Especificacoes.excluir_caracteristica', ['id' => $resumo['caracteristica_id']]) }}" method="post">
-                                                                                                        @csrf
-                                                                                                        @method('DELETE')
-                                                                                                        <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
-                                                                                                        <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                                                            <i class="bi bi-trash-fill"></i>Excluir
-                                                                                                        </button>
-                                                                                                    </form>
-                                                                                                @endif
-                                                                                            </li>
-                                                                                        @endif
-                                                                                    @endforeach
-                                                                                @else
-                                                                                    <li class="list-group-item">Nenhuma especificação foi encontrada.</li>
-                                                                                @endif
-                                                                            </ul>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="accordion-item">
-                                                                    <h2 class="accordion-header" id="headingAmostras">
-                                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAmostras" aria-expanded="false" aria-controls="collapseAmostras">
-                                                                        Resumo das amostras
-                                                                        </button>
-                                                                    </h2>
-                                                                    <div id="collapseAmostras" class="accordion-collapse collapse" aria-labelledby="headingAmostras">
-                                                                        <div class="accordion-body">
-                                                                            <div class="resumoContent">
-                                                                            @if (count($dadosPorAmostra) > 0)
-                                                                                @foreach ($dadosPorAmostra as $indice => $atributos)
-                                                                                    @if (count($atributos) > 0)
-                                                                                        <h4>{{ $atributos[0]['amostra_nome'] }} {{ $loop->iteration }}</h4>
-
-                                                                                        @php
-                                                                                            $amostraIndiceId = $atributos[0]['indice_amostra_id'] ?? null;
-                                                                                            $temImagem = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->exists();
-                                                                                        @endphp
-
-                                                                                        @if ($temImagem)
-                                                                                            @php
-                                                                                                $imagens = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->get();
-                                                                                            @endphp
-                                                                                            @if(count($imagens) > 0)
-                                                                                            <div class="contentResumoImg">
-                                                                                                @foreach ($imagens as $img)
-                                                                                                    <img src="{{ mixAssets('assets/img/amostras/' . $img->imagem) }}" alt="Imagem da amostra">
-                                                                                                @endforeach
-                                                                                            </div>
-                                                                                            @endif
-                                                                                        @endif
-
-                                                                                        @php
-                                                                                            $agrupados = collect($atributos)->groupBy('atributo_id');
-                                                                                        @endphp
-
-                                                                                        <ul class="list-group">
-                                                                                            @foreach ($agrupados as $grupo)
-                                                                                                @php $primeiro = $grupo->first(); @endphp
-                                                                                                @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
-                                                                                                    @if ($primeiro['atributo_tipo'] === 'multiplos')
-                                                                                                        <li class="list-group-item">
-                                                                                                           {{ $primeiro['atributo_nome'] }}:
-                                                                                                           @if(count($grupo[0]['imagens']) > 0)
-                                                                                                           <div class="contentResumoImg">
-                                                                                                                @foreach ($grupo[0]['imagens'] as $img)
-                                                                                                                    <img src="{{ mixAssets('assets/img/amostras/atributos/' . $img->imagem) }}" alt="Imagem da amostra">
-                                                                                                                @endforeach
-                                                                                                            </div>
-                                                                                                            @endif
-                                                                                                            <div class="mt-2">
-                                                                                                                @foreach ($grupo as $item)
-                                                                                                                    <div class="">
-                                                                                                                        {{ $item['sub_atributo_nome'] }}:
-                                                                                                                        @if($item['conteudo'])
-                                                                                                                            {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
-                                                                                                                        @else
-                                                                                                                            <span>Não informado;</span>
-                                                                                                                        @endif
-
-                                                                                                                        @if($item['observacao_personalizada'])
-                                                                                                                            <span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
-                                                                                                                        @endif
-                                                                                                                    </div>
-                                                                                                                @endforeach
-                                                                                                            </div>
-                                                                                                        </li>
-                                                                                                    @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
-                                                                                                        @foreach ($grupo as $item)
-                                                                                                            <li class="list-group-item">
-                                                                                                                {{ $item['atributo_nome'] }}:
-                                                                                                                @php
-                                                                                                                    $valor = '';
-                                                                                                                    if (!empty($item['sub_atributo_nome'])) {
-                                                                                                                        $valor = $item['sub_atributo_nome'];
-                                                                                                                    } elseif (!empty($item['conteudo'])) {
-                                                                                                                        $valor = $item['conteudo'];
-                                                                                                                    }
-
-                                                                                                                    if (!empty($valor)) {
-                                                                                                                        $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
-                                                                                                                        $valor .= ';';
-                                                                                                                    } else {
-                                                                                                                        $valor = '<span>Não informado;</span>';
-                                                                                                                    }
-                                                                                                                @endphp
-
-                                                                                                                {!! $valor !!}
-
-                                                                                                                @if($item['observacao_personalizada'])
-                                                                                                                    <br><span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
-                                                                                                                @endif
-
-                                                                                                                @if(count($item['imagens']) > 0)
-                                                                                                                    <div class="contentResumoImg contentResumoImgSpace">
-                                                                                                                        @foreach ($item['imagens'] as $img)
-                                                                                                                            <img src="{{ mixAssets('assets/img/amostras/atributos/' . $img['imagem']) }}"/>
-                                                                                                                        @endforeach
-                                                                                                                    </div>
-                                                                                                                @endif
-                                                                                                            </li>
-                                                                                                        @endforeach
-                                                                                                    @endif
-                                                                                                @endif
-                                                                                            @endforeach
-                                                                                        </ul>
+                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                            <div>{!! $resumo['caracteristica'] !!}:</div>
+                                                                            @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
+                                                                                <div>
+                                                                                    {{ $item['atributo'] }}: 
+                                                                                    @if($item['conteudo'])
+                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
+                                                                                    @else
+                                                                                        <span>Não informado;</span>
                                                                                     @endif
-                                                                                @endforeach
-                                                                            @else
-                                                                                <li class="list-group-item">Nenhuma amostra foi encontrada.</li>
-                                                                            @endif
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="accordion-item">
-                                                                    <h2 class="accordion-header" id="headingProdutos">
-                                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProdutos" aria-expanded="false" aria-controls="collapseProdutos">
-                                                                        Resumo dos produtos
-                                                                        </button>
-                                                                    </h2>
-                                                                    <div id="collapseProdutos" class="accordion-collapse collapse" aria-labelledby="headingProdutos">
-                                                                        <div class="accordion-body">
-                                                                            <div class="resumoContent">
-                                                                            @if (count($dadosPorProduto) > 0)
-                                                                                @foreach ($dadosPorProduto as $indice => $atributos)
-                                                                                    @if (count($atributos) > 0)
-                                                                                        <h4>{{ $atributos[0]['produto_nome'] }} {{ $loop->iteration }}</h4>
-
-                                                                                        @php
-                                                                                            $produtoIndiceId = $atributos[0]['indice_produto_id'] ?? null;
-                                                                                            $temImagem = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->exists();
-                                                                                        @endphp
-
-                                                                                        @if ($temImagem)
-                                                                                            @php
-                                                                                                $imagens = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->get();
-                                                                                            @endphp
-                                                                                            @if(count($imagens) > 0)
-                                                                                            <div class="contentResumoImg">
-                                                                                                @foreach ($imagens as $img)
-                                                                                                    <img src="{{ mixAssets('assets/img/produtos/' . $img->imagem) }}" alt="Imagem do produto">
-                                                                                                @endforeach
-                                                                                            </div>
-                                                                                            @endif
-                                                                                        @endif
-
-                                                                                        @php
-                                                                                            $agrupados = collect($atributos)->groupBy('atributo_produto_id');
-                                                                                        @endphp
-
-                                                                                        <ul class="list-group">
-                                                                                            @foreach ($agrupados as $grupo)
-                                                                                                @php $primeiro = $grupo->first(); @endphp
-                                                                                                @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
-
-                                                                                                    @if ($primeiro['atributo_tipo'] === 'multiplos')
-                                                                                                        <li class="list-group-item">
-                                                                                                           {{ $primeiro['atributo_nome'] }}:
-                                                                                                           @if(count($grupo[0]['imagens']) > 0)
-                                                                                                            <div class="contentResumoImg">
-                                                                                                                @foreach ($grupo[0]['imagens'] as $img)
-                                                                                                                    <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img->imagem) }}" alt="Imagem do produto">
-                                                                                                                @endforeach
-                                                                                                            </div>
-                                                                                                            @endif
-                                                                                                            <div class="mt-2">
-                                                                                                                @foreach ($grupo as $item)
-                                                                                                                    <div class="">
-                                                                                                                        {{ $item['sub_atributo_nome'] }}:
-                                                                                                                        @if($item['conteudo'])
-                                                                                                                            {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
-                                                                                                                        @else
-                                                                                                                            <span>Não informado;</span>
-                                                                                                                        @endif
-
-                                                                                                                        @if($item['observacao_personalizada'])
-                                                                                                                            <span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
-                                                                                                                        @endif
-                                                                                                                    </div>
-                                                                                                                @endforeach
-                                                                                                            </div>
-                                                                                                        </li>
-                                                                                                    @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
-                                                                                                        @foreach ($grupo as $item)
-                                                                                                            <li class="list-group-item">
-                                                                                                                {{ $item['atributo_nome'] }}:
-                                                                                                                @php
-                                                                                                                    $valor = '';
-                                                                                                                    if (!empty($item['sub_atributo_nome'])) {
-                                                                                                                        $valor = $item['sub_atributo_nome'];
-                                                                                                                    } elseif (!empty($item['conteudo'])) {
-                                                                                                                        $valor = $item['conteudo'];
-                                                                                                                    }
-
-                                                                                                                    if (!empty($valor)) {
-                                                                                                                        $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
-                                                                                                                        $valor .= ';';
-                                                                                                                    } else {
-                                                                                                                        $valor = '<span>Não informado;</span>';
-                                                                                                                    }
-                                                                                                                @endphp
-
-                                                                                                                {!! $valor !!}
-
-                                                                                                                @if($item['observacao_personalizada'])
-                                                                                                                    <br><span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
-                                                                                                                @endif
-
-                                                                                                                @if(count($item['imagens']) > 0)
-                                                                                                                    <div class="contentResumoImg contentResumoImgSpace">
-                                                                                                                        @foreach ($item['imagens'] as $img)
-                                                                                                                            <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img['imagem']) }}"/>
-                                                                                                                        @endforeach
-                                                                                                                    </div>
-                                                                                                                @endif
-                                                                                                            </li>
-                                                                                                        @endforeach
-                                                                                                    @endif
-                                                                                                @endif
-                                                                                            @endforeach
-                                                                                        </ul>
-                                                                                    @endif
-                                                                                @endforeach
-                                                                            @else
-                                                                                <li class="list-group-item">Nenhum produto foi encontrado.</li>
-                                                                            @endif
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="accordion-item">
-                                                                    <h2 class="accordion-header" id="headingObservacoes">
-                                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseObservacoes" aria-expanded="false" aria-controls="collapseObservacoes">
-                                                                            Observações
-                                                                        </button>
-                                                                    </h2>
-                                                                    <div id="collapseObservacoes" class="accordion-collapse collapse" aria-labelledby="headingObservacoes">
-                                                                        <div class="accordion-body">
-                                                                            <div class="resumoContent">
-                                                                                <ul class="list-group">
-                                                                                @if (count($especificacao->observacoes) > 0)
-                                                                                    @foreach ($especificacao->observacoes as $key => $observacao)
-                                                                                        <li class="list-group-item"><strong>Observação {!! $key + 1 !!}:</strong> {!! $observacao->conteudo !!}</li>
-                                                                                    @endforeach
-                                                                                @else
-                                                                                    <li class="list-group-item">Nenhuma observação foi encontrada.</li>
+                                                                                </div>
+                                                                                @if($item['observacao'])
+                                                                                    <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
                                                                                 @endif
-                                                                                </ul>
+                                                                            @endforeach
+                                                                        </li>
+                                                                    @endif
+
+                                                                {{-- SELECIONÁVEL ou TEXTO --}}
+                                                                @else
+                                                                    <li class="p-3 bg-light rounded-2 border border-light position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}}">
+                                                                        @if($resumo['comparavel'])
+                                                                            <div class="isComparavel" 
+                                                                                data-bs-toggle="tooltip" 
+                                                                                data-bs-placement="top"
+                                                                                data-bs-custom-class="custom-tooltip"
+                                                                                data-bs-title="Este item é comparável.">
+                                                                                <i class="bi bi-bookmark-fill"></i>
                                                                             </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- <div class="tab-pane mb-8" id="historico" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-xl-12">
-                                                    <div class="card">
-                                                        <div class="card-body adjustCardBody">
-                                                            <div class="col-lg-12 single-schedules-inner">
-                                                                <section class="">
-                                                                    <div class="timeline block">
-                                                                        @if(count($especificacao->historicos) > 0)
-                                                                        @foreach($especificacao->historicos as $item)
-                                                                        <div class="tl-item">
-                                                                            <div class="tl-dot b-secondary"></div>
-                                                                            <div class="tl-content">
-                                                                                <div class="">
-                                                                                    {!! $item->usuario->nome !!} alterou: {!! optional($item->caracteristica->caracteristicasIdiomas->first())->nome !!} <i class="bi bi-arrow-left-right"></i> @if($item->atributo) {!! optional($item->atributo->atributosIdiomas->first())->nome !!} @else Não informado @endif
-                                                                                
-                                                                                </div>
-                                                                                <div class="tl-date text-muted mt-1">{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $item->criado)->format('d/m/Y H:i'); }}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        @endforeach
-                                                                        @else
-                                                                        <p>Nenhum histórico foi encontrado.</p>
                                                                         @endif
-                                                                    </div>
-                                                                </section>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+
+                                                                        <div>
+                                                                            {!! $resumo['caracteristica'] !!}:
+                                                                            @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
+                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
+                                                                            @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
+                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
+                                                                            @else
+                                                                                <span>Não informado;</span>
+                                                                            @endif
+                                                                        </div>
+
+                                                                        @if($resumo['observacao'])
+                                                                            <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
+                                                                        @endif
+
+                                                                        @if($resumo['excluido'])
+                                                                            <form class="responseAjax" action="{{ route('Especificacoes.excluir_caracteristica', ['id' => $resumo['caracteristica_id']]) }}" method="post">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
+                                                                                <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
+                                                                                    <i class="bi bi-trash-fill"></i>Excluir
+                                                                                </button>
+                                                                            </form>
+                                                                        @endif
+                                                                    </li>
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma especificação foi encontrada.</li>
+                                                        @endif
+                                                    </ul>
                                                 </div>
                                             </div>
-                                        </div> -->
-                                        <div class="tab-pane mb-8" id="revisoes" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-xl-12">
-                                                    <div class="card">
-                                                        <div class="card-body adjustCardBody">
-                                                            <div class="col-lg-12 single-schedules-inner">
-                                                                @if(count($resumoItens) > 0)
-                                                                    @foreach ($resumoItensRevisoes as $key => $rev)
-                                                                        <div class="accordion">
-                                                                            <div class="accordion-item">
-                                                                                <h2 class="accordion-header" id="headingEspecificacoes">
-                                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes--{{$key}}" aria-expanded="false" aria-controls="collapseEspecificacoes--{{$key}}">
-                                                                                        {{ $rev['revisao'] }}
-                                                                                    </button>
-                                                                                </h2>
-                                                                                <div id="collapseEspecificacoes--{{$key}}" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
-                                                                                    <div class="accordion-body">
-                                                                                        @foreach($rev['itens'] as $resumo)
-                                                                                            @php
-                                                                                                $renderizados = [];
-                                                                                                $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
-                                                                                            @endphp
-                                                                                            <ul class="list-group resumoContent">
-                                                                                                {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
-                                                                                                @if($resumo['tipo'] === 'multiplos')
-                                                                                                    @if(!in_array($resumo['caracteristica'], $renderizados))
-                                                                                                        @php $renderizados[] = $resumo['caracteristica']; @endphp
+                                        </div>
+                                        <div class="accordion-item" style="margin-bottom: 15px;">
+                                            <h2 class="accordion-header" id="headingAmostras">
+                                                <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAmostrasGerais" aria-expanded="false" aria-controls="collapseAmostrasGerais">
+                                                Resumo das amostras
+                                                </button>
+                                            </h2>
+                                            <div id="collapseAmostrasGerais" class="accordion-collapse collapse" aria-labelledby="headingAmostras">
+                                                <div class="accordion-body">
+                                                    <div class="resumoContent">
+                                                    @if (count($dadosPorAmostra) > 0)
+                                                        @foreach ($dadosPorAmostra as $indice => $atributos)
+                                                            @if (count($atributos) > 0)
+                                                                <h4>{{ $atributos[0]['amostra_nome'] }} {{ $loop->iteration }}</h4>
 
-                                                                                                        <li class="list-group-item">
-                                                                                                            <div>{!! $resumo['caracteristica'] !!}:</div>
-                                                                                                            @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
-                                                                                                                <div>
-                                                                                                                    {{ $item['atributo'] }}: 
-                                                                                                                    @if($item['conteudo'])
-                                                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
-                                                                                                                    @else
-                                                                                                                        <span>Não informado;</span>
-                                                                                                                    @endif
-                                                                                                                </div>
-                                                                                                                @if($item['observacao'])
-                                                                                                                    <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
-                                                                                                                @endif
-                                                                                                            @endforeach
-                                                                                                        </li>
-                                                                                                    @endif
+                                                                @php
+                                                                    $amostraIndiceId = $atributos[0]['indice_amostra_id'] ?? null;
+                                                                    $temImagem = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->exists();
+                                                                @endphp
 
-                                                                                                {{-- SELECIONÁVEL ou TEXTO --}}
-                                                                                                @else
-                                                                                                    <li class="list-group-item {{ $resumo['excluido'] ? 'disabledList' : ''}}">
-                                                                                                        @if($resumo['comparavel'])
-                                                                                                            <div class="isComparavel" 
-                                                                                                                data-bs-toggle="tooltip" 
-                                                                                                                data-bs-placement="top"
-                                                                                                                data-bs-custom-class="custom-tooltip"
-                                                                                                                data-bs-title="Este item é comparável.">
-                                                                                                                <i class="bi bi-bookmark-fill"></i>
-                                                                                                            </div>
-                                                                                                        @endif
+                                                                @if ($temImagem)
+                                                                    @php
+                                                                        $imagens = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->get();
+                                                                    @endphp
+                                                                    @if(count($imagens) > 0)
+                                                                    <div class="contentResumoImg">
+                                                                        @foreach ($imagens as $img)
+                                                                            <img src="{{ mixAssets('assets/img/amostras/' . $img->imagem) }}" alt="Imagem da amostra">
+                                                                        @endforeach
+                                                                    </div>
+                                                                    @endif
+                                                                @endif
 
-                                                                                                        <div>
-                                                                                                            {!! $resumo['caracteristica'] !!}:
-                                                                                                            @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
-                                                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
-                                                                                                            @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
-                                                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
-                                                                                                            @else
-                                                                                                                <span>Não informado;</span>
-                                                                                                            @endif
-                                                                                                        </div>
+                                                                @php
+                                                                    $agrupados = collect($atributos)->groupBy('atributo_id');
+                                                                @endphp
 
-                                                                                                        @if($resumo['observacao'])
-                                                                                                            <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
-                                                                                                        @endif
-
-                                                                                                        @if($resumo['excluido'])
-                                                                                                            <form class="responseAjax" action="{{ route('Especificacoes.excluir_caracteristica', ['id' => $resumo['caracteristica_id']]) }}" method="post">
-                                                                                                                @csrf
-                                                                                                                @method('DELETE')
-                                                                                                                <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
-                                                                                                                <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                                                                    <i class="bi bi-trash-fill"></i>Excluir
-                                                                                                                </button>
-                                                                                                            </form>
-                                                                                                        @endif
-                                                                                                    </li>
-                                                                                                @endif
-                                                                                            </ul>
+                                                                <ul class="list-group">
+                                                                    @foreach ($agrupados as $grupo)
+                                                                        @php $primeiro = $grupo->first(); @endphp
+                                                                        @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
+                                                                            @if ($primeiro['atributo_tipo'] === 'multiplos')
+                                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                                {{ $primeiro['atributo_nome'] }}:
+                                                                                @if(count($grupo[0]['imagens']) > 0)
+                                                                                <div class="contentResumoImg">
+                                                                                        @foreach ($grupo[0]['imagens'] as $img)
+                                                                                            <img src="{{ mixAssets('assets/img/amostras/atributos/' . $img->imagem) }}" alt="Imagem da amostra">
                                                                                         @endforeach
                                                                                     </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
+                                                                                    @endif
+                                                                                    <div class="mt-2">
+                                                                                        @foreach ($grupo as $item)
+                                                                                            <div class="">
+                                                                                                {{ $item['sub_atributo_nome'] }}:
+                                                                                                @if($item['conteudo'])
+                                                                                                    {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
+                                                                                                @else
+                                                                                                    <span>Não informado;</span>
+                                                                                                @endif
+
+                                                                                                @if($item['observacao_personalizada'])
+                                                                                                    <span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                                @endif
+                                                                                            </div>
+                                                                                        @endforeach
+                                                                                    </div>
+                                                                                </li>
+                                                                            @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
+                                                                                @foreach ($grupo as $item)
+                                                                                    <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                                        {{ $item['atributo_nome'] }}:
+                                                                                        @php
+                                                                                            $valor = '';
+                                                                                            if (!empty($item['sub_atributo_nome'])) {
+                                                                                                $valor = $item['sub_atributo_nome'];
+                                                                                            } elseif (!empty($item['conteudo'])) {
+                                                                                                $valor = $item['conteudo'];
+                                                                                            }
+
+                                                                                            if (!empty($valor)) {
+                                                                                                $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
+                                                                                                $valor .= ';';
+                                                                                            } else {
+                                                                                                $valor = '<span>Não informado;</span>';
+                                                                                            }
+                                                                                        @endphp
+
+                                                                                        {!! $valor !!}
+
+                                                                                        @if($item['observacao_personalizada'])
+                                                                                            <br><span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                        @endif
+
+                                                                                        @if(count($item['imagens']) > 0)
+                                                                                            <div class="contentResumoImg contentResumoImgSpace">
+                                                                                                @foreach ($item['imagens'] as $img)
+                                                                                                    <img src="{{ mixAssets('assets/img/amostras/atributos/' . $img['imagem']) }}"/>
+                                                                                                @endforeach
+                                                                                            </div>
+                                                                                        @endif
+                                                                                    </li>
+                                                                                @endforeach
+                                                                            @endif
+                                                                        @endif
                                                                     @endforeach
-                                                                @endif
-                                                            </div>
-                                                        </div>
+                                                                </ul>
+                                                            @endif
+                                                        @endforeach
+                                                    @else
+                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma amostra foi encontrada.</li>
+                                                    @endif
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="tab-pane mb-8" id="similares" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-xl-12">
-                                                    <div class="card">
-                                                        <div class="card-body adjustCardBody">
-                                                            <div class="col-lg-12 single-schedules-inner">
-                                                                <div class="d-flex align-items-center justify-content-between">
-                                                                    <h5>Máquinas com especificações similares</h5>
-                                                                </div>
-                                                                <table id="tabelaAmostras" class="table table-striped">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Máquina</th>
-                                                                            <th>Código Focco</th>
-                                                                            <th>Status</th>
-                                                                            <th>Similar (%)</th>
-                                                                            <th>Comparação</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach($listaComparacao as $amostra)
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
-                                                                                    {{$amostra['especificacao_id']}}) {{ $amostra['maquina'] }} - ({{$amostra['nomesAtributos']}})
-                                                                                    </a>
-                                                                                </td>
-                                                                                <td>{{ $amostra['codigo_focco'] }}</td>
-                                                                                <td>{{ $amostra['status'] }}</td>
-                                                                                <td data-order="{{ $amostra['porcentagem_similaridade'] }}">{{ $amostra['porcentagem_similaridade'] }}%</td>
-                                                                                <td>
-                                                                                    <button class="btn btn-light" onclick="getComparacao({{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}">
-                                                                                        Ver comparação
-                                                                                    </button>    
-                                                                                    <div class="modal fade modalHeight" id="modalComparacao--{{$amostra['especificacao_id']}}" role="dialog">
-                                                                                        <div class="modal-dialog modal-xl d-flex align-items-center justify-content-center" role="document">
-                                                                                            <div class="modal-content accordion">
-                                                                                                <div class="modal-header">
-                                                                                                    <div>
-                                                                                                        <h5 class="modal-title align-self-center" id="modalComparacao--{{$amostra['especificacao_id']}}">
-                                                                                                            Especificação {{$amostra['especificacao_id']}}
-                                                                                                        </h5>
-                                                                                                        @if(isset($amostra['codigo_focco']))
-                                                                                                            <p>Código Focco: {{$amostra['codigo_focco']}}
-                                                                                                        @endif
-                                                                                                    </div>
-                                                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                                                </div>
-                                                                                                <div class="modal-body">
-                                                                                                    <div class="row">
-                                                                                                        <div class="col-md-12 mb-8 fv-row">
-                                                                                                            <div class="spinner-border hidden position-absolute top-50 start-50" id="spinnerModal--{{$amostra['especificacao_id']}}" style="margin-top: -1.5%;" role="status">
-                                                                                                                <span class="sr-only">Loading...</span>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div class="modal-footer">
-                                                                                                    <button class="btn btn-light"
-                                                                                                        onclick="exportarParaWord('modalComparacao--{{$amostra['especificacao_id']}}', {{$amostra['especificacao_id']}}, '{{ $amostra['codigo_focco'] ?? '' }}')">
-                                                                                                        Exportar para Word
-                                                                                                    </button>
-                                                                                                   <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
+                                        <div class="accordion-item" style="margin-bottom: 15px;">
+                                            <h2 class="accordion-header" id="headingProdutos">
+                                                <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProdutosGerais" aria-expanded="false" aria-controls="collapseProdutosGerais">
+                                                Resumo dos produtos
+                                                </button>
+                                            </h2>
+                                            <div id="collapseProdutosGerais" class="accordion-collapse collapse" aria-labelledby="headingProdutos">
+                                                <div class="accordion-body">
+                                                    <div class="resumoContent">
+                                                    @if (count($dadosPorProduto) > 0)
+                                                        @foreach ($dadosPorProduto as $indice => $atributos)
+                                                            @if (count($atributos) > 0)
+                                                                <h4>{{ $atributos[0]['produto_nome'] }} {{ $loop->iteration }}</h4>
+
+                                                                @php
+                                                                    $produtoIndiceId = $atributos[0]['indice_produto_id'] ?? null;
+                                                                    $temImagem = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->exists();
+                                                                @endphp
+
+                                                                @if ($temImagem)
+                                                                    @php
+                                                                        $imagens = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->get();
+                                                                    @endphp
+                                                                    @if(count($imagens) > 0)
+                                                                    <div class="contentResumoImg">
+                                                                        @foreach ($imagens as $img)
+                                                                            <img src="{{ mixAssets('assets/img/produtos/' . $img->imagem) }}" alt="Imagem do produto">
                                                                         @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane mb-8" id="amostras" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-xl-12">
-                                                    <div class="card">
-                                                        <div class="card-body adjustCardBody tbodyAmostra">
-                                                            <div class="col-lg-12 single-schedules-inner">
-                                                                <div class="d-flex align-items-center justify-content-center justify-content-md-end">
-                                                                    @if(count($maquinaAmostras) > 0)
-                                                                    <div class="card-toolbar d-flex justify-content-center justify-content-md-end mb-8">
-                                                                        <button class="btn btn-primary justify-content-center justify-content-md-end" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-overflow="true">Adicionar amostras</button>
-                                                                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px pb-3" data-kt-menu="true">
-                                                                            <div class="separator mb-3 opacity-75"></div>
-                                                                            @if(count($maquinaAmostras) > 0)
-                                                                                @foreach($maquinaAmostras as $item)
-                                                                                    <div class="menu-item px-3">
-                                                                                        <a class="menu-link px-3" 
-                                                                                        href="{{ route('Especificacoes.criar_amostra', ['especificacaoId' => $especificacao->id, 'id' => $item->id]) }}">
-                                                                                            {!! optional($item->amostrasIdiomas->first())->nome !!}
-                                                                                        </a>
-                                                                                    </div>
-                                                                                @endforeach
-                                                                                @else
-                                                                                <p>Nenhuma amostra foi encontrada!</p>
-                                                                            @endif
-                                                                        </div>
                                                                     </div>
                                                                     @endif
-                                                                </div>
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
-                                                                        <thead>
-                                                                            <tr class="fs-7 fw-bold text-gray-500 border-bottom-0">
-                                                                                <th class="p-0 min-w-100px"></th>
-                                                                                <th class="p-0 w-100px"></th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @if(count($amostrasEspecificacoes) > 0)
-                                                                                @foreach($amostrasEspecificacoes as $nomeAmostra => $itens)
-                                                                                    @foreach($itens as $key => $item)
-                                                                                    @if($item->amostra)
-                                                                                    <tr class="adjustLineTr">
-                                                                                        <td>
-                                                                                            <div class="d-flex align-items-center">
-                                                                                                <div class="d-flex justify-content-start flex-column">
-                                                                                                    <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                                                                        {!! optional($item->amostra->amostrasIdiomas->first())->nome !!} {{ ($key + 1) }}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <span class="fw-semibold text-gray-400 d-block">Nome</span>
-                                                                                        </td>
-                                                                                        <td class="text-end">
-                                                                                            <div class="adjustBtnsUser gap-5">
-                                                                                                <a href="{{ route('Especificacoes.editar_amostra', ['id' => $item->id]) }}" class="btn btn-sm btn btn-primary">
-                                                                                                    <i class="bi bi-pencil-fill"></i> Editar
-                                                                                                </a>
-                                                                                                <form class="responseAjax" action="{{ route('Especificacoes.excluir_amostra', ['id' => $item->id]) }}" method="post">
-                                                                                                    @csrf
-                                                                                                    <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                                                        <i class="bi bi-trash-fill"></i>Excluir
-                                                                                                    </button>
-                                                                                                </form>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                    @endif
-                                                                                    @endforeach
-                                                                                @endforeach
-                                                                            @else
-                                                                            <p>Nenhuma amostra foi encontrada!</p>
-                                                                            @endif
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane mb-8" id="produtos" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-xl-12">
-                                                    <div class="card">
-                                                        <div class="card-body adjustCardBody tbodyAmostra">
-                                                            <div class="col-lg-12 single-schedules-inner">
-                                                                <div class="d-flex align-items-center justify-content-center justify-content-md-end">
-                                                                    @if(count($maquinaProdutos) > 0)
-                                                                    <div class="card-toolbar d-flex justify-content-center justify-content-md-end mb-8">
-                                                                        <button class="btn btn-primary justify-content-center justify-content-md-end" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-overflow="true">Adicionar produtos</button>
-                                                                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px" data-kt-menu="true">
-                                                                            <div class="separator mb-3 opacity-75"></div>
-                                                                            @if(count($maquinaProdutos) > 0)
-                                                                                @foreach($maquinaProdutos as $item)
-                                                                                    <div class="menu-item px-3 mb-3">
-                                                                                        <a class="menu-link px-3" 
-                                                                                        href="{{ route('Especificacoes.criar_produto', ['especificacaoId' => $especificacao->id, 'id' => $item->id]) }}">
-                                                                                            {!! optional($item->produtosIdiomas->first())->nome !!}
-                                                                                        </a>
+                                                                @endif
+
+                                                                @php
+                                                                    $agrupados = collect($atributos)->groupBy('atributo_produto_id');
+                                                                @endphp
+
+                                                                <ul class="list-group">
+                                                                    @foreach ($agrupados as $grupo)
+                                                                        @php $primeiro = $grupo->first(); @endphp
+                                                                        @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
+
+                                                                            @if ($primeiro['atributo_tipo'] === 'multiplos')
+                                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                                {{ $primeiro['atributo_nome'] }}:
+                                                                                @if(count($grupo[0]['imagens']) > 0)
+                                                                                    <div class="contentResumoImg">
+                                                                                        @foreach ($grupo[0]['imagens'] as $img)
+                                                                                            <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img->imagem) }}" alt="Imagem do produto">
+                                                                                        @endforeach
                                                                                     </div>
-                                                                                @endforeach
-                                                                                @else
-                                                                                <p>Nenhum produto foi encontrado!</p>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                    @endif
-                                                                </div>
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
-                                                                        <thead>
-                                                                            <tr class="fs-7 fw-bold text-gray-500 border-bottom-0">
-                                                                                <th class="p-0 min-w-100px"></th>
-                                                                                <th class="p-0 w-100px"></th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @if(count($produtosEspecificacoes) > 0)
-                                                                                @foreach($produtosEspecificacoes as $nomeProduto => $itens)
-                                                                                    @foreach($itens as $key => $item)
-                                                                                    @if($item->produto)
-                                                                                    <tr class="adjustLineTr">
-                                                                                        <td>
-                                                                                            <div class="d-flex align-items-center">
-                                                                                                <div class="d-flex justify-content-start flex-column">
-                                                                                                    <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                                                                        {!! optional($item->produto->produtosIdiomas->first())->nome !!} {{ ($key + 1) }}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <span class="fw-semibold text-gray-400 d-block">Nome</span>
-                                                                                        </td>
-                                                                                        <td class="text-end">
-                                                                                            <div class="adjustBtnsUser gap-5">
-                                                                                                <a href="{{ route('Especificacoes.editar_produto', ['id' => $item->id]) }}" class="btn btn-sm btn btn-primary">
-                                                                                                    <i class="bi bi-pencil-fill"></i> Editar
-                                                                                                </a>
-                                                                                                <form class="responseAjax" action="{{ route('Especificacoes.excluir_produto', ['id' => $item->id]) }}" method="post">
-                                                                                                    @csrf
-                                                                                                    <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                                                        <i class="bi bi-trash-fill"></i>Excluir
-                                                                                                    </button>
-                                                                                                </form>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                    </tr>
                                                                                     @endif
-                                                                                    @endforeach
+                                                                                    <div class="mt-2">
+                                                                                        @foreach ($grupo as $item)
+                                                                                            <div class="">
+                                                                                                {{ $item['sub_atributo_nome'] }}:
+                                                                                                @if($item['conteudo'])
+                                                                                                    {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
+                                                                                                @else
+                                                                                                    <span>Não informado;</span>
+                                                                                                @endif
+
+                                                                                                @if($item['observacao_personalizada'])
+                                                                                                    <span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                                @endif
+                                                                                            </div>
+                                                                                        @endforeach
+                                                                                    </div>
+                                                                                </li>
+                                                                            @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
+                                                                                @foreach ($grupo as $item)
+                                                                                    <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                                        {{ $item['atributo_nome'] }}:
+                                                                                        @php
+                                                                                            $valor = '';
+                                                                                            if (!empty($item['sub_atributo_nome'])) {
+                                                                                                $valor = $item['sub_atributo_nome'];
+                                                                                            } elseif (!empty($item['conteudo'])) {
+                                                                                                $valor = $item['conteudo'];
+                                                                                            }
+
+                                                                                            if (!empty($valor)) {
+                                                                                                $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
+                                                                                                $valor .= ';';
+                                                                                            } else {
+                                                                                                $valor = '<span>Não informado;</span>';
+                                                                                            }
+                                                                                        @endphp
+
+                                                                                        {!! $valor !!}
+
+                                                                                        @if($item['observacao_personalizada'])
+                                                                                            <br><span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                        @endif
+
+                                                                                        @if(count($item['imagens']) > 0)
+                                                                                            <div class="contentResumoImg contentResumoImgSpace">
+                                                                                                @foreach ($item['imagens'] as $img)
+                                                                                                    <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img['imagem']) }}"/>
+                                                                                                @endforeach
+                                                                                            </div>
+                                                                                        @endif
+                                                                                    </li>
                                                                                 @endforeach
-                                                                            @else
-                                                                            <p>Nenhum produto foi encontrado!</p>
                                                                             @endif
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+                                                        @endforeach
+                                                    @else
+                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhum produto foi encontrado.</li>
+                                                    @endif
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                         <div class="tab-pane mb-8" id="pedido" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-xl-12">
-                                                    <div class="card">
-                                                        <div class="card-body adjustCardBody tbodyAmostra">
-                                                            <div class="col-lg-12 single-schedules-inner">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
-                                                                        <thead>
-                                                                            <tr class="fs-7 fw-bold text-gray-500 border-bottom-0">
-                                                                                <th class="p-0 w-0px"></th>
-                                                                                <th class="p-0 min-w-150px"></th>
-                                                                                <th class="p-0 min-w-150px"></th>
-                                                                                <th class="p-0 w-100px"></th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @if(!empty($especificacao->pedido))
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <div class="d-flex align-items-center">
-                                                                                            <div class="d-flex justify-content-start flex-column">
-                                                                                                <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                                                                    {!! $especificacao->pedido->id !!}
-                                                                                                </span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <span class="fw-semibold text-gray-400 d-block">Id</span>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div class="d-flex align-items-center">
-                                                                                            <div class="d-flex justify-content-start flex-column">
-                                                                                                <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                                                                    {!! $especificacao->pedido->nome !!}
-                                                                                                </span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <span class="fw-semibold text-gray-400 d-block">Nome</span>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div class="d-flex align-items-center">
-                                                                                            <div class="d-flex justify-content-start flex-column">
-                                                                                                <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                                                                    {!! $especificacao->pedido->cliente->nome !!}
-                                                                                                </span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <span class="fw-semibold text-gray-400 d-block">Cliente</span>
-                                                                                    </td>
-                                                                                    <td class="text-end">
-                                                                                        <div class="adjustBtnsUser gap-5">
-                                                                                            <a href="{{route('Pedidos.editar', ['id' => $especificacao->pedido->id])}}" class="btn btn-sm btn btn-primary"><i class="bi bi-eye-fill"></i> Visualizar
-                                                                                            </a>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            @else
-                                                                            <p>Nenhum pedido foi encontrado!</p>
-                                                                            @endif
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingObservacoes">
+                                                <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseObservacoes" aria-expanded="false" aria-controls="collapseObservacoes">
+                                                    Observações
+                                                </button>
+                                            </h2>
+                                            <div id="collapseObservacoes" class="accordion-collapse collapse" aria-labelledby="headingObservacoes">
+                                                <div class="accordion-body">
+                                                    <div class="resumoContent">
+                                                        <ul class="list-group">
+                                                        @if (count($especificacao->observacoes) > 0)
+                                                            @foreach ($especificacao->observacoes as $key => $observacao)
+                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative"><strong>Observação {!! $key + 1 !!}:</strong> {!! $observacao->conteudo !!}</li>
+                                                            @endforeach
+                                                        @else
+                                                            <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma observação foi encontrada.</li>
+                                                        @endif
+                                                        </ul>
                                                     </div>
                                                 </div>
                                             </div>
@@ -968,7 +565,768 @@
             </div>
         </div>
     </div>
-</div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseRevisoes" aria-expanded="false" aria-controls="collapseRevisoes">
+                               Histórico de revisões
+                            </button>
+                        </h2>
+                        <div id="collapseRevisoes" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                @if(count($resumoItens) > 0)
+                                    @foreach ($resumoItensRevisoes as $key => $rev)
+                                        <div class="accordion">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="headingEspecificacoes">
+                                                    <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes--{{$key}}" aria-expanded="false" aria-controls="collapseEspecificacoes--{{$key}}">
+                                                        {{ $rev['revisao'] }}
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseEspecificacoes--{{$key}}" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-group resumoContent">
+                                                            @foreach($rev['itens'] as $resumo)
+                                                                @php
+                                                                    $renderizados = [];
+                                                                    $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
+                                                                @endphp
+                                                                {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
+                                                                @if($resumo['tipo'] === 'multiplos')
+                                                                    @if(!in_array($resumo['caracteristica'], $renderizados))
+                                                                        @php $renderizados[] = $resumo['caracteristica']; @endphp
+
+                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                            <div>{!! $resumo['caracteristica'] !!}:</div>
+                                                                            @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
+                                                                                <div>
+                                                                                    {{ $item['atributo'] }}: 
+                                                                                    @if($item['conteudo'])
+                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
+                                                                                    @else
+                                                                                        <span>Não informado;</span>
+                                                                                    @endif
+                                                                                </div>
+                                                                                @if($item['observacao'])
+                                                                                    <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </li>
+                                                                    @endif
+
+                                                                {{-- SELECIONÁVEL ou TEXTO --}}
+                                                                @else
+                                                                    <li class="p-3 bg-light rounded-2 border border-light position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}}">
+                                                                        @if($resumo['comparavel'])
+                                                                            <div class="isComparavel" 
+                                                                                data-bs-toggle="tooltip" 
+                                                                                data-bs-placement="top"
+                                                                                data-bs-custom-class="custom-tooltip"
+                                                                                data-bs-title="Este item é comparável.">
+                                                                                <i class="bi bi-bookmark-fill"></i>
+                                                                            </div>
+                                                                        @endif
+
+                                                                        <div>
+                                                                            {!! $resumo['caracteristica'] !!}:
+                                                                            @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
+                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
+                                                                            @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
+                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
+                                                                            @else
+                                                                                <span>Não informado;</span>
+                                                                            @endif
+                                                                        </div>
+
+                                                                        @if($resumo['observacao'])
+                                                                            <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
+                                                                        @endif
+
+                                                                        @if($resumo['excluido'])
+                                                                            <form class="responseAjax" action="{{ route('Especificacoes.excluir_caracteristica', ['id' => $resumo['caracteristica_id']]) }}" method="post">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
+                                                                                <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
+                                                                                    <i class="bi bi-trash-fill"></i>Excluir
+                                                                                </button>
+                                                                            </form>
+                                                                        @endif
+                                                                    </li>
+                                                                @endif
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion tab-content" id="tabSimilares">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseSimilares" aria-expanded="false" aria-controls="collapseSimilares">
+                                Similares
+                            </button>
+                        </h2>
+                        <div id="collapseSimilares" class="accordion-collapse collapse">
+                            <div class="accordion-body" id="similares">
+                                <!-- <div class="table-responsive">
+                                    <table id="tabelaAmostras" class="table">
+                                        <thead >
+                                            <tr>
+                                                <th class="th-info">Máquina</th>
+                                                <th class="th-info">Código Focco</th>
+                                                <th class="th-info">Similar (%)</th>
+                                                <th class="th-info">Comparação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($listaComparacao as $amostra)
+                                                <tr>
+                                                    <td>
+                                                        <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
+                                                        {{$amostra['especificacao_id']}}) {{ $amostra['maquina'] }} - ({{$amostra['nomesAtributos']}})
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ $amostra['codigo_focco'] }}</td>
+                                                    <td data-order="{{ $amostra['porcentagem_similaridade'] }}">{{ $amostra['porcentagem_similaridade'] }}%</td>
+                                                    <td>
+                                                        <button class="btn btn-light" onclick="getComparacao({{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}">
+                                                            Ver comparação
+                                                        </button>    
+                                                        <div class="modal fade" id="modalComparacao--{{$amostra['especificacao_id']}}" role="dialog">
+                                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                <div class="modal-content accordion">
+                                                                    <div class="modal-header">
+                                                                        <div>
+                                                                            <h5 class="modal-title align-self-center" id="modalComparacao--{{$amostra['especificacao_id']}}">
+                                                                                Especificação {{$amostra['especificacao_id']}}
+                                                                            </h5>
+                                                                            @if(isset($amostra['codigo_focco']))
+                                                                                <p>Código Focco: {{$amostra['codigo_focco']}}
+                                                                            @endif
+                                                                        </div>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12 mb-5 fv-row">
+                                                                                <div class="spinner-border hidden position-absolute top-50 start-50" id="spinnerModal--{{$amostra['especificacao_id']}}" style="margin-top: -1.5%;" role="status">
+                                                                                    <span class="sr-only">Loading...</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button class="btn btn-light"
+                                                                            onclick="exportarParaWord('modalComparacao--{{$amostra['especificacao_id']}}', {{$amostra['especificacao_id']}}, '{{ $amostra['codigo_focco'] ?? '' }}')">
+                                                                            Exportar para Word
+                                                                        </button>
+                                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div> -->
+                                <div class="tab-pane" id="similares" role="tabpanel">
+                                                  
+                                    <div class="table-responsive">
+                                        <table id="tabelaAmostras" class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="th-info">Máquina</th>
+                                                    <th class="th-info">Código Focco</th>
+                                                    <th class="th-info">Similar (%)</th>
+                                                    <th class="th-info">Comparação</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($listaComparacao as $amostra)
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
+                                                            {{$amostra['especificacao_id']}}) {{ $amostra['maquina'] }} - ({{$amostra['nomesAtributos']}})
+                                                            </a>
+                                                        </td>
+                                                        <td>{{ $amostra['codigo_focco'] }}</td>
+                                                        <td data-order="{{ $amostra['porcentagem_similaridade'] }}">{{ $amostra['porcentagem_similaridade'] }}%</td>
+                                                        <td>
+                                                            <button class="btn btn-light" onclick="getComparacao({{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}">
+                                                                Ver comparação
+                                                            </button>    
+                                                            <div class="modal fade" id="modalComparacao--{{$amostra['especificacao_id']}}" role="dialog">
+                                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                    <div class="modal-content accordion">
+                                                                        <div class="modal-header">
+                                                                            <div>
+                                                                                <h5 class="modal-title align-self-center" id="modalComparacao--{{$amostra['especificacao_id']}}">
+                                                                                    Especificação {{$amostra['especificacao_id']}}
+                                                                                </h5>
+                                                                                @if(isset($amostra['codigo_focco']))
+                                                                                    <p>Código Focco: {{$amostra['codigo_focco']}}
+                                                                                @endif
+                                                                            </div>
+                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <div class="row">
+                                                                                <div class="col-md-12 mb-5 fv-row">
+                                                                                    <div class="spinner-border hidden position-absolute top-50 start-50" id="spinnerModal--{{$amostra['especificacao_id']}}" style="margin-top: -1.5%;" role="status">
+                                                                                        <span class="sr-only">Loading...</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button class="btn btn-light"
+                                                                                onclick="exportarParaWord('modalComparacao--{{$amostra['especificacao_id']}}', {{$amostra['especificacao_id']}}, '{{ $amostra['codigo_focco'] ?? '' }}')">
+                                                                                Exportar para Word
+                                                                            </button>
+                                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseAmostras" aria-expanded="false" aria-controls="collapseAmostras">
+                                Amostras
+                            </button>
+                        </h2>
+                        <div id="collapseAmostras" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="d-flex align-items-center justify-content-center justify-content-md-end">
+                                    @if(count($maquinaAmostras) > 0)
+                                    <div class="card-toolbar d-flex justify-content-center justify-content-md-end" style="position: relative;">
+                                        <button class="btn btn-primary justify-content-center justify-content-md-end dropdown-modal"  id="modalOpenAmostras">Adicionar amostras</button>
+                                        <div class="hidden modal-options-menu" data-modal="modalOpenAmostras">
+                                            <ul class="modal-options" style="margin-top: 30px;">
+                                                @if(count($maquinaAmostras) > 0)
+                                                    @foreach($maquinaAmostras as $item)
+                                                        <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                            <a class="link-modal" 
+                                                            href="{{ route('Especificacoes.criar_amostra', ['especificacaoId' => $especificacao->id, 'id' => $item->id]) }}">
+                                                                {!! optional($item->amostrasIdiomas->first())->nome !!}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                    @else
+                                                    <p>Nenhuma amostra foi encontrada!</p>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                @if(count($amostrasEspecificacoes) > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="th-info">
+                                                    <h6>Nome</h6>
+                                                </th>
+                                                <th class="th-info text-end">
+                                                    <h6></h6>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($amostrasEspecificacoes as $nomeAmostra => $itens)
+                                                @foreach($itens as $key => $item)
+                                                @if($item->amostra)
+                                                <tr data-href="{{route('Especificacoes.editar_amostra', ['id' => $item->id])}}">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="d-flex justify-content-start flex-column">
+                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                    {!! optional($item->amostra->amostrasIdiomas->first())->nome !!} {{ ($key + 1) }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div style="position: relative">
+                                                            <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                                <i class="lni lni-more-alt"></i>
+                                                            </button>
+                                                            <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                                <ul class="modal-options">
+                                                                    <li class="dropdown-item">
+                                                                        <a href="{{ route('Especificacoes.editar_amostra', ['id' => $item->id]) }}" class="link-modal">
+                                                                            <i class="bi bi-pencil-fill"></i> Editar
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="dropdown-item">
+                                                                        <form class="responseAjax" action="{{route('Especificacoes.excluir_amostra', ['id' => $item->id])}}" method="post">
+                                                                            @csrf
+                                                                            <button class="deleteBt text-danger" type="submit">
+                                                                            <i class="bi bi-trash"></i> Excluir
+                                                                            </button>
+                                                                        </form>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endif
+                                                @endforeach
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @else
+                                    <p>Nenhuma amostra foi encontrada!</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseProdutos" aria-expanded="false" aria-controls="collapseProdutos">
+                                Produtos
+                            </button>
+                        </h2>
+                        <div id="collapseProdutos" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="d-flex align-items-center justify-content-center justify-content-md-end">
+                                    @if(count($maquinaProdutos) > 0)
+                                    <div class="card-toolbar d-flex justify-content-center justify-content-md-end mb-5">
+                                        <button class="btn btn-primary justify-content-center justify-content-md-end dropdown-modal" id="modalOpenProdutos">Adicionar produtos</button>
+                                        
+                                        <div class="hidden modal-options-menu" data-modal="modalOpenProdutos">
+                                            <ul class="modal-options" style="margin-top: 30px;">
+                                                @if(count($maquinaProdutos) > 0)
+                                                    @foreach($maquinaProdutos as $item)
+                                                        <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                            <a class="link-modal" 
+                                                            href="{{ route('Especificacoes.criar_produto', ['especificacaoId' => $especificacao->id, 'id' => $item->id]) }}">
+                                                                {!! optional($item->produtosIdiomas->first())->nome !!}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                    @else
+                                                    <p>Nenhuma produto foi encontrado!</p>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                @if(count($produtosEspecificacoes) > 0)
+                                <div class="table-wrapper table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="th-info">
+                                                    <h6>Nome</h6>
+                                                </th>
+                                                <th class="th-info text-end">
+                                                    <h6></h6>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($produtosEspecificacoes as $nomeProduto => $itens)
+                                                @foreach($itens as $key => $item)
+                                                @if($item->produto)
+                                                <tr data-href="{{route('Especificacoes.editar_produto', ['id' => $item->id])}}">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="d-flex justify-content-start flex-column">
+                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                    {!! optional($item->produto->produtosIdiomas->first())->nome !!} {{ ($key + 1) }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div style="position: relative">
+                                                            <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                                <i class="lni lni-more-alt"></i>
+                                                            </button>
+                                                            <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                                <ul class="modal-options">
+                                                                    <li class="dropdown-item">
+                                                                        <a href="{{ route('Especificacoes.editar_produto', ['id' => $item->id]) }}" class="link-modal">
+                                                                            <i class="bi bi-pencil-fill"></i> Editar
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="dropdown-item">
+                                                                        <form class="responseAjax" action="{{route('Especificacoes.excluir_produto', ['id' => $item->id])}}" method="post">
+                                                                            @csrf
+                                                                            <button class="deleteBt text-danger" type="submit">
+                                                                            <i class="bi bi-trash"></i> Excluir
+                                                                            </button>
+                                                                        </form>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endif
+                                                @endforeach
+                                            @endforeach
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @else
+                                    <p>Nenhum produto foi encontrado!</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseEspecsAmostras" aria-expanded="false" aria-controls="collapseEspecsAmostras">
+                                Especs. de amostras
+                            </button>
+                        </h2>
+                        <div id="collapseEspecsAmostras" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="table-wrapper table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="th-info">
+                                                    <h6>ID + Amostra</h6>
+                                                </th>
+                                                <th class="th-info text-end">
+                                                    <h6></h6>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(count($amostrasPedido) > 0)
+                                            @foreach($amostrasPedido as $item)
+                                            <tr data-href="{{route('PedidosAmostras.editar', ['id' => $item->id])}}">
+                                                <td>
+                                                    <div class="d-flex gap-5 align-items-center">
+                                                        <div class="form-check">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input form-check-input-amostras" type="checkbox" value="{{ $item->id }}" {{in_array($item->id, $especificacaoAmostrasPedido) ? 'checked' : ''}} name="amostra_pedido_id">
+                                                                <span class="form-check-sign"></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="d-flex justify-content-start flex-column">
+                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                    {!! $item->id !!}) {{optional($item->amostra->amostrasIdiomas->first())->nome }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div style="position: relative">
+                                                        <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                            <i class="lni lni-more-alt"></i>
+                                                        </button>
+                                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                            <ul class="modal-options">
+                                                                <li class="dropdown-item">
+                                                                    <a class="link-modal" href="{{route('PedidosAmostras.copiar', ['id' => $item->id])}}"> <i class="bi bi-copy"></i> Copiar
+                                                                    </a>
+                                                                </li>
+                                                                <li class="dropdown-item">
+                                                                    <a class="link-modal" href="{{route('PedidosAmostras.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                                    </a>
+                                                                </li>
+                                                                <li class="dropdown-item">
+                                                                    <form class="responseAjax" action="{{route('PedidosAmostras.excluir', ['id' => $item->id])}}" method="post">
+                                                                        @csrf
+                                                                        <button class="deleteBt text-danger" type="submit">
+                                                                        <i class="bi bi-trash"></i> Excluir
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                            @else
+                                            <tr>
+                                                <td>
+                                                    <span class="text-gray-800 d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
+                                                </td>
+                                            </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapseEspecsProdutos" aria-expanded="false" aria-controls="collapseEspecsProdutos">
+                                Especs. de produtos
+                            </button>
+                        </h2>
+                        <div id="collapseEspecsProdutos" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="table-wrapper table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="th-info">
+                                                    <h6>ID + Produto</h6>
+                                                </th>
+                                                <th class="th-info text-end">
+                                                    <h6></h6>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(count($produtosPedido) > 0)
+                                            @foreach($produtosPedido as $item)
+                                            <tr data-href="{{route('PedidosProdutos.editar', ['id' => $item->id])}}">
+                                                <td>
+                                                <div class="d-flex gap-5 align-items-center">
+                                                        <div class="form-check">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input form-check-input-produtos" type="checkbox" value="{{ $item->id }}" {{in_array($item->id, $especificacaoProdutosPedido) ? 'checked' : ''}} name="produto_pedido_id">
+                                                                <span class="form-check-sign"></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="d-flex justify-content-start flex-column">
+                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                    {!! $item->id !!}) {{optional($item->produto->produtosIdiomas->first())->nome }}
+                                                                </span>
+                                                                <span class=" text-gray-400 d-block">ID + Produto</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div style="position: relative">
+                                                        <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                            <i class="lni lni-more-alt"></i>
+                                                        </button>
+                                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                            <ul class="modal-options">
+                                                                <li class="dropdown-item">
+                                                                    <a class="link-modal" href="{{route('PedidosProdutos.copiar', ['id' => $item->id])}}"> <i class="bi bi-copy"></i> Copiar
+                                                                    </a>
+                                                                </li>
+                                                                <li class="dropdown-item">
+                                                                    <a class="link-modal" href="{{route('PedidosProdutos.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                                    </a>
+                                                                </li>
+                                                                <li class="dropdown-item">
+                                                                    <form class="responseAjax" action="{{route('PedidosProdutos.excluir', ['id' => $item->id])}}" method="post">
+                                                                        @csrf
+                                                                        <button class="deleteBt text-danger" type="submit">
+                                                                        <i class="bi bi-trash"></i> Excluir
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                            @else
+                                            <tr>
+                                                <td>
+                                                    <span class="text-gray-800 d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
+                                                </td>
+                                            </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="accordion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" style="font-weight: bold" data-bs-toggle="collapse" data-bs-target="#collapsePedido" aria-expanded="false" aria-controls="collapsePedido">
+                                Pedido
+                            </button>
+                        </h2>
+                        <div id="collapsePedido" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="table-wrapper table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="th-info">
+                                                    <h6>Id</h6>
+                                                </th>
+                                                <th class="th-info">
+                                                    <h6>Nome</h6>
+                                                </th>
+                                                <th class="th-info">
+                                                    <h6>Cliente</h6>
+                                                </th>
+                                                <th class="th-info text-end">
+                                                    <h6></h6>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(!empty($especificacao->pedido))
+                                            <tr data-href="{{route('Pedidos.editar', ['id' => $especificacao->pedido->id])}}">
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex justify-content-start flex-column">
+                                                            <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                {!! $especificacao->pedido->id !!}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex justify-content-start flex-column">
+                                                            <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                {!! $especificacao->pedido->nome !!}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex justify-content-start flex-column">
+                                                            <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                {!! $especificacao->pedido->cliente->nome !!}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div style="position: relative">
+                                                        <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$especificacao->pedido->id}}">
+                                                            <i class="lni lni-more-alt"></i>
+                                                        </button>
+                                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$especificacao->pedido->id}}">
+                                                            <ul class="modal-options">
+                                                                <li class="dropdown-item">
+                                                                    <a class="link-modal" href="{{route('Pedidos.editar', ['id' => $especificacao->pedido->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                                    </a>
+                                                                </li>
+                                                                <li class="dropdown-item">
+                                                                    <form class="responseAjax" action="{{route('Pedidos.excluir', ['id' => $especificacao->pedido->id])}}" method="post">
+                                                                        @csrf
+                                                                        <button class="deleteBt text-danger" type="submit">
+                                                                        <i class="bi bi-trash"></i> Excluir
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @else
+                                            <tr>
+                                                <td>
+                                                    <span class="text-gray-800 d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
+                                                </td>
+                                            </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 @endsection
 
@@ -978,6 +1336,7 @@
 <script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
 <script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 <script>
 
 $(document).ready(function() {
@@ -1088,7 +1447,7 @@ $(document).ready(function() {
         });
     }
 
-    $('#tabSimilares').on('shown.bs.tab', function (e) {
+    $('#collapseSimilares').on('show.bs.collapse', function (e) {
         initDataTable();
     });
 
@@ -1114,9 +1473,9 @@ $(document).ready(function() {
                 const container = $(`#modalComparacao--${especificacaoId} .modal-body`);
 
                 const iguaisHtml = `
-                    <h5 class="mb-3">Características Iguais</h5>
+                    <h5 class="mb-2">Características Iguais</h5>
                     <ul class="list-group resumoContent">
-                        ${response.iguais.map(i => `<li class="list-group-item">${i}</li>`).join('')}
+                        ${response.iguais.map(i => `<li style="margin-left:0px;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
                     </ul>
                 `;
 
@@ -1124,16 +1483,16 @@ $(document).ready(function() {
 
                 if (response.diferentes.comparado.length > 0 || response.diferentes.base.length > 0) {
                     diferentesHtml += `
-                        <h5 class="mt-6 mb-3">Características Diferentes</h5>
+                        <h5 class="mt-4 mb-4">Características Diferentes</h5>
                         <div class="row">
                     `;
 
                     if (response.diferentes.comparado.length > 0) {
                         diferentesHtml += `
                             <div class="col">
-                                <h6>Especificação ${especificacaoId}</h6>
+                                <h6 class="mb-2">Especificação ${especificacaoId}</h6>
                                 <ul class="list-group resumoContent">
-                                    ${response.diferentes.comparado.map(i => `<li class="list-group-item">${i}</li>`).join('')}
+                                    ${response.diferentes.comparado.map(i => `<li style="margin-left:0px;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
                                 </ul>
                             </div>
                         `;
@@ -1142,9 +1501,9 @@ $(document).ready(function() {
                     if (response.diferentes.base.length > 0) {
                         diferentesHtml += `
                             <div class="col">
-                                <h6>Especificação ${@json($especificacao->id)}</h6>
+                                <h6 class="mb-2">Especificação ${@json($especificacao->id)}</h6>
                                 <ul class="list-group resumoContent">
-                                    ${response.diferentes.base.map(i => `<li class="list-group-item">${i}</li>`).join('')}
+                                    ${response.diferentes.base.map(i => `<li style="margin-left:0px;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
                                 </ul>
                             </div>
                         `;
@@ -1208,7 +1567,83 @@ $(document).ready(function() {
         document.body.removeChild(link);
     }
 
+    $('.form-check-input-amostras').on('change', function() {
+        let valor = $(this).val();
+        let checked = $(this).is(':checked') ? 1 : 0;
+
+        $.ajax({
+            url: '/especificacoes/amostra/pedido',
+            type: 'POST',
+            data: {
+                atributo_amostra_indice_pedido_id: valor,
+                checked: checked,
+                especificacao_id: @json($especificacao->id),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                console.log(response.message);
+            },
+            error: function(xhr) {
+                console.error('Erro ao atualizar:', xhr.responseText);
+            }
+        });
+    });
+
+    $('.form-check-input-produtos').on('change', function() {
+        let valor = $(this).val();
+        let checked = $(this).is(':checked') ? 1 : 0;
+
+        $.ajax({
+            url: '/especificacoes/produto/pedido',
+            type: 'POST',
+            data: {
+                atributo_produto_indice_pedido_id: valor,
+                checked: checked,
+                especificacao_id: @json($especificacao->id),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                console.log(response.message);
+            },
+            error: function(xhr) {
+                console.error('Erro ao atualizar:', xhr.responseText);
+            }
+        });
+    });
+
+
 });
 
+var chart = echarts.init(document.getElementById('donutEspecificacao'));
+    let = porcentagem = @json($porcentagemResumo) || 0;
+    let = restante = 100 - porcentagem
+    chart.setOption({
+        tooltip: {
+            trigger: 'item'
+        },
+        title: {
+            text: porcentagem + '%',
+            left: 'center',
+            top: '42%',
+            textStyle: {
+                fontSize: 28,
+                fontWeight: 'bold'
+            }
+        },
+        series: [
+            {
+                type: 'pie',
+                radius: ['60%', '75%'],
+                avoidLabelOverlap: true,
+                label: { show: true },
+                labelLine: { show: true },
+                data: [
+                    { value: porcentagem, name: 'Concluído' },
+                    { value: restante.toFixed(1), name: 'Restante' }
+                ],
+                color: ['#4CAF50', '#E0E0E0']
+            }
+        ]
+    });
 </script>
 @endsection

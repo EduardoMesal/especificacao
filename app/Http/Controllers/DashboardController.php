@@ -35,6 +35,9 @@ class DashboardController extends Controller
             'serie' => $dados['serie'] ?? '',
             'maquina_id' => $dados['maquina_id'] ?? '',
             'cliente_id' => $dados['cliente_id'] ?? '',
+            'especificacoesCount' => $query['especificacoesCount'] ?? 0,
+            'masquinasCount' => $query['masquinasCount'] ?? 0,
+            'pedidosCount' => $query['pedidosCount'] ?? 0,
         ]);
     }
 

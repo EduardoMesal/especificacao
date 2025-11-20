@@ -32,6 +32,11 @@ class AtributoProduto extends Model
         return $this->hasOne(AtributoProdutoEspecificacao::class, 'atributo_produto_id');
     }
 
+    public function atributoProdutoPedidos()
+    {
+        return $this->hasOne(AtributoProdutoPedido::class, 'atributo_id');
+    }
+
     public function subAtributos()
     {
         return $this->hasMany(SubAtributoProduto::class, 'atributo_produto_id');
@@ -41,7 +46,11 @@ class AtributoProduto extends Model
     {
         return $this->hasMany(ImagemAtributoProduto::class, 'atributo_produto_id');
     }
-
+    
+    public function imagensPedido()
+    {
+        return $this->hasMany(ImagemAtributoProdutoPedido::class, 'atributo_produto_id');
+    }
     public function atributosProdutosIdiomas()
     {
         return $this->hasMany(AtributoProdutoIdioma::class, 'atributo_produto_id');

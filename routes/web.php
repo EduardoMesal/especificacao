@@ -15,8 +15,10 @@ use App\Http\Controllers\ProdutosController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\EspecificacoesProdutosController;
 use App\Http\Controllers\EspecificacoesAmostrasController;
+use App\Http\Controllers\PedidosAmostrasController;
 use App\Http\Controllers\PropostasController;
 use App\Http\Controllers\PedidosController;
+use App\Http\Controllers\PedidosProdutosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +89,8 @@ Route::middleware(['adm', '2fa'])->group(function () {
         Route::get('/produto/editar/{id}', [EspecificacoesProdutosController::class, 'editar_produto'])->name('Especificacoes.editar_produto');
         Route::post('/produto/editar/{id}', [EspecificacoesProdutosController::class, 'editar_produto_action'])->name('Especificacoes.editar_produto_action');
         Route::post('/produto/excluir/{id}', [EspecificacoesProdutosController::class, 'excluir_produto'])->name('Especificacoes.excluir_produto');
+        Route::post('/amostra/pedido', [EspecificacoesController::class, 'amostra_pedido'])->name('Especificacoes.amostra_pedido');
+        Route::post('/produto/pedido', [EspecificacoesController::class, 'produto_pedido'])->name('Especificacoes.produto_pedido');
 
         Route::get('/comparar/{id}', [EspecificacoesController::class, 'comparacao'])->name('Especificacoes.comparacao');
 
@@ -155,6 +159,33 @@ Route::middleware(['adm', '2fa'])->group(function () {
         Route::post('/excluir-atributo-imagem/{id}', [ProdutosController::class, 'excluir_atributo_imagens'])->name('Produtos.atributo_excluir_imagem');
     });
 
+    Route::prefix('/especificacoes-amostras')->group(function () {
+        Route::get('/criar', [PedidosAmostrasController::class, 'criar_index'])->name('PedidosAmostras.criar-index');
+        Route::get('/criar/{id}', [PedidosAmostrasController::class, 'criar'])->name('PedidosAmostras.criar');
+        Route::post('/criar/{id}', [PedidosAmostrasController::class, 'criar_action'])->name('PedidosAmostras.criar_action');
+        Route::get('/editar/{id}', [PedidosAmostrasController::class, 'editar'])->name('PedidosAmostras.editar');
+        Route::post('/editar/{id}', [PedidosAmostrasController::class, 'editar_action'])->name('PedidosAmostras.editar_action');
+        Route::get('/copiar/{id}', [PedidosAmostrasController::class, 'copiar'])->name('PedidosAmostras.copiar');
+        Route::get('/', [PedidosAmostrasController::class, 'index'])->name('PedidosAmostras.index');
+        Route::post('/upload-atributo-imagens', [PedidosAmostrasController::class, 'upload_atributo_imagens_pedido'])->name('PedidosAmostras.atributo_imagem');
+        Route::post('/excluir-atributo-imagem/{id}', [PedidosAmostrasController::class, 'excluir_atributo_imagens_pedido'])->name('PedidosAmostras.atributo_excluir_imagem');
+        Route::post('/imagem/excluir/{id}', [PedidosAmostrasController::class, 'excluir_imagem'])->name('PedidosAmostras.excluir_imagem');
+        Route::post('/excluir/{id}', [PedidosAmostrasController::class, 'excluir'])->name('PedidosAmostras.excluir');
+    });
+
+    Route::prefix('/especificacoes-produtos')->group(function () {
+        Route::get('/criar', [PedidosProdutosController::class, 'criar_index'])->name('PedidosProdutos.criar-index');
+        Route::get('/criar/{id}', [PedidosProdutosController::class, 'criar'])->name('PedidosProdutos.criar');
+        Route::post('/criar/{id}', [PedidosProdutosController::class, 'criar_action'])->name('PedidosProdutos.criar_action');
+        Route::get('/editar/{id}', [PedidosProdutosController::class, 'editar'])->name('PedidosProdutos.editar');
+        Route::post('/editar/{id}', [PedidosProdutosController::class, 'editar_action'])->name('PedidosProdutos.editar_action');
+        Route::get('/copiar/{id}', [PedidosProdutosController::class, 'copiar'])->name('PedidosProdutos.copiar');
+        Route::get('/', [PedidosProdutosController::class, 'index'])->name('PedidosProdutos.index');
+        Route::post('/upload-atributo-imagens', [PedidosProdutosController::class, 'upload_atributo_imagens_pedido'])->name('PedidosProdutos.atributo_imagem');
+        Route::post('/excluir-atributo-imagem/{id}', [PedidosProdutosController::class, 'excluir_atributo_imagens_pedido'])->name('PedidosProdutos.atributo_excluir_imagem');
+        Route::post('/imagem/excluir/{id}', [PedidosProdutosController::class, 'excluir_imagem'])->name('PedidosProdutos.excluir_imagem');
+        Route::post('/excluir/{id}', [PedidosProdutosController::class, 'excluir'])->name('PedidosProdutos.excluir');
+    });
 
     Route::group(
         [
@@ -178,9 +209,7 @@ Route::middleware(['adm', '2fa'])->group(function () {
         }
     );
 
-   
-
-     Route::prefix('/pedidos')->group(function () {
+    Route::prefix('/pedidos')->group(function () {
         Route::get('/', [PedidosController::class, 'index'])->name('Pedidos.index');
         Route::get('/criar', [PedidosController::class, 'criar'])->name('Pedidos.criar');
         Route::post('/criar', [PedidosController::class, 'criar_action'])->name('Pedidos.criar_action');

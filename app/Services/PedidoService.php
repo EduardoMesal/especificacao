@@ -18,6 +18,10 @@ class PedidoService
             $pedidos->where('nome', 'like', '%' . $dados['nome'] . '%');
         }
 
+        if (!empty($dados['cliente_id'])) {
+            $pedidos->where('cliente_id', $dados['cliente_id']);
+        }
+
         $query = [
             'pedidos' => $pedidos->paginate(20)->withQueryString(),
             'clientes' => $clientes 
@@ -67,6 +71,32 @@ class PedidoService
             }])
             ->with(['especificacoes' => function ($query) {
                 $query->whereNull('excluido'); 
+            }])
+            ->with(['amostras' => function ($query) {
+                $query->whereNull('excluido')
+                ->with(['amostra' => function ($subQuery) {
+                    $subQuery->whereNull('excluido')
+                     ->with([
+                        'amostrasIdiomas' => function ($q)  {
+                            $q->whereHas('idiomas', function ($query) {
+                                $query->where('codigo', 'pt');
+                            });
+                        },
+                    ]);
+                }]);
+            }])
+            ->with(['produtos' => function ($query) {
+                $query->whereNull('excluido')
+                ->with(['produto' => function ($subQuery) {
+                    $subQuery->whereNull('excluido')
+                     ->with([
+                        'produtosIdiomas' => function ($q)  {
+                            $q->whereHas('idiomas', function ($query) {
+                                $query->where('codigo', 'pt');
+                            });
+                        },
+                    ]);
+                }]);
             }])
             ->first();
 

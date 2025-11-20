@@ -30,6 +30,11 @@ class SubAtributoAmostra extends Model
     {
         return $this->hasOne(AtributoAmostraEspecificacao::class, 'sub_atributo_id');
     }
+
+    public function pedido()
+    {
+        return $this->hasOne(AtributoAmostraPedido::class, 'sub_atributo_id');
+    }
     
     public function subAtributosAmostrasIdiomas()
     {

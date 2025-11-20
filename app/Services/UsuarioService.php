@@ -103,7 +103,7 @@ class UsuarioService
             if ($dados['password'] && $dados['password_confirmation']) {
                 if ($dados['password'] == $dados['password_confirmation']) {
                     $newPassword = Hash::make($dados['password']);
-                    $createUser->password = $newPassword;
+                    $user->password = $newPassword;
                 }
             }
 
@@ -121,9 +121,7 @@ class UsuarioService
                 $img->fit(360, 360)->save($dest . '/' . $photoName);
     
                 $user->avatar = $photoName;
-            } elseif ($dados['avatar_remove'] == 1) {
-                $user->avatar = 'avatar.png';
-            }
+            } 
             
             $response = $user->save();
 
@@ -168,7 +166,7 @@ class UsuarioService
             if ($dados['password'] && $dados['password_confirmation']) {
                 if ($dados['password'] == $dados['password_confirmation']) {
                     $newPassword = Hash::make($dados['password']);
-                    $createUser->password = $newPassword;
+                    $user->password = $newPassword;
                 }
             }
 
@@ -186,8 +184,6 @@ class UsuarioService
                 $img->fit(360, 360)->save($dest . '/' . $photoName);
     
                 $user->avatar = $photoName;
-            } elseif ($dados['avatar_remove'] == 1) {
-                $user->avatar = 'avatar.png';
             }
             
             $response = $user->save();

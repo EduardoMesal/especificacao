@@ -170,6 +170,7 @@ class EspecificacoesController extends Controller
             ]);
         }
 
+
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],
             'listaComparacao' => $query['listaComparacao'],
@@ -182,7 +183,62 @@ class EspecificacoesController extends Controller
             'dadosPorProduto' => $query['dadosAgrupadoProdutos'],
             'resumoItensRevisoes' => $query['resumoItensRevisoes'],
             'revisoes' => $query['revisoes'],
+            'amostrasPedido' => $query['amostrasPedido'],
+            'especificacaoAmostrasPedido' => $query['especificacaoAmostrasPedido'],
+            'produtosPedido' => $query['produtosPedido'],
+            'especificacaoProdutosPedido' => $query['especificacaoProdutosPedido'],
+            'porcentagemResumo' => $query['porcentagemResumo'],
         ]);
+    }
+
+    public function amostra_pedido(Request $request, EspecificacaoService $especificacaoService)
+    {   
+        try {
+            $data = $request->only(['atributo_amostra_indice_pedido_id', 'checked', 'especificacao_id']);
+
+            $especificacaoService->amostra_pedido($data);
+
+            return response()->json([
+                'success' => true,
+                'title' => 'Feito',
+                'icon' => 'success',
+                'message' => 'Cadastro feito com sucesso',
+            ], 201);
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'erro' => $e->getMessage(),
+                'message' => $e->getMessage() ?? 'Ocorreu um erro durante o processamento. Tente novamente.',
+            ], 500);
+        }
+    }
+
+    public function produto_pedido(Request $request, EspecificacaoService $especificacaoService)
+    {   
+        try {
+            $data = $request->only(['atributo_produto_indice_pedido_id', 'checked', 'especificacao_id']);
+
+            $especificacaoService->produto_pedido($data);
+
+            return response()->json([
+                'success' => true,
+                'title' => 'Feito',
+                'icon' => 'success',
+                'message' => 'Cadastro feito com sucesso',
+            ], 201);
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'erro' => $e->getMessage(),
+                'message' => $e->getMessage() ?? 'Ocorreu um erro durante o processamento. Tente novamente.',
+            ], 500);
+        }
     }
 
     public function excluir($id, DeleteDefaultService $deleteDefaultService)

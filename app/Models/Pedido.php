@@ -31,4 +31,14 @@ class Pedido extends Model
     {
         return $this->hasMany(Especificacao::class);
     }
+
+    public function amostras()
+    {
+        return $this->hasMany(AtributoAmostraIndicePedido::class, 'pedido_id');
+    }
+
+    public function produtos()
+    {
+        return $this->hasMany(AtributoProdutoIndicePedido::class, 'pedido_id');
+    }
 }

@@ -5,130 +5,153 @@
 @endsection
 
 @section('content')
-<div class="post d-flex flex-column-fluid flex-lg-grow-1" id="kt_post">
-    <div id="kt_content_container" class="container-xxl card-space">
-        <div class="row g-5 g-xl-10">
+<div class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
             <div class="col-xl-12">
-                <div class="card card-flush h-xl-100">
-                    <div class="card-body pt-3 pb-4">
-                        <div class="table-responsive">
-                            <div class="card-header mt-5" style="padding: .5rem 0px; border-bottom:0px">
-                                <div class="card-title flex-column">
-                                    <div class="fs-6 text-gray-800 mb-2">Características</div>
-                                </div>
-                                <div class="d-flex gap-5 btnsAside">
-                                    <button class="btn btn-primary openSide">
+                <div class="card-style">
+                    <div class="mb-30 d-flex align-items-center justify-content-between w-100">
+                        <h6 class="text-medium">Características</h6>
+                        <div style="height: 19px; margin-right: 5px; position: relative">
+                            <button class="p-0 dropdown-modal" id="modalOpenFilter">
+                                <i class="lni lni-more-alt"></i>
+                            </button>
+                            <div class="hidden modal-options-menu" data-modal="modalOpenFilter">
+                                <ul class="modal-options">
+                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
                                         <i class="bi bi-filter"></i> Filtrar
-                                    </button>
-                                    <a href="{{route('Caracteristicas.index')}}" class="btn btn-danger">
-                                        <i class="bi bi-filter"></i> Limpar filtro
-                                    </a>
-                                </div>
-                                @component('components.filtros', [
-                                'url' => route('Caracteristicas.index'),
-                                'telefone' => isset($telefone) ? $telefone : null,
-                                'nome' => isset($nome) ? $nome : null,
-                                'codigo' => isset($codigo) ? $codigo : null,
-                                'maquina_id' => isset($maquina_id) ? $maquina_id : null,
-                                'cliente_id' => isset($cliente_id) ? $cliente_id : null,
-                                'maquinas' => isset($maquinas) ? $maquinas : null,
-                                'equipamentos' => isset($equipamentos) ? $equipamentos : null,
-                                'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
-                                'clientes' => null,
-                                ])
-                                @endcomponent
+                                    </li>
+                                    <li class="dropdown-item">
+                                        <a href="{{route('Caracteristicas.index')}}" class="text-danger">
+                                            <i class="bi bi-filter"></i> Limpar filtro
+                                        </a>
+                                    </li>
+                                </ul>
+                            
                             </div>
-                            <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
-                                <thead>
-                                    <tr class="fs-7 fw-bold text-gray-500 border-bottom-0">
-                                        <th class="p-0 w-0px"></th>
-                                        <th class="p-0 min-w-100px"></th>
-                                        <th class="p-0 w-100px"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(count($caracteristicas) > 0)
-                                    @foreach($caracteristicas as $item)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="d-flex justify-content-start flex-column">
-                                                    <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                        {!! $item->id !!}
-                                                    </span>
-                                                </div>
+                        </div>
+                    </div>
+                    @component('components.filtros', [
+                    'url' => route('Caracteristicas.index'),
+                    'telefone' => isset($telefone) ? $telefone : null,
+                    'nome' => isset($nome) ? $nome : null,
+                    'codigo' => isset($codigo) ? $codigo : null,
+                    'maquina_id' => isset($maquina_id) ? $maquina_id : null,
+                    'cliente_id' => isset($cliente_id) ? $cliente_id : null,
+                    'maquinas' => isset($maquinas) ? $maquinas : null,
+                    'equipamentos' => isset($equipamentos) ? $equipamentos : null,
+                    'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
+                    'clientes' => null,
+                    ])
+                    @endcomponent
+                    <div class="table-responsive">
+                        <table class="table top-selling-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-info">
+                                        <h6>Id</h6>
+                                    </th>
+                                    <th class="th-info">
+                                        <h6>Nome</h6>
+                                    </th>
+                                    <th class="th-info text-end">
+                                        <h6>Ações</h6>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if(count($caracteristicas) > 0)
+                                @foreach($caracteristicas as $item)
+                                <tr data-href="{{route('Caracteristicas.editar', ['id' => $item->id])}}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {!! $item->id !!}
+                                                </span>
                                             </div>
-                                            <span class="fw-semibold text-gray-400 d-block">Id</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="d-flex justify-content-start flex-column">
-                                                    <span class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
-                                                       {!! $item->caracteristicasIdiomas[0]->nome !!}
-                                                    </span>
-                                                </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {!! $item->caracteristicasIdiomas[0]->nome !!}
+                                                </span>
                                             </div>
-                                            <span class="fw-semibold text-gray-400 d-block">Nome</span>
-                                        </td>
-                                        <td class="text-end">
-                                            <div class="adjustBtnsUser gap-5">
-                                                <a href="{{route('Caracteristicas.copiar', ['id' => $item->id])}}" class="btn btn-sm btn btn-primary"><i class="bi bi-copy"></i> 
-                                                    Copiar
-                                                </a>
-                                                <a href="{{route('Caracteristicas.editar', ['id' => $item->id])}}" class="btn btn-sm btn btn-primary">
-                                                    <i class="bi bi-pencil-fill"></i> 
-                                                    Editar
-                                                </a>
-                                                <button class="btn btn-sm btn-secondary btn-secondary-delete" data-bs-toggle="modal" data-bs-target="#deleteCaracteristica--{{$item->id}}">
-                                                    <i class="bi bi-trash-fill"></i>Excluir
-                                                </button>
-                                                <div class="modal fade modalHeight" id="deleteCaracteristica--{{$item->id}}" role="dialog">
-                                                    <div class="modal-dialog modal-xl d-flex align-items-center justify-content-center" role="document">
-                                                        <div class="modal-content">
-                                                            <form class="responseAjax" method="POST" action="{{route('Caracteristicas.excluir', ['id' => $item->id])}}">
-                                                                @csrf
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title align-self-center" id="deleteCaracteristica--{{$item->id}}">Máquinas que estão associadas</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <h4 class="mb-3" style="text-align: left;">{{$item->nome}}</h4>
-                                                                    <ul>
-                                                                        @if(count($item->maquinas) == 0)
-                                                                        <li>Nenhuma máquina associada</li>
-                                                                        @else
-                                                                            @foreach ($item->maquinas as $m)
-                                                                            <li>{!! $m->nome !!}</li>
-                                                                            @endforeach
-                                                                        @endif
-                                                                    </ul>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
-                                                                    <button class="btn btn-sm btn-secondary btn-secondary-delete" type="submit">
-                                                                        <i class="bi bi-trash-fill"></i>Excluir
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <div style="position: relative">
+                                            <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                <i class="lni lni-more-alt"></i>
+                                            </button>
+                                            <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                <ul class="modal-options">
+                                                    <li class="dropdown-item">
+                                                        <a href="{{route('Caracteristicas.copiar', ['id' => $item->id])}}" class="link-modal"><i class="bi bi-copy"></i> 
+                                                            Copiar
+                                                        </a>
+                                                    </li>
+                                                    <li class="dropdown-item">
+                                                        <a class="link-modal" href="{{route('Caracteristicas.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                        </a>
+                                                    </li>
+                                                    <li class="dropdown-item">
+                                                        <button class="text-danger" data-bs-toggle="modal" data-bs-target="#deleteCaracteristica--{{$item->id}}">
+                                                            <i class="bi bi-trash"></i> Excluir
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <div class="modal fade modalHeight" id="deleteCaracteristica--{{$item->id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <form class="responseAjax" method="POST" action="{{route('Caracteristicas.excluir', ['id' => $item->id])}}">
+                                                    @csrf
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title align-self-center" id="deleteCaracteristica--{{$item->id}}">Máquinas que estão associadas</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
-                                                </div>
+                                                    <div class="modal-body">
+                                                        <h4 class="mb-3" style="text-align: left;">{!! $item->caracteristicasIdiomas[0]->nome !!}</h4>
+                                                        <ul>
+                                                            @if(count($item->maquinas) == 0)
+                                                            <li>Nenhuma máquina associada</li>
+                                                            @else
+                                                                @foreach ($item->maquinas as $m)
+                                                                <li>
+                                                                    {{optional($m->maquinasIdiomas->first())->nome}}
+                                                                </li>
+                                                                @endforeach
+                                                            @endif
+                                                        </ul>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                        <button class="btn btn-sm btn-secondary btn-secondary-delete" type="submit">
+                                                            <i class="bi bi-trash"></i> Excluir
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                    @else
-                                    <tr>
-                                        <td>
-                                            <span class="text-gray-800 fw-bold d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
-                                        </td>
-                                    </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                            <div class="contentPaginate mt-5 mb-5">
-                                {{ $caracteristicas->links('vendor.pagination.custom') }}
-                            </div>
+                                        </div>
+                                    </div>
+                                </tr>
+                                @endforeach
+                                @else
+                                <tr>
+                                    <td>
+                                        <span class="text-gray-800 d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
+                                    </td>
+                                </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                        <div class="contentPaginate">
+                            {{ $caracteristicas->links('vendor.pagination.custom') }}
                         </div>
                     </div>
                 </div>

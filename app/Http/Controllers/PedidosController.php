@@ -20,13 +20,15 @@ class PedidosController extends Controller
     public function index(Request $request, PedidoService $pedidoService)
     {
         $dados = [
-            'nome' => $request->input('nome')
+            'nome' => $request->input('nome'),
+            'cliente_id' => $request->input('cliente_id')
         ];
 
         $query = $pedidoService->index($dados);
 
         return view('Pedidos/index', [
             'nome' => $dados['nome'] ?? '',
+            'cliente_id' => $dados['cliente_id'] ?? '',
             'pedidos' => $query['pedidos'],
             'clientes' => $query['clientes'],
         ]);
@@ -83,7 +85,7 @@ class PedidosController extends Controller
                 'error' => 'Nenhum pedido foi encontrado.'
             ]);
         }
-       
+
         return view('Pedidos/editar', [
             'pedido' => $query['pedido'],
             'clientes' => $query['clientes'],

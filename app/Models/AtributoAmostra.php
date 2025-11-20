@@ -32,6 +32,11 @@ class AtributoAmostra extends Model
         return $this->hasOne(AtributoAmostraEspecificacao::class, 'atributo_id');
     }
 
+    public function atributoAmostraPedidos()
+    {
+        return $this->hasOne(AtributoAmostraPedido::class, 'atributo_id');
+    }
+
     public function subAtributos()
     {
         return $this->hasMany(SubAtributoAmostra::class, 'atributo_id');
@@ -42,6 +47,10 @@ class AtributoAmostra extends Model
         return $this->hasMany(ImagemAtributoAmostra::class, 'atributo_amostra_id');
     }
 
+    public function imagensPedido()
+    {
+        return $this->hasMany(ImagemAtributoAmostraPedido::class, 'atributo_amostra_id');
+    }
     public function atributosAmostrasIdiomas()
     {
         return $this->hasMany(AtributoAmostraIdioma::class, 'atributo_amostra_id');

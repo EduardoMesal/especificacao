@@ -6,131 +6,133 @@
 @endsection
 
 @section('content')
-<div class="post d-flex flex-column-fluid flex-lg-grow-1" id="kt_post">
-    <div id="kt_content_container" class="container-xxl card-space">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
-                    <div class="flex-grow-1">
-                        <div class="justify-content-between align-items-start flex-wrap mb-2">
-                            <div class="flex-column">
-                                <form class="form responseAjax" method="POST" action="{{route('Maquinas.editar_action', ['id' => $maquina->id, 'lang' => request('lang')])}}" novalidate enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="d-flex align-items-center justify-content-between mb-10">
-                                        <div class="">
-                                            <h2 class="mb-0">Editar máquina</h2>
-                                        </div>
-                                        <div class="pull-right">
-                                            <div class="btn-group dropleft position-relative">
-                                                <a href="javascript:void(0);" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                    <img src="{{ asset('/assets/img/flags/' . $idioma->icone) }}" style="width: 22px;">&nbsp;&nbsp;{!! $idioma->nome !!}
-                                                </a>
+<div class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
+                        <div class="flex-grow-1">
+                            <div class="justify-content-between align-items-start flex-wrap mb-2">
+                                <div class="flex-column">
+                                    <form class="form responseAjax" method="POST" action="{{route('Maquinas.editar_action', ['id' => $maquina->id, 'lang' => request('lang')])}}" novalidate enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="d-flex align-items-center justify-content-between mb-10">
+                                            <div class="">
+                                                <h2 class="mb-0">Editar máquina</h2>
+                                            </div>
+                                            <div class="pull-right">
+                                                <div class="btn-group dropleft position-relative">
+                                                    <a href="javascript:void(0);" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        <img src="{{ asset('/assets/img/flags/' . $idioma->icone) }}" style="width: 22px;">&nbsp;&nbsp;{!! $idioma->nome !!}
+                                                    </a>
 
-                                                <ul class="dropdown-menu position-absolute top-100">
-                                                    @foreach ($idiomas as $key => $value)
-                                                        <li class="navi-item p-2">
-                                                            <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link">
-                                                                <img src="{{ asset('/assets/img/flags/' . $value->icone) }}" class="img-thumbnail" style="max-width: 30px;">&nbsp;{!! $value->nome !!}
-                                                            </a>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row g-9 mb-8">
-                                        <div class="row imgArea mt-12">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span>Imagem</span>
-                                            </label>
-                                            <div class="col-lg-8">
-                                                <div class="fileupload-new thumbnail" data-kt-image-input="true">
-                                                    <div class="bgCropper">
-                                                        <img id="image-preview" src="{{ mixAssets('assets/img/maquinas/' . $maquina->imagem) }}" style=" max-width: 480px; max-width: 100%;" alt="">
-                                                        <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow editCrop" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Mudar imagem">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                                                            </svg>
-                                                            <input type="file" id="image-input" name="imagem" accept="image/*" style="display: none;">
-                                                        </label>
-                                                        <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow removeCrop" data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Remover imagem" style="display: none;">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#f1416c" style="border-radius: 25px;" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
-                                                            </svg>
-                                                        </span>
-                                                    </div>
+                                                    <ul class="dropdown-menu position-absolute top-100">
+                                                        @foreach ($idiomas as $key => $value)
+                                                            <li class="navi-item p-2">
+                                                                <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link">
+                                                                    <img src="{{ asset('/assets/img/flags/' . $value->icone) }}" class="img-thumbnail" style="max-width: 30px;">&nbsp;{!! $value->nome !!}
+                                                                </a>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
                                                 </div>
-                                                <input type="hidden" id="cropped-image" name="cropped_image">
-                                                <button type="hidden" id="trocar-button" style="display: none;">Trocar</button>
                                             </div>
                                         </div>
-                                        <div class="col-md-4 fv-row">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="required">Nome</span>
-                                            </label>
-                                            <input type="text" value="{{optional($maquina->maquinasIdiomas->first())->nome}}" class="form-control form-control-solid" placeholder="Preencha o campo nome" name="nome" />
-                                        </div>
-                                        <div class="col-md-4 fv-row selectArea">
-                                            <label class="fs-6 fw-bold mb-2">Equipamento de origem</label>
-                                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar equipamento" name="equipamento_id">
-                                                @foreach($equipamentos as $item)
-                                                    <option value="{{ $item->id }}" @if($maquina->equipamento->id == $item->id) selected @endif>
-                                                       {{ optional($item->equipamentosOrigemIdiomas->first())->nome }}
-                                                    </option>
-                                                @endforeach
-                                           </select>
-                                        </div>
-                                        <div class="col-md-4 fv-row">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="required">NCM</span>
-                                            </label>
-                                            <input type="text" value="{{$maquina->ncm}}" class="form-control form-control-solid" placeholder="Preencha o campo ncm" name="ncm" />
-                                        </div>
-                                        <div class="col-md-12 fv-row selectArea">
-                                            <label class="fs-6 fw-bold mb-2">Amostras</label>
-                                                <select id="selectMultipleAmostra" multiple="multiple" class="meuSelect" data-placeholder="Selecionar amostras(s)" name="amostras[]">
-                                                @foreach($amostras as $item)
-                                                    <option value="{{ $item->id }}" {{ in_array($item->id, $amostrasIds) ? 'selected' : '' }}>
-                                                        {{ optional($item->amostrasIdiomas->first())->nome }}
-                                                    </option>
-                                                @endforeach   
+                                        <div class="row g-9 mb-8">
+                                            <div class="row imgArea my-5">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span>Imagem</span>
+                                                </label>
+                                                <div class="col-lg-8">
+                                                    <div class="fileupload-new thumbnail" data-kt-image-input="true">
+                                                        <div class="bgCropper">
+                                                            <img id="image-preview" src="{{ mixAssets('assets/img/maquinas/' . $maquina->imagem) }}" style=" max-width: 480px; max-width: 100%;" alt="">
+                                                            <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow editCrop" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Mudar imagem">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                                                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                                                </svg>
+                                                                <input type="file" id="image-input" name="imagem" accept="image/*" style="display: none;">
+                                                            </label>
+                                                            <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow removeCrop" data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Remover imagem" style="display: none;">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#f1416c" style="border-radius: 25px;" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
+                                                                </svg>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" id="cropped-image" name="cropped_image">
+                                                    <button type="hidden" id="trocar-button" style="display: none;">Trocar</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 fv-row input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="required">Nome</span>
+                                                </label>
+                                                <input type="text" value="{{optional($maquina->maquinasIdiomas->first())->nome}}" class="bg-transparent" placeholder="Preencha o campo nome" name="nome" />
+                                            </div>
+                                            <div class="col-md-4 fv-row input-style-1 selectArea">
+                                                <label class="fs-6 fw-bold mb-2">Equipamento de origem</label>
+                                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar equipamento" name="equipamento_id">
+                                                    @foreach($equipamentos as $item)
+                                                        <option value="{{ $item->id }}" @if($maquina->equipamento->id == $item->id) selected @endif>
+                                                        {{ optional($item->equipamentosOrigemIdiomas->first())->nome }}
+                                                        </option>
+                                                    @endforeach
                                             </select>
+                                            </div>
+                                            <div class="col-md-4 fv-row input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="required">NCM</span>
+                                                </label>
+                                                <input type="text" value="{{$maquina->ncm}}" class="bg-transparent" placeholder="Preencha o campo ncm" name="ncm" />
+                                            </div>
+                                            <div class="col-md-12 fv-row selectArea input-style-1">
+                                                <label class="fs-6 fw-bold mb-2">Amostras</label>
+                                                    <select id="selectMultipleAmostra" multiple="multiple" class="meuSelect" data-placeholder="Selecionar amostras(s)" name="amostras[]">
+                                                    @foreach($amostras as $item)
+                                                        <option value="{{ $item->id }}" {{ in_array($item->id, $amostrasIds) ? 'selected' : '' }}>
+                                                            {{ optional($item->amostrasIdiomas->first())->nome }}
+                                                        </option>
+                                                    @endforeach   
+                                                </select>
+                                            </div>
+                                            <div class="col-md-12 fv-row selectArea input-style-1">
+                                                <label class="fs-6 fw-bold mb-2">Produtos</label>
+                                                <select id="selectMultipleProdutos" multiple="multiple" class="meuSelect" data-placeholder="Selecionar produtos(s)" name="produtos[]">
+                                                    @foreach($produtos as $item)
+                                                        <option value="{{ $item->id }}" {{ in_array($item->id, $produtosIds) ? 'selected' : '' }}>
+                                                            {{ optional($item->produtosIdiomas->first())->nome }}
+                                                        </option>
+                                                    @endforeach   
+                                                </select>
+                                            </div>
+                                            <div class="col-md-12 fv-row selectArea input-style-1">
+                                                <label class="fs-6 fw-bold mb-2">Características</label>
+                                                <select id="selectMultipleCaracteristicas" multiple="multiple" class="meuSelect" data-placeholder="Selecionar característica(s)" name="caracteristicas[]">
+                                                    @foreach($caracteristicas as $item)
+                                                    <option value="{{ $item->id }}" {{ in_array($item->id, $caracteristicasIds) ? 'selected' : '' }}>
+                                                            {{ optional($item->caracteristicasIdiomas->first())->nome }}
+                                                        </option>
+                                                    @endforeach   
+                                                </select>
+                                            </div>
+                                            <div class="col-md-12 mb-8 fv-row ckEditorView">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="notRequired">Observações</span>
+                                                </label>
+                                                <textarea name="observacao" id="texto-2" class="form-control ckText">
+                                                    {!! optional($maquina->maquinasIdiomas->first())->observacao !!}    
+                                                </textarea>
+                                            </div>
                                         </div>
-                                        <div class="col-md-12 fv-row selectArea">
-                                            <label class="fs-6 fw-bold mb-2">Produtos</label>
-                                            <select id="selectMultipleProdutos" multiple="multiple" class="meuSelect" data-placeholder="Selecionar produtos(s)" name="produtos[]">
-                                                @foreach($produtos as $item)
-                                                    <option value="{{ $item->id }}" {{ in_array($item->id, $produtosIds) ? 'selected' : '' }}>
-                                                        {{ optional($item->produtosIdiomas->first())->nome }}
-                                                    </option>
-                                                @endforeach   
-                                            </select>
+                                        <div class="text-center pt-30">
+                                            <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
+                                                <span class="indicator-label">Atualizar</span>
+                                            </button>
                                         </div>
-                                        <div class="col-md-12 fv-row selectArea">
-                                            <label class="fs-6 fw-bold mb-2">Características</label>
-                                            <select id="selectMultipleCaracteristicas" multiple="multiple" class="meuSelect" data-placeholder="Selecionar característica(s)" name="caracteristicas[]">
-                                                @foreach($caracteristicas as $item)
-                                                   <option value="{{ $item->id }}" {{ in_array($item->id, $caracteristicasIds) ? 'selected' : '' }}>
-                                                        {{ optional($item->caracteristicasIdiomas->first())->nome }}
-                                                    </option>
-                                                @endforeach   
-                                            </select>
-                                        </div>
-                                        <div class="col-md-12 mb-8 fv-row ckEditorView">
-                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                <span class="notRequired">Observações</span>
-                                            </label>
-                                            <textarea name="observacao" id="texto-2" class="form-control ckText">
-                                                {!! optional($maquina->maquinasIdiomas->first())->observacao !!}    
-                                            </textarea>
-                                        </div>
-                                    </div>
-                                    <div class="text-center">
-                                        <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
-                                            <span class="indicator-label">Atualizar</span>
-                                        </button>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

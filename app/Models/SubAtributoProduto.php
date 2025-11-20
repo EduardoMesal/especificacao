@@ -36,4 +36,9 @@ class SubAtributoProduto extends Model
         return $this->hasMany(SubAtributoProdutoIdioma::class, 'sub_atributos_produtos_id');
     }
 
+    public function pedido()
+    {
+        return $this->hasOne(AtributoProdutoPedido::class, 'sub_atributo_id');
+    }
+
 }
