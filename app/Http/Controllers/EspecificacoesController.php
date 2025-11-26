@@ -16,7 +16,6 @@ class EspecificacoesController extends Controller
     public function index(Request $request, EspecificacaoService $especificacaoService)
     {
         $dados = [
-            'nome' => $request->input('nome'),
             'codigo_focco' => $request->input('codigo_focco'),
             'serie' => $request->input('serie'),
             'maquina_id' => $request->input('maquina_id'),
@@ -28,9 +27,9 @@ class EspecificacoesController extends Controller
         return view('Especificacoes/index', [
             'codigo_focco' => $dados['codigo_focco'] ?? '',
             'serie' => $dados['serie'] ?? '',
-            'nome' => $dados['nome'] ?? '',
             'cliente_nome' => $dados['cliente_nome'] ?? '',
             'maquinas' => $query['maquinas'],
+            'maquina_id' => $dados['maquina_id'] ?? '',
             'especificacoes' => $query['especificacoes'],
         ]);
     }
@@ -169,7 +168,6 @@ class EspecificacoesController extends Controller
                 'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
             ]);
         }
-
 
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],

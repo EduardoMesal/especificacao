@@ -28,9 +28,14 @@ class DashboardService
         ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', $dados['codigo_focco']))
         ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
         ->when($dados['maquina_id'], fn($q) => $q->where('maquina_id', $dados['maquina_id']))
-        ->when($dados['cliente_id'], fn($q) => $q->whereHas('pedido.cliente', function ($query) use ($dados) {
-                $query->where('id', $dados['cliente_id']);
-            }))        
+        // ->when($dados['cliente_id'], fn($q) => $q->whereHas('pedido.cliente', function ($query) use ($dados) {
+        //     $query->where('id', $dados['cliente_id']);
+        // }))        
+        ->when($dados['cliente_nome'], fn($q) =>
+            $q->whereHas('pedido.cliente', function ($query) use ($dados) {
+                $query->where('nome', 'LIKE', "%{$dados['cliente_nome']}%");
+            })
+        )
         ->orderBy('criado', 'desc')
         ->take(30)
         ->get();
@@ -62,7 +67,7 @@ class DashboardService
             ];
         });
         
-        $clientes = Cliente::where('excluido', null)->get();
+        // $clientes = Cliente::where('excluido', null)->get();
 
         $especificacoesPerMonths = [];
 
@@ -89,7 +94,7 @@ class DashboardService
             'especificacoes' => $especificacoes,
             'especificacoesPerMonths' => $especificacoesPerMonths,
             'maquinas' => $maquinas,
-            'clientes' => $clientes,
+            // 'clientes' => $clientes,
             'especificacoesCount' => $especificacoesCount,
             'masquinasCount' => $masquinasCount,
             'pedidosCount' => $pedidosCount,

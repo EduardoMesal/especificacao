@@ -1644,8 +1644,12 @@ div.dataTables_wrapper div.dataTables_filter {
 
 .contentResumoImg {
   display: flex;
+  background-color: #f8f9fa;
   flex-direction: column;
   gap: 10px;
+}
+
+.contentResumoImg:not(:last-child) {
   margin-bottom: calc(1rem + 2px);
 }
 

@@ -21,8 +21,8 @@
                                         <div class="hidden modal-options-menu" data-modal="modalOpenIdiomas">
                                             <ul class="modal-options modal-options-idiomas" style="margin-top: 20px;">
                                                  @foreach ($idiomas as $key => $value)
-                                                    <li class="link-modal">
-                                                        <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link">
+                                                    <li class="dropdown-item link-modal">
+                                                        <a href="{{ request()->fullUrlWithQuery(['lang' => $value->codigo]) }}" class="navi-link link-modal">
                                                             <img src="{{ asset('/assets/img/flags/' . $value->icone) }}" class="img-thumbnail" style="max-width: 30px;">&nbsp;{!! $value->nome !!}
                                                         </a>
                                                     </li>
@@ -238,10 +238,10 @@
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
                                                                         <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                            <div>{!! $resumo['caracteristica'] !!}:</div>
+                                                                            <div><span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span></div>
                                                                             @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
                                                                                 <div>
-                                                                                    {{ $item['atributo'] }}: 
+                                                                                    <span style="font-weight: 600;">{{ $item['atributo'] }}: </span>
                                                                                     @if($item['conteudo'])
                                                                                     {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
                                                                                     @else
@@ -269,7 +269,7 @@
                                                                         @endif
 
                                                                         <div>
-                                                                            {!! $resumo['caracteristica'] !!}:
+                                                                            <span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span>
                                                                             @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
                                                                                 {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
                                                                             @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
@@ -313,34 +313,30 @@
                                                 <div class="accordion-body">
                                                     <div class="resumoContent">
                                                     @if (count($dadosPorAmostra) > 0)
-                                                        @foreach ($dadosPorAmostra as $indice => $atributos)
-                                                            @if (count($atributos) > 0)
-                                                                <h4>{{ $atributos[0]['amostra_nome'] }} {{ $loop->iteration }}</h4>
-
+                                                        @foreach ($dadosPorAmostra as $indice => $indiceAtt)
+                                                            @php
+                                                                $indice_modelo = 0;
+                                                            @endphp
+                                                                    
+                                                            @foreach ($indiceAtt as $key => $atributos)
+                                                                @php
+                                                                    $indice_modelo = $indice_modelo + 1;
+                                                                @endphp
                                                                 @php
                                                                     $amostraIndiceId = $atributos[0]['indice_amostra_id'] ?? null;
                                                                     $temImagem = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->exists();
                                                                 @endphp
 
-                                                                @if ($temImagem)
-                                                                    @php
-                                                                        $imagens = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->get();
-                                                                    @endphp
-                                                                    @if(count($imagens) > 0)
-                                                                    <div class="contentResumoImg">
-                                                                        @foreach ($imagens as $img)
-                                                                            <img src="{{ mixAssets('assets/img/amostras/' . $img->imagem) }}" alt="Imagem da amostra">
-                                                                        @endforeach
-                                                                    </div>
-                                                                    @endif
-                                                                @endif
-
                                                                 @php
                                                                     $agrupados = collect($atributos)->groupBy('atributo_id');
                                                                 @endphp
-
-                                                                <ul class="list-group">
+                                                                <h4 style="margin-bottom: 2px;">{{ $indice }}</h4>
+                                                                <span style="font-size: 13px; font-style: italic; display: block; margin-top: -2px; margin-bottom: 5px;">
+                                                                    Modelo {{ $indice_modelo }}
+                                                                </span>
+                                                                <ul class="list-group"> 
                                                                     @foreach ($agrupados as $grupo)
+                                                                       
                                                                         @php $primeiro = $grupo->first(); @endphp
                                                                         @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
                                                                             @if ($primeiro['atributo_tipo'] === 'multiplos')
@@ -356,7 +352,7 @@
                                                                                     <div class="mt-2">
                                                                                         @foreach ($grupo as $item)
                                                                                             <div class="">
-                                                                                                {{ $item['sub_atributo_nome'] }}:
+                                                                                                <span style="font-weight: 600;">{{ $item['sub_atributo_nome'] }}: </span>
                                                                                                 @if($item['conteudo'])
                                                                                                     {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
                                                                                                 @else
@@ -373,7 +369,7 @@
                                                                             @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
                                                                                 @foreach ($grupo as $item)
                                                                                     <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                                        {{ $item['atributo_nome'] }}:
+                                                                                        <span style="font-weight: 600; color: #000">{{ $item['atributo_nome'] }}:</span>
                                                                                         @php
                                                                                             $valor = '';
                                                                                             if (!empty($item['sub_atributo_nome'])) {
@@ -408,8 +404,21 @@
                                                                             @endif
                                                                         @endif
                                                                     @endforeach
+                                                                    @if ($temImagem)
+                                                                        @php
+                                                                            $imagens = \App\Models\ImagemAmostra::where('amostra_indice_id', $amostraIndiceId)->get();
+                                                                        @endphp
+                                                                        @if(count($imagens) > 0)
+                                                                        <h5>Imagens</h5>
+                                                                        <div class="contentResumoImg list-group p-3 bg-light rounded-2 border border-light position-relative mt-2"> 
+                                                                            @foreach ($imagens as $img)
+                                                                                <img src="{{ mixAssets('assets/img/amostras/' . $img->imagem) }}" alt="Imagem da amostra">
+                                                                            @endforeach
+                                                                        </div>
+                                                                        @endif
+                                                                    @endif
                                                                 </ul>
-                                                            @endif
+                                                            @endforeach
                                                         @endforeach
                                                     @else
                                                         <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma amostra foi encontrada.</li>
@@ -427,109 +436,117 @@
                                             <div id="collapseProdutosGerais" class="accordion-collapse collapse" aria-labelledby="headingProdutos">
                                                 <div class="accordion-body">
                                                     <div class="resumoContent">
-                                                    @if (count($dadosPorProduto) > 0)
-                                                        @foreach ($dadosPorProduto as $indice => $atributos)
-                                                            @if (count($atributos) > 0)
-                                                                <h4>{{ $atributos[0]['produto_nome'] }} {{ $loop->iteration }}</h4>
-
+                                                        @if (count($dadosPorProduto) > 0)
+                                                            @foreach ($dadosPorProduto as $indice => $indiceAtt)
                                                                 @php
-                                                                    $produtoIndiceId = $atributos[0]['indice_produto_id'] ?? null;
-                                                                    $temImagem = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->exists();
+                                                                    $indice_modelo = 0;
                                                                 @endphp
-
-                                                                @if ($temImagem)
+                                                                @foreach ($indiceAtt as $key => $atributos)
                                                                     @php
-                                                                        $imagens = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->get();
+                                                                        $indice_modelo = $indice_modelo + 1;
                                                                     @endphp
-                                                                    @if(count($imagens) > 0)
-                                                                    <div class="contentResumoImg">
-                                                                        @foreach ($imagens as $img)
-                                                                            <img src="{{ mixAssets('assets/img/produtos/' . $img->imagem) }}" alt="Imagem do produto">
-                                                                        @endforeach
-                                                                    </div>
-                                                                    @endif
-                                                                @endif
+                                                                    <h4 style="margin-bottom: 2px;">{{ $indice }}</h4>
+                                                                    <span style="font-size: 13px; font-style: italic; display: block; margin-top: -2px; margin-bottom: 5px;">
+                                                                        Modelo {{ $indice_modelo }}
+                                                                    </span>
+                                                                    @php
+                                                                        $produtoIndiceId = $atributos[0]['indice_produto_id'] ?? null;
+                                                                        $temImagem = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->exists();
+                                                                    @endphp
 
-                                                                @php
-                                                                    $agrupados = collect($atributos)->groupBy('atributo_produto_id');
-                                                                @endphp
+                                                                    @php
+                                                                        $agrupados = collect($atributos)->groupBy('atributo_produto_id');
+                                                                    @endphp
 
-                                                                <ul class="list-group">
-                                                                    @foreach ($agrupados as $grupo)
-                                                                        @php $primeiro = $grupo->first(); @endphp
-                                                                        @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
+                                                                    <ul class="list-group">
+                                                                        @foreach ($agrupados as $grupo)
+                                                                            @php $primeiro = $grupo->first(); @endphp
+                                                                            @if (strtolower($primeiro['sub_atributo_nome']) !== 'n/a')
 
-                                                                            @if ($primeiro['atributo_tipo'] === 'multiplos')
-                                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                                {{ $primeiro['atributo_nome'] }}:
-                                                                                @if(count($grupo[0]['imagens']) > 0)
-                                                                                    <div class="contentResumoImg">
-                                                                                        @foreach ($grupo[0]['imagens'] as $img)
-                                                                                            <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img->imagem) }}" alt="Imagem do produto">
-                                                                                        @endforeach
-                                                                                    </div>
-                                                                                    @endif
-                                                                                    <div class="mt-2">
-                                                                                        @foreach ($grupo as $item)
-                                                                                            <div class="">
-                                                                                                {{ $item['sub_atributo_nome'] }}:
-                                                                                                @if($item['conteudo'])
-                                                                                                    {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
-                                                                                                @else
-                                                                                                    <span>Não informado;</span>
-                                                                                                @endif
-
-                                                                                                @if($item['observacao_personalizada'])
-                                                                                                    <span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
-                                                                                                @endif
-                                                                                            </div>
-                                                                                        @endforeach
-                                                                                    </div>
-                                                                                </li>
-                                                                            @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
-                                                                                @foreach ($grupo as $item)
+                                                                                @if ($primeiro['atributo_tipo'] === 'multiplos')
                                                                                     <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                                        {{ $item['atributo_nome'] }}:
-                                                                                        @php
-                                                                                            $valor = '';
-                                                                                            if (!empty($item['sub_atributo_nome'])) {
-                                                                                                $valor = $item['sub_atributo_nome'];
-                                                                                            } elseif (!empty($item['conteudo'])) {
-                                                                                                $valor = $item['conteudo'];
-                                                                                            }
-
-                                                                                            if (!empty($valor)) {
-                                                                                                $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
-                                                                                                $valor .= ';';
-                                                                                            } else {
-                                                                                                $valor = '<span>Não informado;</span>';
-                                                                                            }
-                                                                                        @endphp
-
-                                                                                        {!! $valor !!}
-
-                                                                                        @if($item['observacao_personalizada'])
-                                                                                            <br><span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                    {{ $primeiro['atributo_nome'] }}:
+                                                                                    @if(count($grupo[0]['imagens']) > 0)
+                                                                                        <div class="contentResumoImg">
+                                                                                            @foreach ($grupo[0]['imagens'] as $img)
+                                                                                                <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img->imagem) }}" alt="Imagem do produto">
+                                                                                            @endforeach
+                                                                                        </div>
                                                                                         @endif
+                                                                                        <div class="mt-2">
+                                                                                            @foreach ($grupo as $item)
+                                                                                                <div class="">
+                                                                                                    <span style="font-weight: 600;">{{ $item['sub_atributo_nome'] }}: </span>
+                                                                                                    @if($item['conteudo'])
+                                                                                                        {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
+                                                                                                    @else
+                                                                                                        <span>Não informado;</span>
+                                                                                                    @endif
 
-                                                                                        @if(count($item['imagens']) > 0)
-                                                                                            <div class="contentResumoImg contentResumoImgSpace">
-                                                                                                @foreach ($item['imagens'] as $img)
-                                                                                                    <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img['imagem']) }}"/>
-                                                                                                @endforeach
-                                                                                            </div>
-                                                                                        @endif
+                                                                                                    @if($item['observacao_personalizada'])
+                                                                                                        <span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                                    @endif
+                                                                                                </div>
+                                                                                            @endforeach
+                                                                                        </div>
                                                                                     </li>
+                                                                                @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
+                                                                                    @foreach ($grupo as $item)
+                                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                                            <span style="font-weight: 600; color: #000">{{ $item['atributo_nome'] }}:</span>
+                                                                                            @php
+                                                                                                $valor = '';
+                                                                                                if (!empty($item['sub_atributo_nome'])) {
+                                                                                                    $valor = $item['sub_atributo_nome'];
+                                                                                                } elseif (!empty($item['conteudo'])) {
+                                                                                                    $valor = $item['conteudo'];
+                                                                                                }
+
+                                                                                                if (!empty($valor)) {
+                                                                                                    $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
+                                                                                                    $valor .= ';';
+                                                                                                } else {
+                                                                                                    $valor = '<span>Não informado;</span>';
+                                                                                                }
+                                                                                            @endphp
+
+                                                                                            {!! $valor !!}
+
+                                                                                            @if($item['observacao_personalizada'])
+                                                                                                <br><span class="obsText">OBS: {!! $item['observacao_personalizada'] !!}</span>
+                                                                                            @endif
+
+                                                                                            @if(count($item['imagens']) > 0)
+                                                                                                <div class="contentResumoImg contentResumoImgSpace">
+                                                                                                    @foreach ($item['imagens'] as $img)
+                                                                                                        <img src="{{ mixAssets('assets/img/produtos/atributos/' . $img['imagem']) }}"/>
+                                                                                                    @endforeach
+                                                                                                </div>
+                                                                                            @endif
+                                                                                        </li>
+                                                                                    @endforeach
+                                                                                @endif
+                                                                            @endif
+                                                                        @endforeach
+                                                                        @if ($temImagem)
+                                                                            @php
+                                                                                $imagens = \App\Models\ImagemProduto::where('produto_indice_id', $produtoIndiceId)->get();
+                                                                            @endphp
+                                                                            @if(count($imagens) > 0)
+                                                                            <h5>Imagens</h5>
+                                                                            <div class="contentResumoImg list-group p-3 bg-light rounded-2 border border-light position-relative mt-2"> 
+                                                                                @foreach ($imagens as $img)
+                                                                                    <img src="{{ mixAssets('assets/img/produtos/' . $img->imagem) }}" alt="Imagem do produto">
                                                                                 @endforeach
+                                                                            </div>
                                                                             @endif
                                                                         @endif
-                                                                    @endforeach
-                                                                </ul>
-                                                            @endif
-                                                        @endforeach
-                                                    @else
-                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhum produto foi encontrado.</li>
-                                                    @endif
+                                                                    </ul>
+                                                                @endforeach
+                                                            @endforeach
+                                                        @else
+                                                            <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhum produto foi encontrado.</li>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -546,7 +563,7 @@
                                                         <ul class="list-group">
                                                         @if (count($especificacao->observacoes) > 0)
                                                             @foreach ($especificacao->observacoes as $key => $observacao)
-                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative"><strong>Observação {!! $key + 1 !!}:</strong> {!! $observacao->conteudo !!}</li>
+                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative"><span style="font-weight: 600; color: #000">Observação {!! $key + 1 !!}:</span style="font-weight: 600; color: #000"> {!! $observacao->conteudo !!}</li>
                                                             @endforeach
                                                         @else
                                                             <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma observação foi encontrada.</li>
@@ -602,10 +619,10 @@
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
                                                                         <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                            <div>{!! $resumo['caracteristica'] !!}:</div>
+                                                                            <div><span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span></div>
                                                                             @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
                                                                                 <div>
-                                                                                    {{ $item['atributo'] }}: 
+                                                                                    <span style="font-weight: 600;">{{ $item['atributo'] }}: </span>
                                                                                     @if($item['conteudo'])
                                                                                     {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
                                                                                     @else
@@ -633,7 +650,7 @@
                                                                         @endif
 
                                                                         <div>
-                                                                            {!! $resumo['caracteristica'] !!}:
+                                                                            <span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span>
                                                                             @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
                                                                                 {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
                                                                             @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
@@ -883,7 +900,7 @@
                                                         <div class="d-flex align-items-center">
                                                             <div class="d-flex justify-content-start flex-column">
                                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                                    {!! optional($item->amostra->amostrasIdiomas->first())->nome !!} {{ ($key + 1) }}
+                                                                    {!! optional($item->amostra->amostrasIdiomas->first())->nome !!}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -945,7 +962,7 @@
                             <div class="accordion-body">
                                 <div class="d-flex align-items-center justify-content-center justify-content-md-end">
                                     @if(count($maquinaProdutos) > 0)
-                                    <div class="card-toolbar d-flex justify-content-center justify-content-md-end mb-5">
+                                    <div class="card-toolbar d-flex justify-content-center justify-content-md-end">
                                         <button class="btn btn-primary justify-content-center justify-content-md-end dropdown-modal" id="modalOpenProdutos">Adicionar produtos</button>
                                         
                                         <div class="hidden modal-options-menu" data-modal="modalOpenProdutos">
@@ -989,7 +1006,7 @@
                                                         <div class="d-flex align-items-center">
                                                             <div class="d-flex justify-content-start flex-column">
                                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                                    {!! optional($item->produto->produtosIdiomas->first())->nome !!} {{ ($key + 1) }}
+                                                                    {!! optional($item->produto->produtosIdiomas->first())->nome !!}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -1279,7 +1296,12 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex justify-content-start flex-column">
-                                                            <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                            <span
+                                                            data-bs-toggle="tooltip"
+                                                            data-bs-placement="top"
+                                                            data-bs-custom-class="custom-tooltip"
+                                                            data-bs-title="{!! $especificacao->pedido->cliente->nome !!}"
+                                                            class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 250px">
                                                                 {!! $especificacao->pedido->cliente->nome !!}
                                                             </span>
                                                         </div>

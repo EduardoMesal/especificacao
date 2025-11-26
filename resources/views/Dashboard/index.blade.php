@@ -106,6 +106,7 @@
                     'serie' => isset($serie) ? $serie : null,
                     'maquina_id' => isset($maquina_id) ? $maquina_id : null,
                     'cliente_id' => isset($cliente_id) ? $cliente_id : null,
+                    'cliente_nome' => isset($cliente_nome) ? $cliente_nome : null,
                     'maquinas' => isset($maquinas) ? $maquinas : null,
                     'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                     'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
@@ -180,7 +181,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                <span 
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="{{ optional($item->maquina->maquinasIdiomas->first())->nome }}"
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto"  style="width: 150px">
                                                     @if((optional($item->maquina->maquinasIdiomas->first())->nome))
                                                     {{ optional($item->maquina->maquinasIdiomas->first())->nome }}
                                                     @else
@@ -193,7 +199,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto">
+                                                <span 
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="{{ $item->pedido->cliente->nome }}"
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto"  style="width: 150px">
                                                     @if($item->pedido->cliente->nome)
                                                     {!! $item->pedido->cliente->nome !!}
                                                     @else

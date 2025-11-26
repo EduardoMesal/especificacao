@@ -21,7 +21,8 @@ class DashboardController extends Controller
             'codigo_focco' => $request->input('codigo_focco'),
             'serie' => $request->input('serie'),
             'maquina_id' => $request->input('maquina_id'),
-            'cliente_id' => $request->input('cliente_id'),
+            'cliente_nome' => $request->input('cliente_nome'),
+
         ];
 
         $query = $dashboardService->index($dados);
@@ -30,11 +31,10 @@ class DashboardController extends Controller
             'especificacoes' => $query['especificacoes'],
             'especificacoesPerMonths' => $query['especificacoesPerMonths'],
             'maquinas' => $query['maquinas'],
-            'clientes' => $query['clientes'],
             'codigo_focco' => $dados['codigo_focco'] ?? '',
             'serie' => $dados['serie'] ?? '',
             'maquina_id' => $dados['maquina_id'] ?? '',
-            'cliente_id' => $dados['cliente_id'] ?? '',
+            'cliente_nome' => $dados['cliente_nome'] ?? '',
             'especificacoesCount' => $query['especificacoesCount'] ?? 0,
             'masquinasCount' => $query['masquinasCount'] ?? 0,
             'pedidosCount' => $query['pedidosCount'] ?? 0,

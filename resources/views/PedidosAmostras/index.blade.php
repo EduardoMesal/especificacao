@@ -81,7 +81,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                <span 
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="{{ $item['amostra_nome'] }}"
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
                                                     {!! $item['amostra_nome'] !!}
                                                 </span>
                                             </div>
@@ -90,7 +95,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto">
+                                                <span 
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="{{ $item['amostra_nome'] }}"
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
                                                     @if($item['cliente_nome'])
                                                         {!! $item['cliente_nome'] !!}
                                                         @else

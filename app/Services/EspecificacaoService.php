@@ -45,21 +45,22 @@ class EspecificacaoService
             ]);
         }])
         ->orderBy('criado', 'desc')
-        ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', $dados['codigo_focco']))
+        ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', 'LIKE', "%{$dados['codigo_focco']}%"))
         ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
         ->when($dados['cliente_nome'], fn($q) =>
             $q->whereHas('pedido.cliente', function ($query) use ($dados) {
                 $query->where('nome', 'LIKE', "%{$dados['cliente_nome']}%");
             })
         )
-        ->when($dados['nome'], fn($q) => $q->whereHas('maquina', function ($query) use ($dados) { 
-                $query->whereHas('maquinasIdiomas', function ($q) use ($dados) {
-                    $q->whereHas('idiomas', function ($query) {
-                        $query->where('codigo', 'pt');
-                    })
-                    ->where('nome', 'like', '%' . $dados['nome'] . '%');
-                });
-            }));
+        ->when($dados['maquina_id'], fn($q) => $q->where('maquina_id', $dados['maquina_id']));
+        // ->when($dados['nome'], fn($q) => $q->whereHas('maquina', function ($query) use ($dados) { 
+        //         $query->whereHas('maquinasIdiomas', function ($q) use ($dados) {
+        //             $q->whereHas('idiomas', function ($query) {
+        //                 $query->where('codigo', 'pt');
+        //             })
+        //             ->where('nome', 'like', '%' . $dados['nome'] . '%');
+        //         });
+        //     }));
 
         $especificacoes = $especificacoes->paginate(20)->withQueryString();
         $maquinas = Maquina::where('excluido', null)
@@ -868,10 +869,10 @@ class EspecificacaoService
             return $item;
         });
 
-
-        $dadosPorAmostra = $amostras->groupBy('amostra_nome');
-        $dadosAgrupadoAmostras = $dadosPorAmostra->flatMap(function ($amostras) {
-            return $amostras->groupBy('indice_amostra_id');
+        $dadosAgrupadoAmostras = $amostras
+        ->groupBy('amostra_nome')
+        ->map(function ($grupo) {
+            return $grupo->groupBy('indice_amostra_id');
         });
 
         $indiceProdutoId = AtributoProdutoIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
@@ -918,9 +919,10 @@ class EspecificacaoService
             return $item;
         });
 
-        $dadosPorProduto = $produtos->groupBy('produto_nome');
-        $dadosAgrupadoProdutos = $dadosPorProduto->flatMap(function ($produtos) {
-            return $produtos->groupBy('indice_produto_id');
+        $dadosAgrupadoProdutos = $produtos
+        ->groupBy('produto_nome')
+        ->map(function ($grupo) {
+            return $grupo->groupBy('indice_produto_id');
         });
 
         $equipamentoId = $especificacao->maquina->equipamento->id;
