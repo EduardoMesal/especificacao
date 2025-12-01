@@ -129,7 +129,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                <span 
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="{{ optional($item->maquina->maquinasIdiomas->first())->nome }}"
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto"  style="width: 150px">
                                                     @if((optional($item->maquina->maquinasIdiomas->first())->nome))
                                                         {{ optional($item->maquina->maquinasIdiomas->first())->nome }}
                                                         @else
@@ -138,12 +143,16 @@
                                                 </span>
                                             </div>
                                         </div>
-                                        <span class="text-gray-400 d-block">Máquina</span>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                <span 
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="{{ $item->pedido->cliente->nome }}"
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto"  style="width: 150px">
                                                     @if($item->pedido->cliente->nome)
                                                         {!! $item->pedido->cliente->nome !!}
                                                         @else

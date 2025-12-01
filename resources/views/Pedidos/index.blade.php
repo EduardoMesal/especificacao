@@ -96,7 +96,7 @@
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 data-bs-custom-class="custom-tooltip"
-                                                data-bs-title="{!! $item->cliente->nome !!}"
+                                                data-bs-title="{{ $item->cliente->nome }}"
                                                 class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
                                                     {!! $item->cliente->nome !!}
                                                 </span>

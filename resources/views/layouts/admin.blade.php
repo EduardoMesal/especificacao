@@ -22,9 +22,9 @@
 </head>
 
 <body>
-	<!-- <div id="preloader">
+	<div id="preloader">
 		<div class="spinner"></div>
-	</div> -->
+	</div>
 	<aside class="sidebar-nav-wrapper">
 		<div class="navbar-logo">
 			<a href="{{route('Dashboard.index')}}">
