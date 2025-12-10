@@ -39,10 +39,12 @@ body {
   padding: 2rem 2.25rem 0px 2.25rem;
 }
 
+.adjustment-row-multiplos:not(:last-child) {
+  margin-bottom: 30px;
+}
 .card-col {
   flex: 1;
 }
-
 .modal-options-idiomas li {
   list-style-type: none;
 }
@@ -55,7 +57,6 @@ body {
 
 .modal-options {
   position: absolute;
-  top: 25px;
   right: 0px;
   padding: 15px 25px;
   background-color: #fff;
@@ -63,7 +64,12 @@ body {
   z-index: 1000;
   text-align: left;
 }
-
+.text-bg-finalizada{
+  background-color: #60d66a !important;
+}
+.text-bg-grey{
+  background-color: #b9b9b9 !important;
+}
 .dropdown-modal {
   border: none;
   background: none;
@@ -87,12 +93,12 @@ tr {
 }
 
 .table-responsive {
-  overflow: visible !important;
+  position: static !important;
 }
 
 .link-modal {
   text-decoration: none;
-  color: #000;
+  color: #000 !important;
   transition: all 0.3s ease-in-out;
 }
 
@@ -1609,24 +1615,57 @@ div.dataTables_wrapper div.dataTables_filter {
 #similares a {
   color: #181c32 !important;
 }
-
+.iconMachine{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
 #tabelaAmostras {
   width: 100% !important;
+}
+.chartStatusArea {
+  height: 417px;
+}
+.daterangepicker {
+  width: fit-content !important;
+  left: 50% !important;
+  top: 50% !important;
+  position: fixed !important;
+  transform: translate(-16%, -50%) !important;
+
+}
+.daterangepicker::before, .daterangepicker:after{
+  display: none !important;
+}
+#chartStatus {
+  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .dataTables_length select {
   margin: 0px 10px;
 }
-
+.resumoContent{
+  margin-top: 0.5rem;
+}
 .resumoContent h4 {
   margin-bottom: 1rem;
 }
-
+.text-bg-orange{
+  background-color: #fd7e14 !important;
+}
+.text-bg-danger{
+  background-color: #e2231a !important;
+}
 .resumoContent img {
   max-width: 450px;
   width: auto;
 }
-
 .resumoContent span {
   color: #e2231a;
 }
@@ -1884,7 +1923,7 @@ div.dataTables_wrapper div.dataTables_filter {
 }
 
 .bi-pencil-fill {
-  color: #e2231a !important;
+  color: #000 !important;
 }
 
 .btn-primary .bi-pencil-fill {
@@ -2091,7 +2130,7 @@ span.indicator-label {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  /* margin: 1rem 0px; */
+  margin-top: 50px;
 }
 
 .image-input .image-input-wrapper {
@@ -2390,22 +2429,39 @@ form {
   .cardIcons {
     margin-bottom: 25px;
   }
-
+  .daterangepicker {
+    max-height: 400px !important;
+    overflow: scroll !important;
+    width: fit-content !important;
+    transform: translate(-50%, -50%) !important;
+  }
 }
 
 @media only screen and (max-width: 990px) {
   #kt_post {
     margin-top: 2rem;
   }
-
-  .table-responsive {
+  
+  
+  /* .table-responsive {
     overflow: scroll !important;
-  }
+  } */
 }
 
 @media only screen and (max-width: 768px) {
   .ajuste-sino {
     margin-right: 20px;
+  }
+  .adjustment-row-multiplos{
+    padding-right: calc(1.5rem * .5) !important;
+    padding-left: calc(1.5rem * .5) !important;
+  }
+
+  .adjustment-input-style:not(:last-child) {
+    margin-bottom: 0px;
+  }
+  .adjustment-row-multiplos:not(:last-child) {
+    margin-bottom: 30px !important;
   }
 
   .btn-idiomas {

@@ -47,6 +47,7 @@
                             'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                             'equipamento_id' => isset($equipamento_idF) ? $equipamento_idF : null,
                             'clientes' => null,
+                            'status' => isset($status) ? $status : null,
                             ])
                             @endcomponent
                             <div class="table-responsive">

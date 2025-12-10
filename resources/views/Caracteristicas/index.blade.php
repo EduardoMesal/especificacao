@@ -42,10 +42,11 @@
                     'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                     'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
                     'clientes' => null,
+                    'status' => isset($status) ? $status : null,  
                     ])
                     @endcomponent
-                    <div class="table-responsive">
-                        <table class="table top-selling-table">
+                    <div class="table-wrapper table-responsive">
+                        <table class="table">
                             <thead>
                                 <tr>
                                     <th class="th-info">

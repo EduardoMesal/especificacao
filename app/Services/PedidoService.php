@@ -22,6 +22,44 @@ class PedidoService
             $pedidos->where('cliente_id', $dados['cliente_id']);
         }
 
+        if (!empty($dados['criado'])) {
+            [$date, $endDate] = explode(' - ', $dados['criado']);
+
+            $date = Carbon::createFromFormat('d/m/Y', trim($date));
+            $endDate = Carbon::createFromFormat('d/m/Y', trim($endDate));
+
+            if ($date->month <= $endDate->month) {
+
+                $pedidos->whereRaw(
+                    '(MONTH(criado) > ? OR (MONTH(criado) = ? AND DAY(criado) >= ?))
+                    AND (MONTH(criado) < ? OR (MONTH(criado) = ? AND DAY(criado) <= ?))',
+                    [
+                        $date->month,
+                        $date->month,
+                        $date->day,
+                        $endDate->month,
+                        $endDate->month,
+                        $endDate->day
+                    ]
+                );
+
+            } else {
+
+                $pedidos->whereRaw(
+                    '(MONTH(criado) > ? OR (MONTH(criado) = ? AND DAY(criado) >= ?))
+                    OR (MONTH(criado) < ? OR (MONTH(criado) = ? AND DAY(criado) <= ?))',
+                    [
+                        $date->month,
+                        $date->month,
+                        $date->day,
+                        $endDate->month,
+                        $endDate->month,
+                        $endDate->day
+                    ]
+                );
+            }
+        }
+        
         $query = [
             'pedidos' => $pedidos->paginate(20)->withQueryString(),
             'clientes' => $clientes 

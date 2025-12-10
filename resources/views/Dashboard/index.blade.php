@@ -62,10 +62,22 @@
 <div class="section pt-40">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xl-12">
+            <div class="pb-30 pb-xl-0 col-md-12 col-xl-6">
                 <div class="card-style">
                     <div class="">
                         <div id="chartMonth"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-xl-6">
+                <div class="card-style" >
+                    <div class="title d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="left">
+                            <h6 class=" text-bold">Especificações</h6>
+                        </div>
+                    </div>
+                    <div class="chartStatusArea">
+                        <div id="chartStatus"></div>
                     </div>
                 </div>
             </div>
@@ -111,6 +123,8 @@
                     'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                     'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
                     'clientes' => isset($clientes) ? $clientes : null,
+                    'status' => isset($status) ? $status : null,
+                    'criado' => isset($criado) ? $criado : null,
                     ])
                     @endcomponent
                     <div class="table-wrapper table-responsive">
@@ -124,7 +138,7 @@
                                         <h6>Código Focco</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Série</h6>
+                                        <h6>Status</h6>
                                     </th>
                                     <th class="th-info">
                                         <h6>Máquina</h6>
@@ -132,7 +146,10 @@
                                     <th class="th-info">
                                         <h6>Cliente</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="th-info">
+                                        <h6>Criado</h6>
+                                    </th>
+                                    <th>
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -169,10 +186,15 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                    @if($item->serie)
-                                                    {!! $item->serie !!}
+                                                    @if ($item->status === 'Finalizada')
+                                                    <span class="badge text-bg-finalizada">Finalizada</span>
+                                                    @elseif ($item->status === 'Não iniciada')
+                                                    <span class="badge text-bg-danger">Não iniciada</span>
+
+                                                    @elseif ($item->status === 'Em andamento')
+                                                    <span class="badge text-bg-grey">Em andamento</span>
                                                     @else
-                                                    -
+                                                    <span class="badge text-bg-danger">Não iniciada</span>
                                                     @endif
                                                 </span>
                                             </div>
@@ -181,12 +203,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span 
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                data-bs-custom-class="custom-tooltip"
-                                                data-bs-title="{{ optional($item->maquina->maquinasIdiomas->first())->nome }}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto"  style="width: 150px">
+                                                <span
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{ optional($item->maquina->maquinasIdiomas->first())->nome }}"
+                                                    class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
                                                     @if((optional($item->maquina->maquinasIdiomas->first())->nome))
                                                     {{ optional($item->maquina->maquinasIdiomas->first())->nome }}
                                                     @else
@@ -199,12 +221,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span 
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                data-bs-custom-class="custom-tooltip"
-                                                data-bs-title="{{ $item->pedido->cliente->nome }}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto"  style="width: 150px">
+                                                <span
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{ $item->pedido->cliente->nome }}"
+                                                    class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
                                                     @if($item->pedido->cliente->nome)
                                                     {!! $item->pedido->cliente->nome !!}
                                                     @else
@@ -215,31 +237,41 @@
                                         </div>
                                         <span class="d-block"></span>
                                     </td>
-                                    <td class="text-end">
-                                        <div style="position: relative;">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {{ $item->criado->format('d/m/Y') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="d-block"></span>
+                                    </td>
+                                    <td >
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>
-                                            <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
-                                                <ul class="modal-options">
-                                                    <li class="dropdown-item">
-                                                        <a class="link-modal" href="{{route('Especificacoes.especificacao', ['id' => $item->id])}}"> <i class="bi bi-eye"></i> Visualizar
-                                                        </a>
-                                                    </li>
-                                                    <li class="dropdown-item">
-                                                        <a class="link-modal" href="{{route('Especificacoes.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
-                                                        </a>
-                                                    </li>
-                                                    <li class="dropdown-item">
-                                                        <form class="responseAjax" action="{{route('Especificacoes.excluir', ['id' => $item->id])}}" method="post">
-                                                            @csrf
-                                                            <button class="deleteBt text-danger" type="submit">
-                                                                <i class="bi bi-trash"></i> Excluir
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                        </div>
+                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                            <ul class="modal-options modal-options-table">
+                                                <li class="dropdown-item">
+                                                    <a class="link-modal" href="{{route('Especificacoes.especificacao', ['id' => $item->id])}}"> <i class="bi bi-eye"></i> Visualizar
+                                                    </a>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <a class="link-modal" href="{{route('Especificacoes.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                    </a>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <form class="responseAjax" action="{{route('Especificacoes.excluir', ['id' => $item->id])}}" method="post">
+                                                        @csrf
+                                                        <button class="deleteBt text-danger" type="submit">
+                                                            <i class="bi bi-trash"></i> Excluir
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -248,7 +280,7 @@
                                 @endforeach
                                 @else
                                 <tr>
-                                    <td>
+                                    <td colspan="7">
                                         <span class="text-gray-800 d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
                                     </td>
                                 </tr>
@@ -264,50 +296,119 @@
         </div>
     </div>
 </div>
+<!-- <div class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card-style">
+                    <div class="title d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="left">
+                            <h6 class="text-bold mb-4">Máquinas com mais especificações</h6>
+                        </div>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape icon-sm me-3 shadow text-center">
+                                    <div class="icon iconMachine">
+                                        <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                <h6 class="mb-1 text-dark text-sm">Devices</h6>
+                                <span class="text-xs">250 in stock, <span class="font-weight-bold">346+ sold</span></span>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
 @endsection
 
 @section('plugins')
-<script src="{{ mixAssets('assets/js/jqueryui.js') }}"></script>
 <script src="{{ mixAssets('assets/js/apexcharts.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var especificacoesPerMonths = @json($especificacoesPerMonths);
 
+        // var options = {
+        //     chart: {
+        //         type: 'bar',
+        //         height: 420,
+        //     },
+        //     series: [{
+        //         name: 'Especificações cadastradas',
+        //         data: especificacoesPerMonths.map(function(item) {
+        //             return item.especificacoes;
+        //         })
+        //     }],
+        //     xaxis: {
+        //         categories: especificacoesPerMonths.map(function(item) {
+        //             return item.month;
+        //         }),
+        //     },
+        //     yaxis: {
+        //         title: {
+        //             text: 'Especificações cadastradas'
+        //         }
+        //     },
+        //     dataLabels: {
+        //         enabled: true
+        //     },
+        //     tooltip: {
+        //         y: {
+        //             formatter: function(value) {
+        //                 return value;
+        //             }
+        //         }
+        //     },
+        //     stroke: {
+        //         curve: 'smooth',
+        //     },
+        //     markers: {
+        //         size: 5,
+        //         colors: ['#e2231a'],
+        //         strokeColor: '#f9fafb',
+        //         strokeWidth: 2,
+        //     },
+        //     colors: ['#e2231a'],
+        //     grid: {
+        //         borderColor: '#f9fafb',
+        //         row: {
+        //             colors: ['#f9fafb', 'transparent'],
+        //             opacity: 0.5
+        //         },
+        //     }
+        // };
+
         var options = {
-            chart: {
-                type: 'line',
-                height: 420,
-            },
             series: [{
                 name: 'Especificações cadastradas',
                 data: especificacoesPerMonths.map(function(item) {
                     return item.especificacoes;
                 })
             }],
-            xaxis: {
-                categories: especificacoesPerMonths.map(function(item) {
-                    return item.month;
-                }),
+            chart: {
+                type: 'bar',
+                height: 420
             },
-            yaxis: {
-                title: {
-                    text: 'Especificações cadastradas'
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    borderRadiusApplication: 'end',
+                    horizontal: true,
                 }
             },
             dataLabels: {
                 enabled: true
-            },
-            tooltip: {
-                y: {
-                    formatter: function(value) {
-                        return value;
-                    }
-                }
-            },
-            stroke: {
-                curve: 'smooth',
             },
             markers: {
                 size: 5,
@@ -322,10 +423,86 @@
                     colors: ['#f9fafb', 'transparent'],
                     opacity: 0.5
                 },
+            },
+            xaxis: {
+                categories: especificacoesPerMonths.map(function(item) {
+                    return item.month;
+                }),
             }
         };
 
+
         var chart = new ApexCharts(document.querySelector("#chartMonth"), options);
+        chart.render();
+
+        const pendentes = @json($especificacoesPendentesCount);
+        const finalizadas = @json($especificacoesFinalizadasCount);
+        const producao = @json($especificacoesEmProducaoCount);
+
+        const total = pendentes + finalizadas + producao;
+
+        const porcentagens = [
+            (pendentes / total) * 100, // Não iniciada
+            (producao / total) * 100, // Em andamento
+            (finalizadas / total) * 100 // Finalizadas
+        ];
+
+        var options = {
+            series: porcentagens,
+
+            chart: {
+                height: 436,
+                type: 'radialBar',
+            },
+
+            colors: [
+                '#e2231a', //  Vermelho → Não iniciada
+                '#b9b9b9', //  Cinza → Em andamento
+                '#60d66a' //  Verde → Finalizadas
+            ],
+
+            plotOptions: {
+                radialBar: {
+                    dataLabels: {
+                        name: {
+                            fontSize: '22px',
+                        },
+
+                        value: {
+                            fontSize: '16px',
+                            formatter: function(val, opts) {
+                                const valores = [pendentes, producao, finalizadas];
+                                return `${Math.round(val)}%`;
+                            }
+                        },
+
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            formatter: function() {
+                                return total;
+                            }
+                        }
+                    }
+                }
+            },
+
+            labels: ['Não iniciada', 'Em andamento', 'Finalizadas'],
+
+            legend: {
+                show: true,
+                position: 'bottom',
+                horizontalAlign: 'center',
+                fontSize: '14px',
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 12
+                }
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chartStatus"), options);
         chart.render();
     });
 </script>

@@ -334,7 +334,10 @@ class MaquinaService
                 $query->whereNull('excluido'); 
             }])->first();
 
-            $especificacoesId = $maquina->expecificacoes->pluck('id');
+            $especs = $maquina->expecificacoes->map(fn($item) => [
+                'id' => $item->id,
+                'revisao_id' => $item->revisao_selecionada_id,
+            ]);
 
             if ($maquina) {
 
@@ -419,7 +422,7 @@ class MaquinaService
                 
                     $removeCaracteristicasIds = $removeCaracteristicas->pluck('caracteristica_id');
                     
-                    AtributoEspecificacao::whereIn('especificacao_id', $especificacoesId)
+                    AtributoEspecificacao::whereIn('especificacao_id', $especs->pluck('id'))
                         ->whereIn('caracteristica_id', $removeCaracteristicasIds)
                         ->delete();
                     
@@ -454,20 +457,22 @@ class MaquinaService
                         // Se o tipo for "multiplos", usar os atributos da característica
                         if ($caracteristica->tipo === 'multiplos') {
                             foreach ($caracteristica->atributos as $atributo) {
-                                foreach ($especificacoesId as $especificacaoId) {
+                                foreach ($especs as $especificacao) {
                                     $arrayNewAtributoEspecificacao[] = [
-                                        'especificacao_id' => $especificacaoId,
+                                        'especificacao_id' => $especificacao['id'],
                                         'atributo_id' => $atributo->id,
                                         'caracteristica_id' => $caracteristica->id,
+                                        'revisao_id' => $especificacao['revisao_id']
                                     ];
                                 }
                             }
                         } else {
                             // Caso não seja "multiplos", usa apenas a caracteristica_id
-                            foreach ($especificacoesId as $especificacaoId) {
+                            foreach ($especs as $especificacao) {
                                 $arrayNewAtributoEspecificacao[] = [
-                                    'especificacao_id' => $especificacaoId,
+                                    'especificacao_id' => $especificacao['id'],
                                     'caracteristica_id' => $caracteristica->id,
+                                    'revisao_id' => $especificacao['revisao_id']
                                 ];
                             }
                         }
@@ -477,7 +482,8 @@ class MaquinaService
                         AtributoEspecificacao::create([
                             'especificacao_id' => $item['especificacao_id'],
                             'caracteristica_id' => $item['caracteristica_id'],
-                            'atributo_id' => $item['atributo_id'] ?? null
+                            'atributo_id' => $item['atributo_id'] ?? null,
+                            'revisao_id' => $item['revisao_id'],
                         ]);
                     }
                     

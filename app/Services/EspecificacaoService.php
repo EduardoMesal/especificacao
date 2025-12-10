@@ -22,6 +22,7 @@ use App\Models\AtributoProdutoIndiceEspecificacao;
 use App\Models\AtributoProdutoIndicePedido;
 use App\Models\EspecificacaoAmostraPedido;
 use App\Models\EspecificacaoProdutoPedido;
+use App\Models\Idioma;
 use App\Models\Revisao;
 use BcMath\Number;
 use Illuminate\Support\Facades\DB;
@@ -46,12 +47,52 @@ class EspecificacaoService
         }])
         ->orderBy('criado', 'desc')
         ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', 'LIKE', "%{$dados['codigo_focco']}%"))
-        ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
+        // ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
+        ->when($dados['status'], fn($q) => $q->where('status', 'LIKE', "%{$dados['status']}%"))
         ->when($dados['cliente_nome'], fn($q) =>
             $q->whereHas('pedido.cliente', function ($query) use ($dados) {
                 $query->where('nome', 'LIKE', "%{$dados['cliente_nome']}%");
             })
         )
+        ->when($dados['criado'] ?? null, function ($q) use ($dados) {
+
+            [$date, $endDate] = explode(' - ', $dados['criado']);
+
+            $date = Carbon::createFromFormat('d/m/Y', trim($date));
+            $endDate = Carbon::createFromFormat('d/m/Y', trim($endDate));
+
+            if ($date->month <= $endDate->month) {
+
+                $q->whereRaw(
+                    '(MONTH(criado) > ? OR (MONTH(criado) = ? AND DAY(criado) >= ?))
+                    AND (MONTH(criado) < ? OR (MONTH(criado) = ? AND DAY(criado) <= ?))',
+                    [
+                        $date->month,
+                        $date->month,
+                        $date->day,
+                        $endDate->month,
+                        $endDate->month,
+                        $endDate->day
+                    ]
+                );
+
+            } else {
+
+                $q->whereRaw(
+                    '(MONTH(criado) > ? OR (MONTH(criado) = ? AND DAY(criado) >= ?))
+                    OR (MONTH(criado) < ? OR (MONTH(criado) = ? AND DAY(criado) <= ?))',
+                    [
+                        $date->month,
+                        $date->month,
+                        $date->day,
+                        $endDate->month,
+                        $endDate->month,
+                        $endDate->day
+                    ]
+                );
+
+            }
+        })
         ->when($dados['maquina_id'], fn($q) => $q->where('maquina_id', $dados['maquina_id']));
         // ->when($dados['nome'], fn($q) => $q->whereHas('maquina', function ($query) use ($dados) { 
         //         $query->whereHas('maquinasIdiomas', function ($q) use ($dados) {
@@ -139,7 +180,7 @@ class EspecificacaoService
 
             $especificacao = new Especificacao();
             // $especificacao->cliente_id = $dados['cliente_id'];
-            // $especificacao->status = $dados['status'];
+            $especificacao->status = 'Não iniciada';
             $especificacao->codigo_focco = $dados['codigo_focco'] ?? null;
             $especificacao->serie = $dados['serie'] ?? null;
             $especificacao->pedido_id = $dados['pedido_id'];
@@ -318,9 +359,13 @@ class EspecificacaoService
                 //     $especificacao->cliente_id = $dados['cliente_id'];
                 // }
 
-                // if ($dados['status'] && $dados['status'] !== $especificacao->status) {
-                //     $especificacao->status = $dados['status'];
-                // }
+                if(isset($dados['status']) && $dados['status'] !== $especificacao->status){
+                    $especificacao->status = $dados['status'] ?? 'Não iniciada';
+
+                    if ($especificacao->status === 'Finalizada') {
+                        $especificacao->finalizada = Carbon::now();
+                    }
+                }
 
                 if ($dados['pedido_id'] && $dados['pedido_id'] !== $especificacao->pedido_id) {
                     $especificacao->pedido_id = $dados['pedido_id'];
@@ -549,10 +594,145 @@ class EspecificacaoService
         $especificacaoHistorico->save();
     }
 
+    private function getAtributosSelecionados($especificacao)
+    {
+        return AtributoEspecificacao::where('especificacao_id', $especificacao->id)
+            ->where('revisao_id', $especificacao->revisao_selecionada_id)
+            ->get()
+            ->sortBy(function ($item) {
+                $comparavel = $item->caracteristica->comparavel ?? 0;
+                $ordemSecao = $item->caracteristica->secao->ordem ?? 9999;
+
+                return [
+                    $comparavel ? 0 : 1,
+                    $ordemSecao,
+                ];
+            })
+            ->values();
+    }
+
+    private function getCaracteristica($dado, $idioma)
+    {
+        return Caracteristica::where('id', $dado['caracteristica_id'])
+            ->with([
+                'caracteristicasIdiomas' => function ($q) use($idioma) {
+                    $q->whereHas('idiomas', function ($query) use($idioma) {
+                        $query->where('codigo', $idioma);
+                    });
+                },
+            ])
+            ->first();
+    }
+
+    private function getAtributo($dado, $idioma)
+    {
+        return Atributo::where('id', $dado['atributo_id'])->where('excluido', null)
+            ->with([
+                'atributosIdiomas' => function ($q) use($idioma) {
+                    $q->whereHas('idiomas', function ($query) use($idioma) {
+                        $query->where('codigo', $idioma);
+                    });
+                },
+            ])
+            ->first();
+    }
+
+    private function getAtributoAmostras($indiceAmostraId, $idiomaId)
+    {
+        DB::statement('SET SQL_BIG_SELECTS=1');
+
+        return AtributoAmostraEspecificacao::whereIn('indice_amostra_id', $indiceAmostraId)
+        ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_especificacao.atributo_id')
+        ->leftJoin('atributos_amostra_idiomas', function ($join) use($idiomaId){
+            $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
+                ->where('atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_especificacao.sub_atributo_id')
+
+        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) use($idiomaId){
+            $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
+                ->where('sub_atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
+        ->leftJoin('amostras_idiomas', function ($join) use($idiomaId){
+            $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
+                ->where('amostras_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->whereNull('atributos_amostra.excluido')
+        ->whereNull('sub_atributos_amostra.excluido')
+        ->select(
+            'atributos_amostra_especificacao.id',
+            'atributos_amostra_especificacao.indice_amostra_id',
+            'atributos_amostra_especificacao.atributo_id',
+            'atributos_amostra_especificacao.sub_atributo_id',
+            'atributos_amostra_especificacao.observacao_personalizada',
+            'atributos_amostra_especificacao.conteudo',
+
+            'atributos_amostra_idiomas.nome as atributo_nome',
+            'atributos_amostra_idiomas.unidade as atributo_unidade',
+            'atributos_amostra.tipo as atributo_tipo',
+            'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
+            'amostras_idiomas.nome as amostra_nome'
+        )
+        ->get()
+        ->map(function ($item) {
+            $item->imagens = ImagemAtributoAmostra::where('atributo_amostra_id', $item->atributo_id)
+                ->where('indice_amostra_id', $item->indice_amostra_id)
+                ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_id']);
+            return $item;
+        });
+    }
+
+    private function getAtributoProdutos($indiceProdutoId, $idiomaId){
+
+        DB::statement('SET SQL_BIG_SELECTS=1');
+        
+        return AtributoProdutoEspecificacao::whereIn('indice_produto_id', $indiceProdutoId)
+        ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produtos_especificacao.atributo_produto_id')
+        ->leftJoin('atributos_produtos_idiomas', function ($join) use($idiomaId) {
+            $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
+                ->where('atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produtos_especificacao.sub_atributo_id')
+
+        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use($idiomaId) {
+            $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
+                ->where('sub_atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
+        ->leftJoin('produtos_idiomas', function ($join) use($idiomaId) {
+            $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
+                ->where('produtos_idiomas.idioma_id', '=', $idiomaId);
+        })
+
+        ->whereNull('atributos_produtos.excluido')
+        ->whereNull('sub_atributos_produtos.excluido')
+        ->select(
+            'atributos_produtos_especificacao.id',
+            'atributos_produtos_especificacao.indice_produto_id',
+            'atributos_produtos_especificacao.atributo_produto_id',
+            'atributos_produtos_especificacao.sub_atributo_id',
+            'atributos_produtos_especificacao.observacao_personalizada',
+            'atributos_produtos_especificacao.conteudo',
+            'atributos_produtos_idiomas.nome as atributo_nome',
+            'atributos_produtos_idiomas.unidade as atributo_unidade',
+            'atributos_produtos.tipo as atributo_tipo',
+            'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
+            'produtos_idiomas.nome as produto_nome'
+        )
+        ->get()
+        ->map(function ($item) {
+            $item->imagens = ImagemAtributoProduto::where('atributo_produto_id', $item->atributo_produto_id)
+                ->where('indice_produto_id', $item->indice_produto_id)
+                ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_id']);
+            return $item;
+        });
+    }
+
     public function especificacao(int | string $id, array $dados)
     {
         $idioma = $dados['lang'] ?? 'pt';
-
+        app()->setLocale($idioma);
         $especificacao = Especificacao::where('id', $id)
         ->whereNull('excluido')
         ->with([
@@ -704,7 +884,7 @@ class EspecificacaoService
         ->get()
         ->sortBy('amostra.id')
         ->groupBy(function ($item) {
-            return optional(optional($item->amostra)->amostrasIdiomas->first())->nome ?? 'Não informado';
+            return optional(optional($item->amostra)->amostrasIdiomas->first())->nome ?? __('messages.nao_informado');
         });
 
 
@@ -723,7 +903,7 @@ class EspecificacaoService
         ->get()
         ->sortBy('produto.id') 
         ->groupBy(function ($item) {
-            return optional(optional($item->produto)->produtosIdiomas->first())->nome ?? 'Não informado';
+            return optional(optional($item->produto)->produtosIdiomas->first())->nome ?? __('messages.nao_informado');
         });
 
         $maquinaAmostras = Amostra::where('excluido', null)
@@ -750,44 +930,15 @@ class EspecificacaoService
             $query->where('maquina_id', $especificacao->maquina->id); 
         })->get();
 
-        $atributosSelecionados = AtributoEspecificacao::where('especificacao_id', $especificacao->id)
-        ->where('revisao_id', $especificacao->revisao_selecionada_id)
-        ->get()
-        ->sortBy(function ($item) {
-            $comparavel = $item->caracteristica->comparavel ?? 0;
-            $ordemSecao = $item->caracteristica->secao->ordem ?? 9999;
-
-            return [
-                $comparavel ? 0 : 1,
-                $ordemSecao,
-            ];
-        })
-        ->values();
+        $atributosSelecionados = $this->getAtributosSelecionados($especificacao);
 
         $resumoItens = [];
         $resumoItensInseridos = 0;
 
         foreach ($atributosSelecionados as $dado) {
             
-            $caracteristica = Caracteristica::where('id', $dado['caracteristica_id'])
-            ->with([
-                'caracteristicasIdiomas' => function ($q) use($idioma)  {
-                    $q->whereHas('idiomas', function ($query) use($idioma) {
-                        $query->where('codigo', $idioma);
-                    });
-                },
-            ])
-            ->first();
-            
-            $atributo = Atributo::where('id', $dado['atributo_id'])->where('excluido', null)
-            ->with([
-                'atributosIdiomas' => function ($q) use($idioma)  {
-                    $q->whereHas('idiomas', function ($query) use($idioma) {
-                        $query->where('codigo', $idioma);
-                    });
-                },
-            ])
-            ->first();
+            $caracteristica = $this->getCaracteristica($dado, $idioma);
+            $atributo = $this->getAtributo($dado, $idioma);
 
             $observacao = $dado['observacao_personalizada'] ?? '';
             $conteudo = $dado['conteudo'] ?? '';
@@ -824,50 +975,19 @@ class EspecificacaoService
         $porcentagemResumo = count($resumoItens) > 0 ? ($resumoItensInseridos / count($resumoItens)) * 100 : 0;
 
         $porcentagemResumo = number_format($porcentagemResumo, 1, '.', '');
+        
+        if($porcentagemResumo == '100.0' && !$especificacao->finalizada) {
+           $especificacao->finalizada = Carbon::now();
+           $especificacao->status = 'Finalizada';
+           $especificacao->save();
+        }
 
         $indiceAmostraId = AtributoAmostraIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
-
-        $amostras = AtributoAmostraEspecificacao::whereIn('indice_amostra_id', $indiceAmostraId)
-        ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_especificacao.atributo_id')
-        ->leftJoin('atributos_amostra_idiomas', function ($join) {
-            $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
-                ->where('atributos_amostra_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_especificacao.sub_atributo_id')
-
-        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) {
-            $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
-                ->where('sub_atributos_amostra_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
-        ->leftJoin('amostras_idiomas', function ($join) {
-            $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
-                ->where('amostras_idiomas.idioma_id', '=', 1);
-        })
-        ->whereNull('atributos_amostra.excluido')
-        ->whereNull('sub_atributos_amostra.excluido')
-        ->select(
-            'atributos_amostra_especificacao.id',
-            'atributos_amostra_especificacao.indice_amostra_id',
-            'atributos_amostra_especificacao.atributo_id',
-            'atributos_amostra_especificacao.sub_atributo_id',
-            'atributos_amostra_especificacao.observacao_personalizada',
-            'atributos_amostra_especificacao.conteudo',
-
-            'atributos_amostra_idiomas.nome as atributo_nome',
-            'atributos_amostra_idiomas.unidade as atributo_unidade',
-            'atributos_amostra.tipo as atributo_tipo',
-            'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
-            'amostras_idiomas.nome as amostra_nome'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoAmostra::where('atributo_amostra_id', $item->atributo_id)
-                ->where('indice_amostra_id', $item->indice_amostra_id)
-                ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_id']);
-            return $item;
-        });
+        
+        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+    
+        $amostras = $this->getAtributoAmostras($indiceAmostraId, $idiomaId);
 
         $dadosAgrupadoAmostras = $amostras
         ->groupBy('amostra_nome')
@@ -878,46 +998,8 @@ class EspecificacaoService
         $indiceProdutoId = AtributoProdutoIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
 
-        $produtos = AtributoProdutoEspecificacao::whereIn('indice_produto_id', $indiceProdutoId)
-        ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produtos_especificacao.atributo_produto_id')
-        ->leftJoin('atributos_produtos_idiomas', function ($join) {
-            $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
-                ->where('atributos_produtos_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produtos_especificacao.sub_atributo_id')
-
-        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) {
-            $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
-                ->where('sub_atributos_produtos_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
-        ->leftJoin('produtos_idiomas', function ($join) {
-            $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
-                ->where('produtos_idiomas.idioma_id', '=', 1);
-        })
-
-        ->whereNull('atributos_produtos.excluido')
-        ->whereNull('sub_atributos_produtos.excluido')
-        ->select(
-            'atributos_produtos_especificacao.id',
-            'atributos_produtos_especificacao.indice_produto_id',
-            'atributos_produtos_especificacao.atributo_produto_id',
-            'atributos_produtos_especificacao.sub_atributo_id',
-            'atributos_produtos_especificacao.observacao_personalizada',
-            'atributos_produtos_especificacao.conteudo',
-            'atributos_produtos_idiomas.nome as atributo_nome',
-            'atributos_produtos_idiomas.unidade as atributo_unidade',
-            'atributos_produtos.tipo as atributo_tipo',
-            'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
-            'produtos_idiomas.nome as produto_nome'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoProduto::where('atributo_produto_id', $item->atributo_produto_id)
-                ->where('indice_produto_id', $item->indice_produto_id)
-                ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_id']);
-            return $item;
-        });
+    
+        $produtos = $this->getAtributoProdutos($indiceProdutoId, $idiomaId);
 
         $dadosAgrupadoProdutos = $produtos
         ->groupBy('produto_nome')
@@ -1081,7 +1163,7 @@ class EspecificacaoService
                 $listaComparacao[] = [
                     'maquina' => optional($especificacao->maquina->maquinasIdiomas->first())->nome ?? 'N/A',
                     'codigo_focco' => $especificacaoMaquina->codigo_focco ?? null,
-                    'status' => $especificacao->status ?? 'Não informado',
+                    'status' => $especificacao->status ?? __('messages.nao_informado'),
                     'porcentagem_similaridade' => round($porcentagem, 1),
                     'especificacao_id' => $especificacaoMaquina->id,
                     'nomesAtributos' => implode('; ', $nomesAtributos)
@@ -1226,6 +1308,8 @@ class EspecificacaoService
 
     public function exportarWord(int | string $id, $request)
     {
+        $idioma = $request->lang ?? 'pt';
+        app()->setLocale($idioma);
         $phpWord = new PhpWord();
         $section = $phpWord->addSection();
     
@@ -1235,49 +1319,21 @@ class EspecificacaoService
             return false;
         }
 
-        $atributosSelecionados = AtributoEspecificacao::where('especificacao_id', $especificacao->id)
-            ->with(['atributo.caracteristica.secao'])
-            ->get()
-            ->sortBy(function ($item) {
-                $comparavel = $item->atributo->caracteristica->comparavel ?? 0;
-                $ordemSecao = $item->atributo->caracteristica->secao->ordem ?? 9999;
-
-                return [
-                    $comparavel ? 0 : 1,
-                    $ordemSecao,
-                ];
-            })
-            ->values();
+        $atributosSelecionados = $this->getAtributosSelecionados($especificacao);
 
         $resumoItens = [];
     
         foreach ($atributosSelecionados as $dado) {
             
-            $caracteristica = Caracteristica::where('id', $dado['caracteristica_id'])
-            ->with([
-                'caracteristicasIdiomas' => function ($q)  {
-                    $q->whereHas('idiomas', function ($query) {
-                        $query->where('codigo', 'pt');
-                    });
-                },
-            ])
-            ->first();
+            $caracteristica = $this->getCaracteristica($dado, $idioma);
 
-            $atributo = Atributo::where('id', $dado['atributo_id'])->where('excluido', null)
-            ->with([
-                'atributosIdiomas' => function ($q)  {
-                    $q->whereHas('idiomas', function ($query) {
-                        $query->where('codigo', 'pt');
-                    });
-                },
-            ])
-            ->first();
+            $atributo = $this->getAtributo($dado, $idioma);
             
             $observacao = $dado['observacao_personalizada'] ?? '';
             $conteudo = $dado['conteudo'] ?? '';
 
-            if ($caracteristica) {
-                $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome;
+            if ($caracteristica && $caracteristica->caracteristicasIdiomas->first()) {
+                $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome ?? __('messages.nao_informado');
                 $unidade = $caracteristica->caracteristicasIdiomas->first()->unidade ?  ' '.$caracteristica->caracteristicasIdiomas->first()->unidade : '';
                 $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? '';
                 $caracteristicaId = $caracteristica->id ?? '';
@@ -1310,7 +1366,7 @@ class EspecificacaoService
         if ($especificacao->serie) {
             $textRun->addText($especificacao->serie . ';', ['color' => '000000']);
         } else {
-            $textRun->addText("Não informado;", ['color' => 'FF0000']);
+            $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
         }
 
         // Código Focco
@@ -1319,7 +1375,7 @@ class EspecificacaoService
         if ($especificacao->codigo_focco) {
             $textRun->addText($especificacao->codigo_focco . ';', ['color' => '000000']);
         } else {
-            $textRun->addText("Não informado;", ['color' => 'FF0000']);
+            $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
         }
 
         // Máquina
@@ -1328,7 +1384,7 @@ class EspecificacaoService
         if ($especificacao->maquina->maquinasIdiomas->first()->nome) {
             $textRun->addText($especificacao->maquina->maquinasIdiomas->first()->nome . ';', ['color' => '000000']);
         } else {
-            $textRun->addText("Não informado;", ['color' => 'FF0000']);
+            $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
         }
 
         // Cliente
@@ -1337,7 +1393,7 @@ class EspecificacaoService
         if ($especificacao->pedido->cliente) {
             $textRun->addText($especificacao->pedido->cliente->nome . ';', ['color' => '000000']);
         } else {
-            $textRun->addText("Não informado;", ['color' => 'FF0000']);
+            $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
         }
 
         if($request->tipo == 'especificacao' || $request->tipo == 'completa'){
@@ -1357,7 +1413,7 @@ class EspecificacaoService
             //             }
             //         }
             //     } else {
-            //         $textRun->addText("Não informado;", ['color' => 'FF0000']);
+            //         $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
             //     }
 
             //     if (!empty($item['observacao'])) {
@@ -1400,7 +1456,6 @@ class EspecificacaoService
                             $section->addText("\n\nOBS: {$subitem['observacao']}");
                         }
                     }
-
                 }
 
                 elseif ($item['tipo'] === 'selecionavel') {
@@ -1414,13 +1469,12 @@ class EspecificacaoService
                             $textRun->addText($item['atributo'] . ';');
                         }
                     } else {
-                        $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                        $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                     }
 
                     if (!empty($item['observacao'])) {
                         $section->addText("\n\nOBS: {$item['observacao']}");
                     }
-
                 }
 
                 elseif ($item['tipo'] === 'texto') {
@@ -1430,63 +1484,29 @@ class EspecificacaoService
                     if (!empty($item['conteudo'])) {
                         $textRun->addText($item['conteudo'] . (!empty($item['unidade']) ? ' ' . $item['unidade'] : '') . ';');
                     } else {
-                        $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                        $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                     }
 
                     if (!empty($item['observacao'])) {
                         $section->addText("\n\nOBS: {$item['observacao']}");
                     }
-
                 }
-
             }
-
         }
        
         $indiceAmostraId = AtributoAmostraIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
+        
+        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+    
+        $amostras = $this->getAtributoAmostras($indiceAmostraId, $idiomaId);
 
-        $amostras = AtributoAmostraEspecificacao::whereIn('indice_amostra_id', $indiceAmostraId)
-        ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_especificacao.atributo_id')
-        ->leftJoin('atributos_amostra_idiomas', function ($join) {
-            $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
-                ->where('atributos_amostra_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_especificacao.sub_atributo_id')
-
-        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) {
-            $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
-                ->where('sub_atributos_amostra_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
-        ->leftJoin('amostras_idiomas', function ($join) {
-            $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
-                ->where('amostras_idiomas.idioma_id', '=', 1);
-        })
-        ->whereNull('atributos_amostra.excluido')
-        ->whereNull('sub_atributos_amostra.excluido')
-        ->select(
-            'atributos_amostra_especificacao.id',
-            'atributos_amostra_especificacao.indice_amostra_id',
-            'atributos_amostra_especificacao.atributo_id',
-            'atributos_amostra_especificacao.sub_atributo_id',
-            'atributos_amostra_especificacao.observacao_personalizada',
-            'atributos_amostra_especificacao.conteudo',
-            'atributos_amostra_idiomas.nome as atributo_nome',
-            'atributos_amostra_idiomas.unidade as atributo_unidade',
-            'atributos_amostra.tipo as atributo_tipo',
-            'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
-            'amostras_idiomas.nome as amostra_nome'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoAmostra::where('atributo_amostra_id', $item->atributo_id)
-                ->where('indice_amostra_id', $item->indice_amostra_id)
-                ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_id']);
-            return $item;
+        $dadosPorAmostra = $amostras
+        ->groupBy('amostra_nome')
+        ->map(function ($grupo) {
+            return $grupo->groupBy('indice_amostra_id');
         });
 
-        $dadosPorAmostra = $amostras->groupBy('amostra_nome');
         $resumosAmostras = '';
 
         if($request->tipo == 'amostras' || $request->tipo == 'completa'){
@@ -1496,10 +1516,9 @@ class EspecificacaoService
                 ['spaceBefore' => 240, 'spaceAfter' => 240]
             );
             foreach ($dadosPorAmostra as $amostraNome => $amostras) {
-                $dadosPorIndice = $amostras->groupBy('indice_amostra_id');
                 $contador = 1; 
                 
-                foreach ($dadosPorIndice as $amostrasDoIndice) {
+                foreach ($amostras as $amostrasDoIndice) {
                     $resumoAmostras = '';
                     $atributosAgrupados = [];
                     $imagensExibidas = [];
@@ -1509,7 +1528,16 @@ class EspecificacaoService
                     foreach ($amostrasDoIndice as $item) {
                         
                         if (!$amostraNomeExibido) {
-                            $section->addText("{$item['amostra_nome']} {$contador}");
+                            $section->addText("{$item['amostra_nome']}", ['bold' => true]);
+                            $section->addText(
+                                "Modelo {$contador}",
+                                [
+                                    'size'  => 8,
+                                    'color' => 'FF0000',
+                                    'bold'  => false,
+                                ]
+                            );
+
                             $amostraNomeExibido = true;
                         }
 
@@ -1543,7 +1571,7 @@ class EspecificacaoService
                                 if (!empty($item['conteudo'])) {
                                     $textRun->addText($item['conteudo'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
                                 } else {
-                                    $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                                 }
                         
                                 if (!empty($item['observacao_personalizada'])) {
@@ -1571,7 +1599,7 @@ class EspecificacaoService
                                 if (!empty($item['sub_atributo_nome'])) {
                                     $textRun->addText($item['sub_atributo_nome'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
                                 } else {
-                                    $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                                 }
                         
                                 if (!empty($item['observacao_personalizada'])) {
@@ -1615,7 +1643,7 @@ class EspecificacaoService
                             if (!empty($sub['conteudo'])) {
                                 $textRun->addText($sub['conteudo'] . (!empty($sub['atributo_unidade']) ? ' ' . $sub['atributo_unidade'] : '') . ';', ['color' => '000000']);
                             } else {
-                                $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                                $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                             }
                         
                             if (!empty($sub['observacao'])) {
@@ -1627,7 +1655,7 @@ class EspecificacaoService
 
                     $resumosAmostras .= "<h5 style='margin:5px 0px;'>{$amostraNome} {$contador}</h5>";
                     $resumosAmostras .= $resumoAmostras;
-                    $contador++; 
+                    $contador++;
                 }
             }
         }
@@ -1635,47 +1663,14 @@ class EspecificacaoService
         $indiceProdutoId = AtributoProdutoIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
 
-        $produtos = AtributoProdutoEspecificacao::whereIn('indice_produto_id', $indiceProdutoId)
-        ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produtos_especificacao.atributo_produto_id')
-        ->leftJoin('atributos_produtos_idiomas', function ($join) {
-            $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
-                ->where('atributos_produtos_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produtos_especificacao.sub_atributo_id')
+        $produtos = $this->getAtributoProdutos($indiceProdutoId, $idiomaId);
 
-        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) {
-            $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
-                ->where('sub_atributos_produtos_idiomas.idioma_id', '=', 1);
-        })
-        ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
-        ->leftJoin('produtos_idiomas', function ($join) {
-            $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
-                ->where('produtos_idiomas.idioma_id', '=', 1);
-        })
-        ->whereNull('atributos_produtos.excluido')
-        ->whereNull('sub_atributos_produtos.excluido')
-        ->select(
-            'atributos_produtos_especificacao.id',
-            'atributos_produtos_especificacao.indice_produto_id',
-            'atributos_produtos_especificacao.atributo_produto_id',
-            'atributos_produtos_especificacao.sub_atributo_id',
-            'atributos_produtos_especificacao.observacao_personalizada',
-            'atributos_produtos_especificacao.conteudo',
-            'atributos_produtos_idiomas.nome as atributo_nome',
-            'atributos_produtos_idiomas.unidade as atributo_unidade',
-            'atributos_produtos.tipo as atributo_tipo',
-            'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
-            'produtos_idiomas.nome as produto_nome'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoProduto::where('atributo_produto_id', $item->atributo_produto_id)
-                ->where('indice_produto_id', $item->indice_produto_id)
-                ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_id']);
-            return $item;
+        $dadosPorProduto = $produtos
+        ->groupBy('produto_nome')
+        ->map(function ($grupo) {
+            return $grupo->groupBy('indice_produto_id');
         });
 
-        $dadosPorProduto = $produtos->groupBy('produto_nome');
         $resumosProdutos = '';
 
         if($request->tipo == 'produtos' || $request->tipo == 'completa'){
@@ -1685,10 +1680,9 @@ class EspecificacaoService
                 ['spaceBefore' => 240, 'spaceAfter' => 240]
             );
             foreach ($dadosPorProduto as $produtoNome => $produtos) {
-                $dadosPorIndice = $produtos->groupBy('indice_produto_id');
                 $contador = 1; 
                 
-                foreach ($dadosPorIndice as $produtosDoIndice) {
+                foreach ($produtos as $produtosDoIndice) {
                     $resumoProdutos = '';
                     $atributosAgrupados = [];
                     $imagensExibidas = [];
@@ -1697,7 +1691,15 @@ class EspecificacaoService
                     foreach ($produtosDoIndice as $item) {
                         
                         if (!$produtoNomeExibido) {
-                            $section->addText("{$item['produto_nome']} {$contador}");
+                            $section->addText("{$item['produto_nome']}", ['bold' => true]);
+                            $section->addText(
+                                "Modelo {$contador}",
+                                [
+                                    'size'  => 8,
+                                    'color' => 'FF0000',
+                                    'bold'  => false,
+                                ]
+                            );
                             $produtoNomeExibido = true;
                         }
         
@@ -1731,7 +1733,7 @@ class EspecificacaoService
                                 if (!empty($item['conteudo'])) {
                                     $textRun->addText($item['conteudo'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
                                 } else {
-                                    $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                                 }
                         
                                 if (!empty($item['observacao_personalizada'])) {
@@ -1760,7 +1762,7 @@ class EspecificacaoService
                                 if (!empty($item['sub_atributo_nome'])) {
                                     $textRun->addText($item['sub_atributo_nome'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
                                 } else {
-                                    $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                                 }
                         
                                 if (!empty($item['observacao_personalizada'])) {
@@ -1804,7 +1806,7 @@ class EspecificacaoService
                             if (!empty($sub['conteudo'])) {
                                 $textRun->addText($sub['conteudo'] . (!empty($sub['atributo_unidade']) ? ' ' . $sub['atributo_unidade'] : '') . ';', ['color' => '000000']);
                             } else {
-                                $textRun->addText("Não informado;", ['color' => 'FF0000']);
+                                $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                             }
                         
                             if (!empty($sub['observacao'])) {

@@ -10,44 +10,45 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="card-style">
-                    <div class="table-responsive">
-                        <div class="card-header" style="padding: .5rem 0px; border-bottom:0px">
-                            <div class="mb-30 d-flex align-items-center justify-content-between w-100">
-                                <h6 class="text-medium">Especificações de produtos</h6>
-                                <div style="height: 19px; margin-right: 5px; position: relative">
-                                    <button class="p-0 dropdown-modal" id="modalOpenFilter">
-                                        <i class="lni lni-more-alt"></i>
-                                    </button>
-                                    <div class="hidden modal-options-menu" data-modal="modalOpenFilter">
-                                        <ul class="modal-options">
-                                            <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
-                                                <i class="bi bi-filter"></i> Filtrar
-                                            </li>
-                                            <li class="dropdown-item">
-                                                <a href="{{route('PedidosProdutos.index')}}" class="text-danger">
-                                                    <i class="bi bi-filter"></i> Limpar filtro
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                    <div class="card-header" style="padding: .5rem 0px; border-bottom:0px">
+                        <div class="mb-30 d-flex align-items-center justify-content-between w-100">
+                            <h6 class="text-medium">Especificações de produtos</h6>
+                            <div style="height: 19px; margin-right: 5px; position: relative">
+                                <button class="p-0 dropdown-modal" id="modalOpenFilter">
+                                    <i class="lni lni-more-alt"></i>
+                                </button>
+                                <div class="hidden modal-options-menu" data-modal="modalOpenFilter">
+                                    <ul class="modal-options">
+                                        <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                            <i class="bi bi-filter"></i> Filtrar
+                                        </li>
+                                        <li class="dropdown-item">
+                                            <a href="{{route('PedidosProdutos.index')}}" class="text-danger">
+                                                <i class="bi bi-filter"></i> Limpar filtro
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                            @component('components.filtros', [
-                            'url' => route('PedidosProdutos.index'),
-                            'nome' => isset($nome) ? $nome : null,
-                            'telefone' => isset($telefone) ? $telefone : null,
-                            'codigo_focco' => isset($codigo_focco) ? $codigo_focco : null,
-                            'serie' => isset($serie) ? $serie : null,
-                            'maquina_id' => isset($maquina_id) ? $maquina_id : null,
-                            'cliente_id' => isset($cliente_id) ? $cliente_id : null,
-                            'cliente_nome' => isset($cliente_nome) ? $cliente_nome : null,
-                            'maquinas' => isset($maquinasf) ? $maquinasf : null,
-                            'equipamentos' => isset($equipamentos) ? $equipamentos : null,
-                            'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
-                            'clientes' => isset($clientes) ? $clientes : null,
-                            ])
-                            @endcomponent
                         </div>
+                        @component('components.filtros', [
+                        'url' => route('PedidosProdutos.index'),
+                        'nome' => isset($nome) ? $nome : null,
+                        'telefone' => isset($telefone) ? $telefone : null,
+                        'codigo_focco' => isset($codigo_focco) ? $codigo_focco : null,
+                        'serie' => isset($serie) ? $serie : null,
+                        'maquina_id' => isset($maquina_id) ? $maquina_id : null,
+                        'cliente_id' => isset($cliente_id) ? $cliente_id : null,
+                        'cliente_nome' => isset($cliente_nome) ? $cliente_nome : null,
+                        'maquinas' => isset($maquinasf) ? $maquinasf : null,
+                        'equipamentos' => isset($equipamentos) ? $equipamentos : null,
+                        'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
+                        'clientes' => isset($clientes) ? $clientes : null,
+                        'status' => isset($status) ? $status : null,
+                        ])
+                        @endcomponent
+                    </div>
+                    <div class="table-responsive">
                         <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
                             <thead>
                                 <tr>
@@ -111,7 +112,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item['id']}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>
@@ -125,7 +126,7 @@
                                                         <form class="responseAjax" action="{{route('PedidosProdutos.excluir', ['id' => $item['id']])}}" method="post">
                                                             @csrf
                                                             <button class="deleteBt text-danger" type="submit">
-                                                               <i class="bi bi-trash"></i> Excluir
+                                                            <i class="bi bi-trash"></i> Excluir
                                                             </button>
                                                         </form>
                                                     </li>

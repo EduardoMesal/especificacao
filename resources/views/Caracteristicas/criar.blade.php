@@ -93,7 +93,7 @@
                                                 </textarea>
                                             </div>
                                             <div class="col-md-12 fv-row obsTexto input-style-1" style="display:none">
-                                                <label class="d-flex align-items-center fs-6 fw-bold pt-30">
+                                                <label class="d-flex align-items-center fs-6 fw-bold pt-30 mb-2">
                                                     <span class="">Observação</span>
                                                 </label>
                                                 <input type="text" class="bg-transparent" placeholder="Preencha o campo observação" name="observacao" />

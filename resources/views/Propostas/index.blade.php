@@ -34,6 +34,7 @@
                 'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                 'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
                 'clientes' => null,
+                'status' => isset($status) ? $status : null,
                 ])
                 @endcomponent
             </div>

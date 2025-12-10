@@ -18,6 +18,8 @@
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/main.css') }}" />
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/multi-select.css') }}" />
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/plugins.bundle.css') }}" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 	@yield('css')
 </head>
 
@@ -469,7 +471,7 @@
 	<script src="{{ mixAssets('assets/js/world-merc.js') }}"></script>
 	<script src="{{ mixAssets('assets/js/polyfill.js') }}"></script>
 	<script src="{{ mixAssets('assets/js/main.js') }}"></script>
-
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 	<script src="{{ mixAssets('assets/js/functions.js') }}"></script>
 
 	@yield('plugins')
@@ -520,7 +522,7 @@
 				}
 			});
 		});
-
+		
 	</script>
 </body>
 

@@ -146,7 +146,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterAmostra{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>

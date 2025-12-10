@@ -73,7 +73,7 @@
                                         <h6>Código Focco</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Série</h6>
+                                        <h6>Status</h6>
                                     </th>
                                     <th class="th-info">
                                         <h6>Máquina</h6>
@@ -81,7 +81,10 @@
                                     <th class="th-info">
                                         <h6>Cliente</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="th-info">
+                                        <h6>Criado</h6>
+                                    </th>
+                                    <th class="">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -117,10 +120,16 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                    @if($item->serie)
-                                                        {!! $item->serie !!}
-                                                        @else
-                                                        -
+                                                    @if ($item->status === 'Finalizada')
+                                                        <span class="badge text-bg-finalizada">Finalizada</span>
+
+                                                    @elseif ($item->status === 'Não iniciada')
+                                                        <span class="badge text-bg-danger">Não iniciada</span>
+
+                                                    @elseif ($item->status === 'Em andamento')
+                                                        <span class="badge text-bg-grey">Em andamento</span>
+                                                    @else
+                                                    <span class="badge text-bg-danger">Não iniciada</span>
                                                     @endif
                                                 </span>
                                             </div>
@@ -162,31 +171,41 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-end">
-                                        <div style="position: relative">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                {{ $item->criado->format('d/m/Y') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="d-block"></span>
+                                    </td>
+                                    <td>
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>
-                                            <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
-                                                <ul class="modal-options">
-                                                    <li class="dropdown-item">
-                                                        <a class="link-modal" href="{{route('Especificacoes.especificacao', ['id' => $item->id])}}">  <i class="bi bi-eye"></i> Visualizar
-                                                        </a>
-                                                    </li>
-                                                    <li class="dropdown-item">
-                                                        <a class="link-modal" href="{{route('Especificacoes.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
-                                                        </a>
-                                                    </li>
-                                                    <li class="dropdown-item">
-                                                        <form class="responseAjax" action="{{route('Especificacoes.excluir', ['id' => $item->id])}}" method="post">
-                                                            @csrf
-                                                            <button class="deleteBt text-danger" type="submit">
-                                                               <i class="bi bi-trash"></i> Excluir
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                        </div>
+                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                            <ul class="modal-options">
+                                                <li class="dropdown-item">
+                                                    <a class="link-modal" href="{{route('Especificacoes.especificacao', ['id' => $item->id])}}"> <i class="bi bi-eye"></i> Visualizar
+                                                    </a>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <a class="link-modal" href="{{route('Especificacoes.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                    </a>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <form class="responseAjax" action="{{route('Especificacoes.excluir', ['id' => $item->id])}}" method="post">
+                                                        @csrf
+                                                        <button class="deleteBt text-danger" type="submit">
+                                                            <i class="bi bi-trash"></i> Excluir
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -195,7 +214,7 @@
                                 @endforeach
                                 @else
                                 <tr>
-                                    <td>
+                                    <td colspan="7">
                                         <span class="text-gray-800 d-block mb-1 fs-6">Nenhum resultado encontrado!</span>
                                     </td>
                                 </tr>
@@ -261,7 +280,7 @@
                                     </td>
                                     
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoesAmostras{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>
@@ -357,7 +376,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoesProdutos{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>

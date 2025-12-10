@@ -19,6 +19,7 @@ class Especificacao extends Model
         'codigo_focco',
         'serie',
         'status',
+        'finalizada',
         'revisao_selecionada_id',
         'criado',
         'modificado',

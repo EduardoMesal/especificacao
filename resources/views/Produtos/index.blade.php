@@ -42,10 +42,11 @@
                         'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                         'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
                         'clientes' => null,
+                        'status' => isset($status) ? $status : null,
                         ])
                     @endcomponent
-                    <div class="table-responsive">
-                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                    <div class="table-wrapper table-responsive">
+                        <table class="table">
                            <thead>
                                 <tr>
                                     <th class="th-info">
@@ -82,7 +83,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>

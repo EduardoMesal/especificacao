@@ -33,6 +33,7 @@
                 'estadosBrasil' => $estadosBrasil ?? null,
                 'marcas' => $marcas ?? null,
                 'marca' => isset($marca) ? $marca : null,
+                'status' => isset($status) ? $status : null,
                 ])
                 @endcomponent
             </div>

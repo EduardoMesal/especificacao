@@ -42,6 +42,8 @@
                     'equipamentos' => isset($equipamentos) ? $equipamentos : null,
                     'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
                     'clientes' => isset($clientes) ? $clientes : null,
+                    'status' => isset($status) ? $status : null,
+                    'criado' => isset($criado) ? $criado : null,
                     ])
                     @endcomponent
                     <div class="table-wrapper table-responsive">
@@ -56,6 +58,9 @@
                                     </th>
                                     <th class="th-info">
                                         <h6>Cliente</h6>
+                                    </th>
+                                    <th class="th-info">
+                                        <h6>Criado</h6>
                                     </th>
                                     <th class="th-info text-end">
                                         <h6>Ações</h6>
@@ -103,8 +108,18 @@
                                             </div>
                                         </div>
                                     </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span 
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {{ $item->criado->format('d/m/Y') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>
@@ -150,10 +165,6 @@
 
 @section('plugins')
 <script src="{{ mixAssets('assets/js/jqueryui.js') }}"></script>
-<script src="{{ mixAssets('assets/js/apexcharts.js') }}"></script>
-<script src="{{ mixAssets('assets/js/momentjs.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
-<script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
 <script>
 </script>
 @endsection

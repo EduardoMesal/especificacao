@@ -18,26 +18,32 @@ class DashboardController extends Controller
     {
         $dados = [
             'nome' => $request->input('nome'),
+            'criado' => $request->input('criado'),
             'codigo_focco' => $request->input('codigo_focco'),
-            'serie' => $request->input('serie'),
+            // 'serie' => $request->input('serie'),
             'maquina_id' => $request->input('maquina_id'),
             'cliente_nome' => $request->input('cliente_nome'),
-
+            'status' => $request->input('status'),
         ];
 
         $query = $dashboardService->index($dados);
-
+        
         return view('Dashboard/index', [
             'especificacoes' => $query['especificacoes'],
             'especificacoesPerMonths' => $query['especificacoesPerMonths'],
             'maquinas' => $query['maquinas'],
             'codigo_focco' => $dados['codigo_focco'] ?? '',
-            'serie' => $dados['serie'] ?? '',
+            'status' => $dados['status'] ?? '',
+            'criado' => $dados['criado'] ?? '',
+            // 'serie' => $dados['serie'] ?? '',
             'maquina_id' => $dados['maquina_id'] ?? '',
             'cliente_nome' => $dados['cliente_nome'] ?? '',
             'especificacoesCount' => $query['especificacoesCount'] ?? 0,
             'masquinasCount' => $query['masquinasCount'] ?? 0,
             'pedidosCount' => $query['pedidosCount'] ?? 0,
+            'especificacoesPendentesCount' => $query['especificacoesPendentesCount'] ?? 0,
+            'especificacoesEmProducaoCount' => $query['especificacoesEmProducaoCount'] ?? 0,
+            'especificacoesFinalizadasCount' => $query['especificacoesFinalizadasCount'] ?? 0
         ]);
     }
 

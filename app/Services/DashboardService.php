@@ -26,7 +26,8 @@ class DashboardService
             ])
         ])
         ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', $dados['codigo_focco']))
-        ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
+        // ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
+        ->when($dados['status'], fn($q) => $q->where('status', 'LIKE', "%{$dados['status']}%"))
         ->when($dados['maquina_id'], fn($q) => $q->where('maquina_id', $dados['maquina_id']))
         // ->when($dados['cliente_id'], fn($q) => $q->whereHas('pedido.cliente', function ($query) use ($dados) {
         //     $query->where('id', $dados['cliente_id']);
@@ -36,6 +37,46 @@ class DashboardService
                 $query->where('nome', 'LIKE', "%{$dados['cliente_nome']}%");
             })
         )
+        ->when($dados['criado'] ?? null, function ($q) use ($dados) {
+
+            [$date, $endDate] = explode(' - ', $dados['criado']);
+
+            $date = Carbon::createFromFormat('d/m/Y', trim($date));
+            $endDate = Carbon::createFromFormat('d/m/Y', trim($endDate));
+
+            if ($date->month <= $endDate->month) {
+
+                $q->whereRaw(
+                    '(MONTH(criado) > ? OR (MONTH(criado) = ? AND DAY(criado) >= ?))
+                    AND (MONTH(criado) < ? OR (MONTH(criado) = ? AND DAY(criado) <= ?))',
+                    [
+                        $date->month,
+                        $date->month,
+                        $date->day,
+                        $endDate->month,
+                        $endDate->month,
+                        $endDate->day
+                    ]
+                );
+
+            } else {
+
+                $q->whereRaw(
+                    '(MONTH(criado) > ? OR (MONTH(criado) = ? AND DAY(criado) >= ?))
+                    OR (MONTH(criado) < ? OR (MONTH(criado) = ? AND DAY(criado) <= ?))',
+                    [
+                        $date->month,
+                        $date->month,
+                        $date->day,
+                        $endDate->month,
+                        $endDate->month,
+                        $endDate->day
+                    ]
+                );
+
+            }
+
+        })
         ->orderBy('criado', 'desc')
         ->take(30)
         ->get();
@@ -86,9 +127,24 @@ class DashboardService
             ];
         }
 
-        $especificacoesCount = Especificacao::where('excluido', null)->whereYear('criado', Carbon::now()->year)->count();
-        $masquinasCount = Maquina::where('excluido', null)->count();
-        $pedidosCount = Pedido::where('excluido', null)->whereYear('criado', Carbon::now()->year)->count();
+        $baseQuery = Especificacao::whereNull('excluido')
+        ->whereYear('criado', Carbon::now()->year);
+
+        $especificacoesCount = (clone $baseQuery)->count();
+
+        $especificacoesPendentesCount = (clone $baseQuery)
+            ->where('status', 'LIKE', '%Pendente%')
+            ->count();
+
+        $especificacoesEmProducaoCount = (clone $baseQuery)
+            ->where('status', 'LIKE', '%Em produção%')
+            ->count();
+
+        $especificacoesFinalizadasCount = (clone $baseQuery)
+            ->where('status', 'LIKE', '%Finalizada%')
+            ->count();
+            $masquinasCount = Maquina::where('excluido', null)->count();
+            $pedidosCount = Pedido::where('excluido', null)->whereYear('criado', Carbon::now()->year)->count();
 
         $query = [
             'especificacoes' => $especificacoes,
@@ -96,6 +152,9 @@ class DashboardService
             'maquinas' => $maquinas,
             // 'clientes' => $clientes,
             'especificacoesCount' => $especificacoesCount,
+            'especificacoesPendentesCount' => $especificacoesPendentesCount,
+            'especificacoesEmProducaoCount' => $especificacoesEmProducaoCount,
+            'especificacoesFinalizadasCount' => $especificacoesFinalizadasCount,
             'masquinasCount' => $masquinasCount,
             'pedidosCount' => $pedidosCount,
         ];

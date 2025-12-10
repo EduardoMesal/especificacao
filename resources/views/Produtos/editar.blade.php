@@ -90,8 +90,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                    <div class="table-wrapper table-responsive">
+                        <table class="table">
                             <thead>
                                 <tr>
                                     <th class="th-info">
@@ -146,7 +146,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <div style="position: relative">
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterAmostra{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>

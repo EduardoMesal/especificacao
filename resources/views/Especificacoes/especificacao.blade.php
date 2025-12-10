@@ -34,39 +34,6 @@
                                         <a href="{{ route('Especificacoes.editar', ['id' => $especificacao->id]) }}" class="btn btn-sm btn-primary">
                                             <i class="bi bi-pencil"></i> Editar especificação
                                         </a>
-                                        <div style="position: relative">
-                                            <!-- <button class="btn btn-sm btn-primary dropdown-modal" id="modalOpenExports">
-                                                <i class="bi bi-file-earmark-word-fill"></i> Exportar Word
-                                            </button>
-                                            <div class="hidden modal-options-menu" data-modal="modalOpenExports">
-                                                <ul class="modal-options" style="margin-top: 30px;">
-                                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
-                                                        <a class="link-modal" 
-                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'especificacao']) }}">
-                                                            Especificações
-                                                        </a>
-                                                    </li>
-                                                     <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
-                                                        <a class="link-modal" 
-                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'amostras']) }}">
-                                                            Amostras
-                                                        </a>
-                                                    </li>
-                                                     <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
-                                                        <a class="link-modal" 
-                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'produtos']) }}">
-                                                            Produtos
-                                                        </a>
-                                                    </li>
-                                                     <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
-                                                        <a class="link-modal" 
-                                                            href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'tipo' => 'completa']) }}">
-                                                            Completa
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div> -->
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +154,6 @@
                     </div>
                     <div class="chart">
                         <div id="donutEspecificacao" style="width: 100%; height: 201px;"></div>
-
                     </div>
                 </div>
             </div>
@@ -208,6 +174,39 @@
                         <div id="collapseEspecificacoes" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="card-body adjustCardBody">
+                                    <div class="position-relative d-flex justify-content-end mb-3">
+                                        <button class="btn btn-sm btn-primary dropdown-modal" id="modalOpenExports">
+                                            <i class="bi bi-file-earmark-word-fill"></i> Exportar
+                                        </button>
+                                        <div class="hidden modal-options-menu" data-modal="modalOpenExports">
+                                            <ul class="modal-options" style="margin-top: 30px;">
+                                                <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                    <a class="link-modal" 
+                                                        href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'lang' => request('lang'), 'tipo' => 'especificacao']) }}">
+                                                        Especificações
+                                                    </a>
+                                                </li>
+                                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                    <a class="link-modal" 
+                                                        href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'lang' => request('lang'), 'tipo' => 'amostras']) }}">
+                                                        Amostras
+                                                    </a>
+                                                </li>
+                                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                    <a class="link-modal" 
+                                                        href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'lang' => request('lang'), 'tipo' => 'produtos']) }}">
+                                                        Produtos
+                                                    </a>
+                                                </li>
+                                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                    <a class="link-modal" 
+                                                        href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'lang' => request('lang'), 'tipo' => 'completa']) }}">
+                                                        Completa
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                     <div class="mb-5 input-style-1">
                                         <select data-original="<?= $especificacao->revisao_selecionada_id ?>" class="form-select form-select-solid selectRv" data-control="select2" data-hide-search="true" data-placeholder="Selecionar revisão" name="revisao">
                                             @foreach ($revisoes as $rev)
@@ -238,14 +237,26 @@
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
                                                                         <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                            <div><span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span></div>
+                                                                            <div><span style="font-weight: 600; color: #000">
+                                                                                @if ($resumo['caracteristica'])
+                                                                                    {!! $resumo['caracteristica'] !!}:
+                                                                                    @else
+                                                                                    {{__('messages.nao_informado')}}:
+                                                                                @endif
+                                                                            </span></div>
                                                                             @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
                                                                                 <div>
-                                                                                    <span style="font-weight: 600;">{{ $item['atributo'] }}: </span>
+                                                                                    <span style="font-weight: 600;">
+                                                                                    @if($item['atributo'])
+                                                                                    {{ $item['atributo'] }}: 
+                                                                                    @else
+                                                                                    {{__('messages.nao_informado')}}:
+                                                                                    @endif
+                                                                                    </span>
                                                                                     @if($item['conteudo'])
                                                                                     {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
                                                                                     @else
-                                                                                        <span>Não informado;</span>
+                                                                                        <span>{{__('messages.nao_informado')}};</span>
                                                                                     @endif
                                                                                 </div>
                                                                                 @if($item['observacao'])
@@ -269,13 +280,19 @@
                                                                         @endif
 
                                                                         <div>
-                                                                            <span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span>
+                                                                            <span style="font-weight: 600; color: #000">
+                                                                                @if ($resumo['caracteristica'])
+                                                                                    {!! $resumo['caracteristica'] !!}:
+                                                                                    @else
+                                                                                    {{__('messages.nao_informado')}}:
+                                                                                @endif
+                                                                            </span>
                                                                             @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
                                                                                 {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
                                                                             @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
                                                                                 {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
                                                                             @else
-                                                                                <span>Não informado;</span>
+                                                                                <span>{{__('messages.nao_informado')}};</span>
                                                                             @endif
                                                                         </div>
 
@@ -352,11 +369,17 @@
                                                                                     <div class="mt-2">
                                                                                         @foreach ($grupo as $item)
                                                                                             <div class="">
-                                                                                                <span style="font-weight: 600;">{{ $item['sub_atributo_nome'] }}: </span>
+                                                                                                <span style="font-weight: 600;">
+                                                                                                    @if ($item['sub_atributo_nome'])
+                                                                                                        {{ $item['sub_atributo_nome'] }}:
+                                                                                                        @else
+                                                                                                        {{__('messages.nao_informado')}}: 
+                                                                                                    @endif
+                                                                                                </span>
                                                                                                 @if($item['conteudo'])
                                                                                                     {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
                                                                                                 @else
-                                                                                                    <span>Não informado;</span>
+                                                                                                    <span>{{__('messages.nao_informado')}};</span>
                                                                                                 @endif
 
                                                                                                 @if($item['observacao_personalizada'])
@@ -369,7 +392,13 @@
                                                                             @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
                                                                                 @foreach ($grupo as $item)
                                                                                     <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                                        <span style="font-weight: 600; color: #000">{{ $item['atributo_nome'] }}:</span>
+                                                                                        <span style="font-weight: 600; color: #000">
+                                                                                            @if ($item['atributo_nome'])
+                                                                                                {{ $item['atributo_nome'] }}:
+                                                                                            @else
+                                                                                                {{__('messages.nao_informado')}}: 
+                                                                                            @endif
+                                                                                        </span>
                                                                                         @php
                                                                                             $valor = '';
                                                                                             if (!empty($item['sub_atributo_nome'])) {
@@ -382,7 +411,7 @@
                                                                                                 $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
                                                                                                 $valor .= ';';
                                                                                             } else {
-                                                                                                $valor = '<span>Não informado;</span>';
+                                                                                                $valor = '<span>' . __('messages.nao_informado') . ';</span>';
                                                                                             }
                                                                                         @endphp
 
@@ -476,11 +505,17 @@
                                                                                         <div class="mt-2">
                                                                                             @foreach ($grupo as $item)
                                                                                                 <div class="">
-                                                                                                    <span style="font-weight: 600;">{{ $item['sub_atributo_nome'] }}: </span>
+                                                                                                    <span style="font-weight: 600;">
+                                                                                                        @if($item['sub_atributo_nome'])
+                                                                                                            {{ $item['sub_atributo_nome'] }}: 
+                                                                                                        @else
+                                                                                                            {{__('messages.nao_informado')}}: 
+                                                                                                        @endif
+                                                                                                    </span>
                                                                                                     @if($item['conteudo'])
                                                                                                         {{ $item['conteudo'] }}{{ $item['atributo_unidade'] ? ' ' . $item['atributo_unidade'] : '' }};
                                                                                                     @else
-                                                                                                        <span>Não informado;</span>
+                                                                                                        <span>{{__('messages.nao_informado')}};</span>
                                                                                                     @endif
 
                                                                                                     @if($item['observacao_personalizada'])
@@ -493,7 +528,13 @@
                                                                                 @elseif (in_array($primeiro['atributo_tipo'], ['selecionavel', 'texto']))
                                                                                     @foreach ($grupo as $item)
                                                                                         <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                                            <span style="font-weight: 600; color: #000">{{ $item['atributo_nome'] }}:</span>
+                                                                                            <span style="font-weight: 600; color: #000">
+                                                                                                @if($item['atributo_nome'])
+                                                                                                    {{ $item['atributo_nome'] }}:
+                                                                                                @else
+                                                                                                    {{__('messages.nao_informado')}}:
+                                                                                                @endif
+                                                                                            </span>
                                                                                             @php
                                                                                                 $valor = '';
                                                                                                 if (!empty($item['sub_atributo_nome'])) {
@@ -506,7 +547,7 @@
                                                                                                     $valor .= !empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '';
                                                                                                     $valor .= ';';
                                                                                                 } else {
-                                                                                                    $valor = '<span>Não informado;</span>';
+                                                                                                    $valor = '<span>' . __('messages.nao_informado') . ';</span>';
                                                                                                 }
                                                                                             @endphp
 
@@ -619,14 +660,20 @@
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
                                                                         <li class="p-3 bg-light rounded-2 border border-light position-relative">
-                                                                            <div><span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span></div>
+                                                                            <div><span style="font-weight: 600; color: #000">
+                                                                                @if ($resumo['caracteristica'])
+                                                                                    {!! $resumo['caracteristica'] !!}:
+                                                                                    @else
+                                                                                    {{__('messages.nao_informado')}}:
+                                                                                @endif
+                                                                            </span></div>
                                                                             @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
                                                                                 <div>
                                                                                     <span style="font-weight: 600;">{{ $item['atributo'] }}: </span>
                                                                                     @if($item['conteudo'])
                                                                                     {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
                                                                                     @else
-                                                                                        <span>Não informado;</span>
+                                                                                        <span>{{__('messages.nao_informado')}};</span>
                                                                                     @endif
                                                                                 </div>
                                                                                 @if($item['observacao'])
@@ -650,13 +697,19 @@
                                                                         @endif
 
                                                                         <div>
-                                                                            <span style="font-weight: 600; color: #000">{!! $resumo['caracteristica'] !!}:</span>
+                                                                            <span style="font-weight: 600; color: #000">
+                                                                                @if ($resumo['caracteristica'])
+                                                                                    {!! $resumo['caracteristica'] !!}:
+                                                                                    @else
+                                                                                    {{__('messages.nao_informado')}}:
+                                                                                @endif
+                                                                            </span>
                                                                             @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
                                                                                 {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
                                                                             @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
                                                                                 {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
                                                                             @else
-                                                                                <span>Não informado;</span>
+                                                                                <span>{{__('messages.nao_informado')}};</span>
                                                                             @endif
                                                                         </div>
 
@@ -914,7 +967,7 @@
                                                                 <ul class="modal-options">
                                                                     <li class="dropdown-item">
                                                                         <a href="{{ route('Especificacoes.editar_amostra', ['id' => $item->id]) }}" class="link-modal">
-                                                                            <i class="bi bi-pencil-fill"></i> Editar
+                                                                            <i class="bi bi-pencil"></i> Editar
                                                                         </a>
                                                                     </li>
                                                                     <li class="dropdown-item">
@@ -1020,7 +1073,7 @@
                                                                 <ul class="modal-options">
                                                                     <li class="dropdown-item">
                                                                         <a href="{{ route('Especificacoes.editar_produto', ['id' => $item->id]) }}" class="link-modal">
-                                                                            <i class="bi bi-pencil-fill"></i> Editar
+                                                                            <i class="bi bi-pencil"></i> Editar
                                                                         </a>
                                                                     </li>
                                                                     <li class="dropdown-item">
@@ -1632,8 +1685,6 @@ $(document).ready(function() {
             }
         });
     });
-
-
 });
 
 var chart = echarts.init(document.getElementById('donutEspecificacao'));
@@ -1663,7 +1714,7 @@ var chart = echarts.init(document.getElementById('donutEspecificacao'));
                     { value: porcentagem, name: 'Concluído' },
                     { value: restante.toFixed(1), name: 'Restante' }
                 ],
-                color: ['#4CAF50', '#E0E0E0']
+                color: ['#60d66a', '#E0E0E0']
             }
         ]
     });

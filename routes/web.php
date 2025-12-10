@@ -73,8 +73,7 @@ Route::middleware(['adm', '2fa'])->group(function () {
         Route::get('/editar/{id}', [EspecificacoesController::class, 'editar'])->name('Especificacoes.editar');
         Route::post('/editar/{id}', [EspecificacoesController::class, 'editar_action'])->name('Especificacoes.editar_action');
         Route::post('/excluir/{id}', [EspecificacoesController::class, 'excluir'])->name('Especificacoes.excluir');
-        Route::get('/exportar-word/{id}', [EspecificacoesController::class, 'exportarWord'])
-        ->name('Especificacoes.word');
+        Route::get('/exportar-word/{id}', [EspecificacoesController::class, 'exportarWord'])->name('Especificacoes.word');
         
         Route::delete('/caracteristica/excluir/{id}', [EspecificacoesController::class, 'excluir_caracteristica'])->name('Especificacoes.excluir_caracteristica');
 

@@ -17,20 +17,24 @@ class EspecificacoesController extends Controller
     {
         $dados = [
             'codigo_focco' => $request->input('codigo_focco'),
-            'serie' => $request->input('serie'),
+            // 'serie' => $request->input('serie'),
             'maquina_id' => $request->input('maquina_id'),
             'cliente_nome' => $request->input('cliente_nome'),
+            'status' => $request->input('status'),
+            'criado' => $request->input('criado'),
         ];
 
         $query = $especificacaoService->index($dados);
-
+        
         return view('Especificacoes/index', [
             'codigo_focco' => $dados['codigo_focco'] ?? '',
-            'serie' => $dados['serie'] ?? '',
+            // 'serie' => $dados['serie'] ?? '',
             'cliente_nome' => $dados['cliente_nome'] ?? '',
+            'status' => $dados['status'] ?? '',
             'maquinas' => $query['maquinas'],
             'maquina_id' => $dados['maquina_id'] ?? '',
             'especificacoes' => $query['especificacoes'],
+            'criado' => $dados['criado'] ?? '',
         ]);
     }
 

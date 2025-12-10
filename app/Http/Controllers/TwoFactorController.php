@@ -38,7 +38,8 @@ class TwoFactorController extends Controller
             // if ($user->tipo == 'adm') {
             //     return  redirect()->intended("/dashboard");
             // }
-
+            
+            $request->session()->regenerate();
             return  redirect()->intended("/dashboard");
         }
 

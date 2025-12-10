@@ -166,37 +166,38 @@
                                                                 </div>
                                                             </label>
                                                             @foreach($c->atributos as $a)
-                                                                <div class="col-md-6">
-                                                                    <div class="especificacaoMultiplos mt-8 input-style-1">
-                                                                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                                            <span class="">{{ optional($a->atributosIdiomas->first())->nome }}</span>
-                                                                        </label>
+                                                                <div class="container adjustment-row-multiplos">
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 adjustment-input-style">
+                                                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                                                <span class="">{{ optional($a->atributosIdiomas->first())->nome }}</span>
+                                                                            </label>
 
-                                                                        <input type="hidden" name="caracteristicas[{{ $c->id }}][atributo_multiplo][{{ $loop->index }}][atributo_id]" value="{{ $a->id }}" />
+                                                                            <input type="hidden" name="caracteristicas[{{ $c->id }}][atributo_multiplo][{{ $loop->index }}][atributo_id]" value="{{ $a->id }}" />
 
-                                                                        <input type="text" class="bg-transparent textAtributo" placeholder="Preencha o campo atributo" 
-                                                                            name="caracteristicas[{{ $c->id }}][atributo_multiplo][{{ $loop->index }}][conteudo]" />
+                                                                            <input type="text" class="bg-transparent textAtributo" placeholder="Preencha o campo atributo" 
+                                                                                name="caracteristicas[{{ $c->id }}][atributo_multiplo][{{ $loop->index }}][conteudo]" />
 
-                                                                        @if(optional($a->atributosIdiomas->first())->observacao)
-                                                                            <div class="observacao mt-2 alert alert-warning mb-0">
-                                                                                <label class="d-flex align-items-center fs-6 fw-bold">
-                                                                                    <span class="">Observação</span>
-                                                                                </label>
-                                                                                <p class="observacaoDefault italic" style="margin-bottom:0px;">
-                                                                                    {{ optional($a->atributosIdiomas->first())->observacao }}
-                                                                                </p>
-                                                                            </div>
-                                                                        @endif
+                                                                            @if(optional($a->atributosIdiomas->first())->observacao)
+                                                                                <div class="observacao mt-2 alert alert-warning mb-0">
+                                                                                    <label class="d-flex align-items-center fs-6 fw-bold">
+                                                                                        <span class="">Observação</span>
+                                                                                    </label>
+                                                                                    <p class="observacaoDefault italic" style="margin-bottom:0px;">
+                                                                                        {{ optional($a->atributosIdiomas->first())->observacao }}
+                                                                                    </p>
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="col-md-6 mt-3 mb-0 mt-md-0 input-style-1">
+                                                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                                                <span class="">Observações</span>
+                                                                            </label>
+                                                                            <input type="text" class="bg-transparent"
+                                                                            name="caracteristicas[{{ $c->id }}][atributo_multiplo][{{ $loop->index }}][observacao_personalizada]" />
+                                                                            <input type="hidden" name="caracteristicas[{{ $c->id }}][caracteristica_id]" value="{{ $c->id }}" />
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-
-                                                                <div class="col-md-6 mt-5 mt-md-8 input-style-1">
-                                                                    <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                                        <span class="">Observações</span>
-                                                                    </label>
-                                                                    <input type="text" class="bg-transparent"
-                                                                        name="caracteristicas[{{ $c->id }}][atributo_multiplo][{{ $loop->index }}][observacao_personalizada]" />
-                                                                    <input type="hidden" name="caracteristicas[{{ $c->id }}][caracteristica_id]" value="{{ $c->id }}" />
                                                                 </div>
                                                             @endforeach
                                                         @else
@@ -235,7 +236,7 @@
                                                                 </div>
                                                             </label>
                                                             <input type="hidden" name="caracteristicas[{{ $c->id }}][atributo_texto][atributo_id]" value="{{ $c->atributos[0]->id }}" />
-                                                            <input type="text" class="bg-transparent mt-2" placeholder="Preencha o campo texto" name="caracteristicas[{{ $c->id }}][atributo_texto][conteudo]" />
+                                                            <input type="text" class="bg-transparent textAtributo" placeholder="Preencha o campo texto" name="caracteristicas[{{ $c->id }}][atributo_texto][conteudo]" />
                                                             <input type="hidden" name="caracteristicas[{{ $c->id }}][caracteristica_id]" value="{{ $c->id }}" />
                                                             
                                                             @if(optional($c->atributos->first()->atributosIdiomas->first())->observacao)
@@ -249,14 +250,13 @@
                                                                 </div>
                                                             @endif
                                                         </div>
-                                                        <div class="col-md-6 mt-5 mt-md-0 input-style-1">
+                                                        <div class="col-md-6 mt-3 mb-0 mt-md-0 input-style-1">
                                                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                                 <span class="">Observações</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="bg-transparent mt-2"
-                                                                placeholder="Observação personalizada"
-                                                                name="caracteristicas[{{ $c->id }}][atributo_texto][observacao_personalizada]" />
+                                                            <input type="text" class="bg-transparent"
+                                                            placeholder="Observação personalizada"
+                                                            name="caracteristicas[{{ $c->id }}][atributo_texto][observacao_personalizada]" />
                                                         </div>
                                                         @endif
                                                     </div>

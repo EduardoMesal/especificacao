@@ -65,6 +65,19 @@
                     </select>
                 </div>
                 @endif
+                @if(isset($status))
+                <div class="col-12 col-lg-12 input-style-1 mb-0">
+                    <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                        <span>Status</span>
+                    </label>
+                    <select class="form-select form-select-solid" name="status" data-control="select2" data-placeholder="Status">
+                        <option></option>
+                        <option {{$status == 'Pendente' ? 'selected' : ''}} value="Pendente">Pendente</option>
+                        <option {{$status == 'Em produção' ? 'selected' : ''}} value="Em produção">Em produção</option>
+                        <option {{$status == 'Finalizada' ? 'selected' : ''}} value="Finalizada">Finalizada</option>
+                    </select>
+                </div>
+                @endif
                 @if($equipamentos)
                 <div class="col-12 col-lg-12 input-style-1 mb-0">
                     <label class="d-flex align-items-center fs-6 fw-bold mb-2">
@@ -95,6 +108,14 @@
                     </select>
                 </div>
                 @endif
+                @if(isset($criado))
+                <div class="col-12 col-lg-12 input-style-1 mb-0" style="position: relative;">
+                    <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                        <span>Criado</span>
+                    </label>
+                    <input class="bg-transparent filter-daterangepicker" placeholder="Selecionar datas" type="text" value="{{ $criado ? $criado : '' }}" name="criado" />
+                </div>
+                @endif
                 <div class="col-12 col-lg-12 mb-4">
                     <button type="submit" class="btn btn-primary w-100">Filtrar</button>
                 </div>
@@ -102,3 +123,6 @@
         </form>
     </div>
 </div>
+<script>
+    
+</script>

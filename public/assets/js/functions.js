@@ -699,7 +699,6 @@ document.addEventListener('DOMContentLoaded', function () {
 $(document).ready(function () {
 
 	// Corrigir IDs inválidos automaticamente
-	
 
 	$('.dropdown-toggle').click(function(e) {
 		e.stopPropagation();
@@ -842,6 +841,7 @@ $(document).ready(function () {
 		$('.sidenav').toggleClass('sidenavAcitve');
 	});
 
+	//fechar closeSide
 	$(document).on('click', function (event) {
 		if (!$(event.target).closest('.sidenav, .openSide, .ranges, .daterangepicker, .drp-calendar, .prev, .next, .select2-search__field').length) {
 			if ($('.sidenav').hasClass('sidenavAcitve')) {

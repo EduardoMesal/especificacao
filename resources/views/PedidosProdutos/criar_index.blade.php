@@ -10,43 +10,44 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="card-style">
-                    <div class="table-responsive">
-                        <div class="card-header" style="padding: .5rem 0px; border-bottom:0px">
-                            <div class="mb-30 d-flex align-items-center justify-content-between w-100">
-                                <h6 class="text-medium">Produtos</h6>
-                                <div style="height: 19px; margin-right: 5px; position: relative">
-                                    <button class="p-0 dropdown-modal" id="modalOpenFilter">
-                                        <i class="lni lni-more-alt"></i>
-                                    </button>
-                                    <div class="hidden modal-options-menu" data-modal="modalOpenFilter">
-                                        <ul class="modal-options">
-                                            <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
-                                                <i class="bi bi-filter"></i> Filtrar
-                                            </li>
-                                            <li class="dropdown-item">
-                                                <a href="{{route('Caracteristicas.index')}}" class="text-danger">
-                                                    <i class="bi bi-filter"></i> Limpar filtro
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    
-                                    </div>
+                    <div class="card-header" style="padding: .5rem 0px; border-bottom:0px">
+                        <div class="mb-30 d-flex align-items-center justify-content-between w-100">
+                            <h6 class="text-medium">Produtos</h6>
+                            <div style="height: 19px; margin-right: 5px; position: relative">
+                                <button class="p-0 dropdown-modal" id="modalOpenFilter">
+                                    <i class="lni lni-more-alt"></i>
+                                </button>
+                                <div class="hidden modal-options-menu" data-modal="modalOpenFilter">
+                                    <ul class="modal-options">
+                                        <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                            <i class="bi bi-filter"></i> Filtrar
+                                        </li>
+                                        <li class="dropdown-item">
+                                            <a href="{{route('Caracteristicas.index')}}" class="text-danger">
+                                                <i class="bi bi-filter"></i> Limpar filtro
+                                            </a>
+                                        </li>
+                                    </ul>
+                                
                                 </div>
                             </div>
-                            @component('components.filtros', [
-                            'url' => route('Produtos.index'),
-                            'telefone' => isset($telefone) ? $telefone : null,
-                            'nome' => isset($nome) ? $nome : null,
-                            'codigo' => isset($codigo) ? $codigo : null,
-                            'maquina_id' => isset($maquina_id) ? $maquina_id : null,
-                            'cliente_id' => isset($cliente_id) ? $cliente_id : null,
-                            'maquinas' => isset($maquinas) ? $maquinas : null,
-                            'equipamentos' => isset($equipamentos) ? $equipamentos : null,
-                            'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
-                            'clientes' => null,
-                            ])
-                            @endcomponent
                         </div>
+                        @component('components.filtros', [
+                        'url' => route('Produtos.index'),
+                        'telefone' => isset($telefone) ? $telefone : null,
+                        'nome' => isset($nome) ? $nome : null,
+                        'codigo' => isset($codigo) ? $codigo : null,
+                        'maquina_id' => isset($maquina_id) ? $maquina_id : null,
+                        'cliente_id' => isset($cliente_id) ? $cliente_id : null,
+                        'maquinas' => isset($maquinas) ? $maquinas : null,
+                        'equipamentos' => isset($equipamentos) ? $equipamentos : null,
+                        'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
+                        'clientes' => null,
+                        'status' => isset($status) ? $status : null,
+                        ])
+                        @endcomponent
+                    </div>
+                    <div class="table-responsive">
                         <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
                             <thead>
                                 <tr>
