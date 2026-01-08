@@ -186,7 +186,7 @@
                                                         Especificações
                                                     </a>
                                                 </li>
-                                                    <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
+                                                <!-- <li class="dropdown-item openSide link-modal" style="cursor: pointer;">
                                                     <a class="link-modal" 
                                                         href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'lang' => request('lang'), 'tipo' => 'amostras']) }}">
                                                         Amostras
@@ -203,7 +203,7 @@
                                                         href="{{ route('Especificacoes.word', ['id' => $especificacao->id, 'lang' => request('lang'), 'tipo' => 'completa']) }}">
                                                         Completa
                                                     </a>
-                                                </li>
+                                                </li> -->
                                             </ul>
                                         </div>
                                     </div>
@@ -223,11 +223,10 @@
                                             </h2>
                                             <div id="collapseEspecificacoes2" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
                                                 <div class="accordion-body">
-                                                    
-                                                @php
-                                                    $renderizados = [];
-                                                    $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
-                                                @endphp
+                                                    @php
+                                                        $renderizados = [];
+                                                        $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
+                                                    @endphp
                                                     <ul class="list-group resumoContent">
                                                         @if(count($resumoItens) > 0)
                                                             @foreach ($resumoItens as $resumo)
@@ -236,7 +235,7 @@
                                                                     @if(!in_array($resumo['caracteristica'], $renderizados))
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
-                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}}">
                                                                             <div><span style="font-weight: 600; color: #000">
                                                                                 @if ($resumo['caracteristica'])
                                                                                     {!! $resumo['caracteristica'] !!}:
@@ -246,7 +245,7 @@
                                                                             </span></div>
                                                                             @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
                                                                                 <div>
-                                                                                    <span style="font-weight: 600;">
+                                                                                    <span style="font-weight: 600; color: #000">
                                                                                     @if($item['atributo'])
                                                                                     {{ $item['atributo'] }}: 
                                                                                     @else
@@ -320,7 +319,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="accordion-item" style="margin-bottom: 15px;">
+                                        <!-- <div class="accordion-item" style="margin-bottom: 15px;">
                                             <h2 class="accordion-header" id="headingAmostras">
                                                 <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAmostrasGerais" aria-expanded="false" aria-controls="collapseAmostrasGerais">
                                                 Resumo das amostras
@@ -591,7 +590,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="accordion-item">
                                             <h2 class="accordion-header" id="headingObservacoes">
                                                 <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseObservacoes" aria-expanded="false" aria-controls="collapseObservacoes">
@@ -649,17 +648,17 @@
                                                 <div id="collapseEspecificacoes--{{$key}}" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
                                                     <div class="accordion-body">
                                                         <ul class="list-group resumoContent">
-                                                            @foreach($rev['itens'] as $resumo)
-                                                                @php
-                                                                    $renderizados = [];
-                                                                    $multiplosAgrupados = collect($resumoItens)->where('tipo', 'multiplos')->groupBy('caracteristica');
-                                                                @endphp
+                                                            @php
+                                                                $renderizados = [];
+                                                                $multiplosAgrupados = collect($rev['itens'])->where('tipo', 'multiplos')->groupBy('caracteristica');
+                                                            @endphp
+                                                            @foreach ($rev['itens'] as $resumo)
                                                                 {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
                                                                 @if($resumo['tipo'] === 'multiplos')
                                                                     @if(!in_array($resumo['caracteristica'], $renderizados))
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
-                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative">
+                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}}">
                                                                             <div><span style="font-weight: 600; color: #000">
                                                                                 @if ($resumo['caracteristica'])
                                                                                     {!! $resumo['caracteristica'] !!}:
@@ -669,7 +668,13 @@
                                                                             </span></div>
                                                                             @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
                                                                                 <div>
-                                                                                    <span style="font-weight: 600;">{{ $item['atributo'] }}: </span>
+                                                                                    <span style="font-weight: 600; color: #000">
+                                                                                    @if($item['atributo'])
+                                                                                    {{ $item['atributo'] }}: 
+                                                                                    @else
+                                                                                    {{__('messages.nao_informado')}}:
+                                                                                    @endif
+                                                                                    </span>
                                                                                     @if($item['conteudo'])
                                                                                     {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
                                                                                     @else
@@ -758,77 +763,13 @@
                         </h2>
                         <div id="collapseSimilares" class="accordion-collapse collapse">
                             <div class="accordion-body" id="similares">
-                                <!-- <div class="table-responsive">
-                                    <table id="tabelaAmostras" class="table">
-                                        <thead >
-                                            <tr>
-                                                <th class="th-info">Máquina</th>
-                                                <th class="th-info">Código Focco</th>
-                                                <th class="th-info">Similar (%)</th>
-                                                <th class="th-info">Comparação</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($listaComparacao as $amostra)
-                                                <tr>
-                                                    <td>
-                                                        <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
-                                                        {{$amostra['especificacao_id']}}) {{ $amostra['maquina'] }} - ({{$amostra['nomesAtributos']}})
-                                                        </a>
-                                                    </td>
-                                                    <td>{{ $amostra['codigo_focco'] }}</td>
-                                                    <td data-order="{{ $amostra['porcentagem_similaridade'] }}">{{ $amostra['porcentagem_similaridade'] }}%</td>
-                                                    <td>
-                                                        <button class="btn btn-light" onclick="getComparacao({{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}">
-                                                            Ver comparação
-                                                        </button>    
-                                                        <div class="modal fade" id="modalComparacao--{{$amostra['especificacao_id']}}" role="dialog">
-                                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                                <div class="modal-content accordion">
-                                                                    <div class="modal-header">
-                                                                        <div>
-                                                                            <h5 class="modal-title align-self-center" id="modalComparacao--{{$amostra['especificacao_id']}}">
-                                                                                Especificação {{$amostra['especificacao_id']}}
-                                                                            </h5>
-                                                                            @if(isset($amostra['codigo_focco']))
-                                                                                <p>Código Focco: {{$amostra['codigo_focco']}}
-                                                                            @endif
-                                                                        </div>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <div class="row">
-                                                                            <div class="col-md-12 mb-5 fv-row">
-                                                                                <div class="spinner-border hidden position-absolute top-50 start-50" id="spinnerModal--{{$amostra['especificacao_id']}}" style="margin-top: -1.5%;" role="status">
-                                                                                    <span class="sr-only">Loading...</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button class="btn btn-light"
-                                                                            onclick="exportarParaWord('modalComparacao--{{$amostra['especificacao_id']}}', {{$amostra['especificacao_id']}}, '{{ $amostra['codigo_focco'] ?? '' }}')">
-                                                                            Exportar para Word
-                                                                        </button>
-                                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div> -->
                                 <div class="tab-pane" id="similares" role="tabpanel">
-                                                  
                                     <div class="table-responsive">
                                         <table id="tabelaAmostras" class="table">
                                             <thead>
                                                 <tr>
                                                     <th class="th-info">Máquina</th>
-                                                    <th class="th-info">Código Focco</th>
+                                                    <th class="th-info">Serie</th>
                                                     <th class="th-info">Similar (%)</th>
                                                     <th class="th-info">Comparação</th>
                                                 </tr>
@@ -838,10 +779,13 @@
                                                     <tr>
                                                         <td>
                                                             <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
-                                                            {{$amostra['especificacao_id']}}) {{ $amostra['maquina'] }} - ({{$amostra['nomesAtributos']}})
+                                                            {{$amostra['especificacao_id']}} {{ $amostra['maquina'] }} - 
+                                                            @foreach ($amostra['nomesAtributos'] as $nomes)
+                                                                <span>{{$nomes}}</span>
+                                                            @endforeach
                                                             </a>
                                                         </td>
-                                                        <td>{{ $amostra['codigo_focco'] }}</td>
+                                                        <td>{{ $amostra['serie'] }}</td>
                                                         <td data-order="{{ $amostra['porcentagem_similaridade'] }}">{{ $amostra['porcentagem_similaridade'] }}%</td>
                                                         <td>
                                                             <button class="btn btn-light" onclick="getComparacao({{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}">
@@ -855,8 +799,8 @@
                                                                                 <h5 class="modal-title align-self-center" id="modalComparacao--{{$amostra['especificacao_id']}}">
                                                                                     Especificação {{$amostra['especificacao_id']}}
                                                                                 </h5>
-                                                                                @if(isset($amostra['codigo_focco']))
-                                                                                    <p>Código Focco: {{$amostra['codigo_focco']}}
+                                                                                @if(isset($amostra['serie']))
+                                                                                    <p>Serie: {{$amostra['serie']}}
                                                                                 @endif
                                                                             </div>
                                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -872,7 +816,7 @@
                                                                         </div>
                                                                         <div class="modal-footer">
                                                                             <button class="btn btn-light"
-                                                                                onclick="exportarParaWord('modalComparacao--{{$amostra['especificacao_id']}}', {{$amostra['especificacao_id']}}, '{{ $amostra['codigo_focco'] ?? '' }}')">
+                                                                                onclick="exportarParaWord('modalComparacao--{{$amostra['especificacao_id']}}', {{$amostra['especificacao_id']}}, '{{ $amostra['serie'] ?? '' }}')">
                                                                                 Exportar para Word
                                                                             </button>
                                                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
@@ -895,7 +839,7 @@
         </div>
     </div>
 </section>
-<section class="section pt-40">
+<!-- <section class="section pt-40">
     <div class="container-fluid">
         <div class="row">
             <div class="col-xl-12">
@@ -1106,7 +1050,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 <section class="section pt-40">
     <div class="container-fluid">
         <div class="row">
@@ -1121,13 +1065,13 @@
                         <div id="collapseEspecsAmostras" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
                                                     <h6>ID + Amostra</h6>
                                                 </th>
-                                                <th class="th-info text-end">
+                                                <th>
                                                     <h6></h6>
                                                 </th>
                                             </tr>
@@ -1137,7 +1081,7 @@
                                             @foreach($amostrasPedido as $item)
                                             <tr data-href="{{route('PedidosAmostras.editar', ['id' => $item->id])}}">
                                                 <td>
-                                                    <div class="d-flex gap-5 align-items-center">
+                                                    <div class="d-flex gap-3 align-items-center">
                                                         <div class="form-check">
                                                             <label class="form-check-label">
                                                                 <input class="form-check-input form-check-input-amostras" type="checkbox" value="{{ $item->id }}" {{in_array($item->id, $especificacaoAmostrasPedido) ? 'checked' : ''}} name="amostra_pedido_id">
@@ -1153,31 +1097,31 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="text-end">
-                                                    <div style="position: relative">
+                                                <td>
+                                                    <div class="d-flex justify-content-end">
                                                         <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                             <i class="lni lni-more-alt"></i>
                                                         </button>
-                                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
-                                                            <ul class="modal-options">
-                                                                <li class="dropdown-item">
-                                                                    <a class="link-modal" href="{{route('PedidosAmostras.copiar', ['id' => $item->id])}}"> <i class="bi bi-copy"></i> Copiar
-                                                                    </a>
-                                                                </li>
-                                                                <li class="dropdown-item">
-                                                                    <a class="link-modal" href="{{route('PedidosAmostras.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
-                                                                    </a>
-                                                                </li>
-                                                                <li class="dropdown-item">
-                                                                    <form class="responseAjax" action="{{route('PedidosAmostras.excluir', ['id' => $item->id])}}" method="post">
-                                                                        @csrf
-                                                                        <button class="deleteBt text-danger" type="submit">
+                                                    </div>
+                                                    <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                        <ul class="modal-options">
+                                                            <li class="dropdown-item">
+                                                               <a class="link-modal" href="{{route('PedidosAmostras.copiar', ['id' => $item->id])}}"> <i class="bi bi-copy"></i> Copiar
+                                                                </a>
+                                                            </li>
+                                                            <li class="dropdown-item">
+                                                                <a class="link-modal" href="{{route('PedidosAmostras.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                                </a>
+                                                            </li>
+                                                            <li class="dropdown-item">
+                                                                <form class="responseAjax" action="{{route('PedidosAmostras.excluir', ['id' => $item->id])}}" method="post">
+                                                                    @csrf
+                                                                    <button class="deleteBt text-danger" type="submit">
                                                                         <i class="bi bi-trash"></i> Excluir
-                                                                        </button>
-                                                                    </form>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1214,13 +1158,13 @@
                         <div id="collapseEspecsProdutos" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
                                                     <h6>ID + Produto</h6>
                                                 </th>
-                                                <th class="th-info text-end">
+                                                <th class="">
                                                     <h6></h6>
                                                 </th>
                                             </tr>
@@ -1230,7 +1174,7 @@
                                             @foreach($produtosPedido as $item)
                                             <tr data-href="{{route('PedidosProdutos.editar', ['id' => $item->id])}}">
                                                 <td>
-                                                <div class="d-flex gap-5 align-items-center">
+                                                <div class="d-flex gap-3 align-items-center">
                                                         <div class="form-check">
                                                             <label class="form-check-label">
                                                                 <input class="form-check-input form-check-input-produtos" type="checkbox" value="{{ $item->id }}" {{in_array($item->id, $especificacaoProdutosPedido) ? 'checked' : ''}} name="produto_pedido_id">
@@ -1242,36 +1186,35 @@
                                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
                                                                     {!! $item->id !!}) {{optional($item->produto->produtosIdiomas->first())->nome }}
                                                                 </span>
-                                                                <span class=" text-gray-400 d-block">ID + Produto</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="text-end">
-                                                    <div style="position: relative">
+                                                <td>
+                                                    <div class="d-flex justify-content-end">
                                                         <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                             <i class="lni lni-more-alt"></i>
                                                         </button>
-                                                        <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
-                                                            <ul class="modal-options">
-                                                                <li class="dropdown-item">
-                                                                    <a class="link-modal" href="{{route('PedidosProdutos.copiar', ['id' => $item->id])}}"> <i class="bi bi-copy"></i> Copiar
-                                                                    </a>
-                                                                </li>
-                                                                <li class="dropdown-item">
-                                                                    <a class="link-modal" href="{{route('PedidosProdutos.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
-                                                                    </a>
-                                                                </li>
-                                                                <li class="dropdown-item">
-                                                                    <form class="responseAjax" action="{{route('PedidosProdutos.excluir', ['id' => $item->id])}}" method="post">
-                                                                        @csrf
-                                                                        <button class="deleteBt text-danger" type="submit">
+                                                    </div>
+                                                    <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item->id}}">
+                                                        <ul class="modal-options">
+                                                            <li class="dropdown-item">
+                                                               <a class="link-modal" href="{{route('PedidosProdutos.copiar', ['id' => $item->id])}}"> <i class="bi bi-copy"></i> Copiar
+                                                                </a>
+                                                            </li>
+                                                            <li class="dropdown-item">
+                                                                <a class="link-modal" href="{{route('PedidosProdutos.editar', ['id' => $item->id])}}"> <i class="bi bi-pencil"></i> Editar
+                                                                </a>
+                                                            </li>
+                                                            <li class="dropdown-item">
+                                                                <form class="responseAjax" action="{{route('PedidosProdutos.excluir', ['id' => $item->id])}}" method="post">
+                                                                    @csrf
+                                                                    <button class="deleteBt text-danger" type="submit">
                                                                         <i class="bi bi-trash"></i> Excluir
-                                                                        </button>
-                                                                    </form>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1530,7 +1473,6 @@ $(document).ready(function() {
     
     $(window).scrollTop(0);
 
-
     window.getComparacao = function(especificacaoId) {
         $("#spinnerModal--" + especificacaoId + "").removeClass("hidden");
         const urlParams = new URLSearchParams(window.location.search);
@@ -1550,7 +1492,7 @@ $(document).ready(function() {
                 const iguaisHtml = `
                     <h5 class="mb-2">Características Iguais</h5>
                     <ul class="list-group resumoContent">
-                        ${response.iguais.map(i => `<li style="margin-left:0px;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
+                        ${response.iguais.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
                     </ul>
                 `;
 
@@ -1567,7 +1509,7 @@ $(document).ready(function() {
                             <div class="col">
                                 <h6 class="mb-2">Especificação ${especificacaoId}</h6>
                                 <ul class="list-group resumoContent">
-                                    ${response.diferentes.comparado.map(i => `<li style="margin-left:0px;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
+                                    ${response.diferentes.comparado.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
                                 </ul>
                             </div>
                         `;
@@ -1578,7 +1520,7 @@ $(document).ready(function() {
                             <div class="col">
                                 <h6 class="mb-2">Especificação ${@json($especificacao->id)}</h6>
                                 <ul class="list-group resumoContent">
-                                    ${response.diferentes.base.map(i => `<li style="margin-left:0px;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
+                                    ${response.diferentes.base.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
                                 </ul>
                             </div>
                         `;
@@ -1595,16 +1537,15 @@ $(document).ready(function() {
                 console.error('Erro ao buscar comparação:', err);
             }
         });
-
     }
 
-    window.exportarParaWord = function(modalId, especificacaoId, codigoFocco = null) {
+    window.exportarParaWord = function(modalId, especificacaoId, serie = null) {
         let container = document.querySelector(`#${modalId} .modal-body`);
         if (!container) return;
         let condigo = '';
         let titulo = `<h2>Especificação ${especificacaoId}</h2>`;
-        if (codigoFocco) {
-            condigo = `<p>Código Focco: ${codigoFocco}</p>`;
+        if (serie) {
+            condigo = `<p>Serie: ${serie}</p>`;
         }
         let header = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office'

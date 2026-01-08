@@ -47,7 +47,7 @@ class EspecificacaoService
         }])
         ->orderBy('criado', 'desc')
         ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', 'LIKE', "%{$dados['codigo_focco']}%"))
-        // ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
+        ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
         ->when($dados['status'], fn($q) => $q->where('status', 'LIKE', "%{$dados['status']}%"))
         ->when($dados['cliente_nome'], fn($q) =>
             $q->whereHas('pedido.cliente', function ($query) use ($dados) {
@@ -180,7 +180,7 @@ class EspecificacaoService
 
             $especificacao = new Especificacao();
             // $especificacao->cliente_id = $dados['cliente_id'];
-            $especificacao->status = 'Não iniciada';
+            $especificacao->status = 'Em andamento';
             $especificacao->codigo_focco = $dados['codigo_focco'] ?? null;
             $especificacao->serie = $dados['serie'] ?? null;
             $especificacao->pedido_id = $dados['pedido_id'];
@@ -195,7 +195,7 @@ class EspecificacaoService
             if ($response) {
 
                 $revisao = Revisao::create([
-                'nome' => 'Revisão 0',
+                    'nome' => 'Revisão 0',
                     'especificacao_id' => $especificacao->id,
                     'criado' => Carbon::now(),
                 ]);
@@ -205,7 +205,7 @@ class EspecificacaoService
 
                 $dadosFormatados = [];
                 $dadosFormatadosObservacoes = [];
-
+                $statusNotFinished = 0;
                 foreach ($dados['caracteristicas'] as $caracteristica) {
                     $caracteristicaId = $caracteristica['caracteristica_id'];
 
@@ -220,6 +220,10 @@ class EspecificacaoService
                                 'conteudo' => $atributo['conteudo'] ?? null,
                                 'especificacao_id' => $especificacao->id,
                             ];
+
+                            if($atributo['atributo_id'] == null){
+                                $statusNotFinished = $statusNotFinished + 1;
+                            }
                         }
 
                     // Caso 2: atributo_texto (objeto)
@@ -234,6 +238,10 @@ class EspecificacaoService
                             'especificacao_id' => $especificacao->id,
                         ];
 
+                        if($atributoTexto['conteudo'] == null){
+                            $statusNotFinished = $statusNotFinished + 1;
+                        }
+
                     // Caso 3: entrada simples
                     } else {
                         $dadosFormatados[] = [
@@ -244,8 +252,21 @@ class EspecificacaoService
                             'conteudo' => $caracteristica['conteudo'] ?? null,
                             'especificacao_id' => $especificacao->id,
                         ];
+
+                        if($caracteristica['atributo_id'] == null){
+                            $statusNotFinished = $statusNotFinished + 1;
+                        }
                     }
                 }
+
+                if($statusNotFinished > 0){
+                    $especificacao->status = 'Em andamento';
+                } else {
+                    $especificacao->status = 'Finalizada';
+                    $especificacao->finalizada = Carbon::now();
+                }
+
+                $especificacao->save();
 
                 AtributoEspecificacao::insert($dadosFormatados);
 
@@ -339,14 +360,14 @@ class EspecificacaoService
                 ]);
             }])
             ->get();
+            
         // $clientes = Cliente::where('excluido', null)->get();
         $pedidos = Pedido::select('id', 'nome', 'excluido')->where('excluido', null)->get();
 
         return compact('especificacao', 'atributosSelecionados', 'pedidos');
     }
 
-    public function editar(array $dados, int $especificacaoID, $user)
-    {
+    public function editar(array $dados, int $especificacaoID, $user){
         DB::beginTransaction();
 
         try {
@@ -354,18 +375,6 @@ class EspecificacaoService
             $especificacao = Especificacao::where('id', $especificacaoID)->where('excluido', null)->first();
             
             if ($especificacao) {
-
-                // if ($dados['cliente_id'] && $dados['cliente_id'] !== $especificacao->cliente_id) {
-                //     $especificacao->cliente_id = $dados['cliente_id'];
-                // }
-
-                if(isset($dados['status']) && $dados['status'] !== $especificacao->status){
-                    $especificacao->status = $dados['status'] ?? 'Não iniciada';
-
-                    if ($especificacao->status === 'Finalizada') {
-                        $especificacao->finalizada = Carbon::now();
-                    }
-                }
 
                 if ($dados['pedido_id'] && $dados['pedido_id'] !== $especificacao->pedido_id) {
                     $especificacao->pedido_id = $dados['pedido_id'];
@@ -383,7 +392,6 @@ class EspecificacaoService
                 $alteracoes = []; 
 
                 $getRevisao = Revisao::where('especificacao_id', $especificacao->id)->where('excluido', null)->count();
-                
 
                 if(isset($dados['caracteristicas']) && is_array($dados['caracteristicas'])) {
                     $revisao = new Revisao();
@@ -391,189 +399,106 @@ class EspecificacaoService
                     $revisao->nome = 'Revisão ' . $getRevisao;
                     $revisao->criado = Carbon::now();
                     $revisao->save();
+
                     $especificacao->revisao_selecionada_id = $revisao->id;
                     $especificacao->save();
                 }
 
-                foreach ($dados['caracteristicas'] as $caracteristica) {
-                    $caracteristicaId = $caracteristica['caracteristica_id'] ?? null;
-                   
-                    // Caso 1: atributo_multiplo (array)
-                    if (isset($caracteristica['atributo_multiplo']) && is_array($caracteristica['atributo_multiplo'])) {
-                        foreach ($caracteristica['atributo_multiplo'] as $atributo) {
-                            $data = [
-                                'atributo_id' => $atributo['atributo_id'] ?? null,
-                                'observacao_personalizada' => $atributo['observacao_personalizada'] ?? null,
-                                'conteudo' => $atributo['conteudo'] ?? null,
-                                'revisao_id' => $revisao->id
-                            ];
+                $statusNotFinished = 0;
+                
+                foreach ($dados['caracteristicas'] as $caracteristicaId => $caracteristica) {
 
-                            // $existente = AtributoEspecificacao::where([
-                            //     'especificacao_id' => $especificacao->id,
-                            //     'caracteristica_id' => $caracteristicaId,
-                            //     'atributo_id' => $data['atributo_id']
-                            // ])->first();
+                    if (isset($caracteristica['atributo_texto'])) {
 
-                            // if ($existente) {
-                            //     if (
-                            //         $existente->observacao_personalizada !== $data['observacao_personalizada'] ||
-                            //         $existente->conteudo !== $data['conteudo']
-                            //     ) {
-                            //         $existente->update($data);
-                            //         $alteracoes[] = $existente;
-                            //     }
-                            // } else {
-                            //     $novo = AtributoEspecificacao::create([
-                            //         'especificacao_id' => $especificacao->id,
-                            //         'caracteristica_id' => $caracteristicaId,
-                            //         'atributo_id' => $data['atributo_id'],
-                            //         'observacao_personalizada' => $data['observacao_personalizada'],
-                            //         'conteudo' => $data['conteudo'],
-                            //         'revisao_id' => $revisao->id
-                            //     ]);
-                            //     $alteracoes[] = $novo;
-                            // }
+                        $atributo = $caracteristica['atributo_texto'];
+
+                        AtributoEspecificacao::create([
+                            'especificacao_id' => $especificacao->id,
+                            'caracteristica_id' => $caracteristicaId,
+                            'atributo_id' => $atributo['atributo_id'],
+                            'conteudo' => $atributo['conteudo'] ?? null,
+                            'observacao_personalizada' => $atributo['observacao_personalizada'] ?? null,
+                            'revisao_id' => $revisao->id,
+                        ]);
+
+                        if($atributo['atributo_id'] == null){
+                            $statusNotFinished = $statusNotFinished + 1;
+                        }
+
+                        continue;
+                    }
+
+                    foreach (['atributo_selecionavel', 'atributo_multiplo'] as $tipo) {
+
+                        if (!isset($caracteristica[$tipo]) || !is_array($caracteristica[$tipo])) {
+                            continue;
+                        }
+
+                        foreach ($caracteristica[$tipo] as $atributo) {
 
                             AtributoEspecificacao::create([
                                 'especificacao_id' => $especificacao->id,
                                 'caracteristica_id' => $caracteristicaId,
-                                'atributo_id' => $data['atributo_id'],
-                                'observacao_personalizada' => $data['observacao_personalizada'],
-                                'conteudo' => $data['conteudo'],
-                                'revisao_id' => $revisao->id
+                                'atributo_id' => $atributo['atributo_id'],
+                                'conteudo' => $atributo['conteudo'] ?? null,
+                                'observacao_personalizada' => $atributo['observacao_personalizada'] ?? null,
+                                'revisao_id' => $revisao->id,
                             ]);
+
+                            if($atributo['atributo_id'] == null){
+                                $statusNotFinished = $statusNotFinished + 1;
+                            }
+                        }
+                    }
+                    
+                    if(isset($dados['att']) && count($dados['att']) > 0){
+                        $idsOriginais = explode(',', $dados['att_ids_originais']);
+                        $idsAtuais = collect($dados['att'])->pluck('att_id')->filter()->toArray(); // remove null
+                        $idsRemovidos = array_diff($idsOriginais, $idsAtuais);
+
+                        if (!empty($idsRemovidos)) {
+                            EspecificacaoObservacao::where('especificacao_id', $especificacaoID)
+                            ->whereIn('id', $idsRemovidos)
+                            ->update(['excluido' => Carbon::now()]);
                         }
 
-                    // Caso 2: atributo_texto (objeto)
-                    } elseif (isset($caracteristica['atributo_texto']) && is_array($caracteristica['atributo_texto'])) {
-                        $atributoTexto = $caracteristica['atributo_texto'];
-                        $data = [
-                            'atributo_id' => $atributoTexto['atributo_id'] ?? null,
-                            'observacao_personalizada' => $atributoTexto['observacao_personalizada'] ?? null,
-                            'conteudo' => $atributoTexto['conteudo'] ?? null,
-                        ];
-
-                        // $existente = AtributoEspecificacao::where([
-                        //     'especificacao_id' => $especificacao->id,
-                        //     'caracteristica_id' => $caracteristicaId,
-                        // ])->first();
-
-                        // if ($existente) {
-                        //     if (
-                        //         $existente->atributo_id != $data['atributo_id'] ||
-                        //         $existente->observacao_personalizada !== $data['observacao_personalizada'] ||
-                        //         $existente->conteudo !== $data['conteudo']
-                        //     ) {
-                        //         $existente->update($data);
-                        //         $alteracoes[] = $existente;
-                        //     }
-                        // } else {
-                        //     $novo = AtributoEspecificacao::create([
-                        //         'especificacao_id' => $especificacao->id,
-                        //         'caracteristica_id' => $caracteristicaId,
-                        //         'atributo_id' => $data['atributo_id'],
-                        //         'observacao_personalizada' => $data['observacao_personalizada'],
-                        //         'conteudo' => $data['conteudo'],
-                        //         'revisao_id' => $revisao->id
-                        //     ]);
-                        //     $alteracoes[] = $novo;
-                        // }
-
-                        AtributoEspecificacao::create([
-                            'especificacao_id' => $especificacao->id,
-                            'caracteristica_id' => $caracteristicaId,
-                            'atributo_id' => $data['atributo_id'],
-                            'observacao_personalizada' => $data['observacao_personalizada'],
-                            'conteudo' => $data['conteudo'],
-                            'revisao_id' => $revisao->id
-                        ]);
-
-                    // Caso 3: entrada simples
-                    } else {
-                        $data = [
-                            'atributo_id' => $caracteristica['atributo_id'] ?? null,
-                            'observacao_personalizada' => $caracteristica['observacao_personalizada'] ?? null,
-                            'conteudo' => $caracteristica['conteudo'] ?? null,
-                        ];
-
-                        // $existente = AtributoEspecificacao::where([
-                        //     'especificacao_id' => $especificacao->id,
-                        //     'caracteristica_id' => $caracteristicaId,
-                        // ])->first();
-
-                        // if ($existente) {
-                        //     if (
-                        //         $existente->atributo_id != $data['atributo_id'] ||
-                        //         $existente->observacao_personalizada !== $data['observacao_personalizada'] ||
-                        //         $existente->conteudo !== $data['conteudo']
-                        //     ) {
-                        //         $existente->update($data);
-                        //         $alteracoes[] = $existente;
-                        //     }
-                        // } else {
-                        //     $novo = AtributoEspecificacao::create([
-                        //         'especificacao_id' => $especificacao->id,
-                        //         'caracteristica_id' => $caracteristicaId,
-                        //         'atributo_id' => $data['atributo_id'],
-                        //         'observacao_personalizada' => $data['observacao_personalizada'],
-                        //         'conteudo' => $data['conteudo'],
-                        //         'revisao_id' => $revisao->id
-                                
-                        //     ]);
-                        //     $alteracoes[] = $novo;
-                        // }
-
-                        AtributoEspecificacao::create([
-                            'especificacao_id' => $especificacao->id,
-                            'caracteristica_id' => $caracteristicaId,
-                            'atributo_id' => $data['atributo_id'],
-                            'observacao_personalizada' => $data['observacao_personalizada'],
-                            'conteudo' => $data['conteudo'],
-                            'revisao_id' => $revisao->id
-                        ]);
-                    }
-                }
-                
-                if(isset($dados['att']) && count($dados['att']) > 0){
-                    $idsOriginais = explode(',', $dados['att_ids_originais']);
-                    $idsAtuais = collect($dados['att'])->pluck('att_id')->filter()->toArray(); // remove null
-                    $idsRemovidos = array_diff($idsOriginais, $idsAtuais);
-
-                    if (!empty($idsRemovidos)) {
-                        EspecificacaoObservacao::where('especificacao_id', $especificacaoID)
-                        ->whereIn('id', $idsRemovidos)
-                        ->update(['excluido' => Carbon::now()]);
-                    }
-
-                    foreach ($dados['att'] as $index => $item) {
-                        if (isset($item['att_id'])) {
-                            EspecificacaoObservacao::where('id', $item['att_id'])
-                                ->where('especificacao_id', $especificacaoID)
-                                ->update([
-                                    'conteudo' => $item['observacao'], 
+                        foreach ($dados['att'] as $index => $item) {
+                            if (isset($item['att_id'])) {
+                                EspecificacaoObservacao::where('id', $item['att_id'])
+                                    ->where('especificacao_id', $especificacaoID)
+                                    ->update([
+                                        'conteudo' => $item['observacao'], 
+                                    ]);
+                            } else {
+                                EspecificacaoObservacao::create([
+                                    'especificacao_id' => $especificacaoID,
+                                    'conteudo' => $item['observacao'],
+                                    'criado' => date('Y-m-d H:i:s')
                                 ]);
-                        } else {
-                            EspecificacaoObservacao::create([
-                                'especificacao_id' => $especificacaoID,
-                                'conteudo' => $item['observacao'],
-                                'criado' => date('Y-m-d H:i:s')
-                            ]);
+                            }
                         }
+                    }else{
+                        EspecificacaoObservacao::where('especificacao_id', $especificacaoID)->update(['excluido' => Carbon::now()]);
                     }
-                }else{
-                    EspecificacaoObservacao::where('especificacao_id', $especificacaoID)->update(['excluido' => Carbon::now()]);
+
+                    if (!empty($alteracoes)) {
+                        $revisao->save();
+                        // foreach ($alteracoes as $a) {
+                        //     // $this->createEspecificacaoHistorico($especificacao->id, $user->id, $a->atributo_id, $a->caracteristica_id);
+                        // }
+                    }
                 }
 
-                if (!empty($alteracoes)) {
-                    $revisao->save();
-                    foreach ($alteracoes as $a) {
-                        // $this->createEspecificacaoHistorico($especificacao->id, $user->id, $a->atributo_id, $a->caracteristica_id);
-                    }
+                if($statusNotFinished > 0){
+                    $especificacao->status = 'Em andamento';
+                } else {
+                    $especificacao->status = 'Finalizada';
+                    $especificacao->finalizada = Carbon::now();
                 }
 
                 DB::commit();
-            }
-            else {
+
+            } else {
                 throw new \Exception('Especificação não encontrada.', 404);
             }
 
@@ -626,7 +551,7 @@ class EspecificacaoService
 
     private function getAtributo($dado, $idioma)
     {
-        return Atributo::where('id', $dado['atributo_id'])->where('excluido', null)
+        return Atributo::where('id', $dado['atributo_id'])->where('caracteristica_id', $dado['caracteristica_id'])->where('excluido', null)
             ->with([
                 'atributosIdiomas' => function ($q) use($idioma) {
                     $q->whereHas('idiomas', function ($query) use($idioma) {
@@ -965,8 +890,18 @@ class EspecificacaoService
                         'excluido' => $excluido
                     ];
 
-                    if(!empty($atributoNome) || !empty($conteudo)){
-                        $resumoItensInseridos += 1;
+                    if($tipo === "texto"){
+                        if(!empty($conteudo)){
+                            $resumoItensInseridos += 1;
+                        }
+                    }else if ($tipo === "multiplos"){
+                        if(!empty($conteudo)){
+                            $resumoItensInseridos += 1;
+                        }
+                    }else if ($tipo === "selecionavel"){
+                        if(!empty($atributoNome)){
+                            $resumoItensInseridos += 1;
+                        }
                     }
                 }
             } 
@@ -976,12 +911,6 @@ class EspecificacaoService
 
         $porcentagemResumo = number_format($porcentagemResumo, 1, '.', '');
         
-        if($porcentagemResumo == '100.0' && !$especificacao->finalizada) {
-           $especificacao->finalizada = Carbon::now();
-           $especificacao->status = 'Finalizada';
-           $especificacao->save();
-        }
-
         $indiceAmostraId = AtributoAmostraIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
         
@@ -998,7 +927,6 @@ class EspecificacaoService
         $indiceProdutoId = AtributoProdutoIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
 
-    
         $produtos = $this->getAtributoProdutos($indiceProdutoId, $idiomaId);
 
         $dadosAgrupadoProdutos = $produtos
@@ -1009,7 +937,7 @@ class EspecificacaoService
 
         $equipamentoId = $especificacao->maquina->equipamento->id;
 
-        $atributos = AtributoEspecificacao::where('especificacao_id', $especificacao->id)
+        $atributos = AtributoEspecificacao::where('especificacao_id', $especificacao->id)->where('revisao_id', $especificacao->revisao_selecionada_id)
             ->with(['caracteristica' => function ($query) {
                 $query->select('id', 'tipo', 'excluido');
             }])
@@ -1067,9 +995,9 @@ class EspecificacaoService
 
         $atributosIds = $atributosComparavel->pluck('atributo_id')->toArray();
         // $nomesAtributos = Atributo::whereIn('id', $atributosIds)->pluck('nome')->toArray();
-        $nomesAtributos = Atributo::join('atributos_idiomas', function ($join) {
+        $nomesAtributos = Atributo::join('atributos_idiomas', function ($join) use($idiomaId){
             $join->on('atributos_idiomas.atributo_id', '=', 'atributos.id')
-                ->where('atributos_idiomas.idioma_id', '=', 1);
+                ->where('atributos_idiomas.idioma_id', '=', $idiomaId);
         })
         ->whereIn('atributos.id', $atributosIds)
         ->pluck('atributos_idiomas.nome')
@@ -1091,7 +1019,7 @@ class EspecificacaoService
         foreach ($maquinasComparacao as $maquina) {
             foreach ($maquina->expecificacoes as $especificacaoMaquina) {
 
-                $atributosEspecificacaoMaquina = AtributoEspecificacao::where('especificacao_id', $especificacaoMaquina->id)
+                $atributosEspecificacaoMaquina = AtributoEspecificacao::where('especificacao_id', $especificacaoMaquina->id)->where('revisao_id', $especificacaoMaquina->revisao_selecionada_id)
                     ->join('caracteristicas', 'atributos_especificacao.caracteristica_id', '=', 'caracteristicas.id')
                     ->with(['caracteristica' => function ($query) {
                         $query->select('id', 'tipo', 'excluido');
@@ -1132,17 +1060,22 @@ class EspecificacaoService
                     ->pluck('atributo_id')
                     ->toArray();
 
-                // $nomesAtributos = Atributo::whereIn('id', $atributoIdsComparaveis)
-                // ->pluck('nome')
-                // ->toArray();
 
-                $nomesAtributos = Atributo::join('atributos_idiomas', function ($join) {
-                    $join->on('atributos_idiomas.atributo_id', '=', 'atributos.id')
-                        ->where('atributos_idiomas.idioma_id', '=', 1);
-                })
-                ->whereIn('atributos.id', $atributoIdsComparaveis)
-                ->pluck('atributos_idiomas.nome')
-                ->toArray();
+                $nomesAtributos = Atributo::join('atributos_idiomas as ai', 'ai.atributo_id', '=', 'atributos.id')
+                    ->join('caracteristicas as c', 'c.id', '=', 'atributos.caracteristica_id')
+                    ->join('caracteristicas_idiomas as ci', 'ci.caracteristica_id', '=', 'c.id')
+                    ->where('ai.idioma_id', 1)
+                    ->where('ci.idioma_id', 1)
+                    ->whereIn('atributos.id', $atributoIdsComparaveis)
+                    ->select([
+                        'ai.nome as atributo_nome',
+                        'ci.nome as caracteristica_nome'
+                    ])
+                    ->get()
+                    ->map(function ($item) {
+                        return "{$item->caracteristica_nome}: {$item->atributo_nome}";
+                    })
+                    ->toArray();
 
                 $totalAtributos = 0;
                 $atributosIguais = 0;
@@ -1162,11 +1095,12 @@ class EspecificacaoService
                 $porcentagem = $totalAtributos > 0 ? ($atributosIguais / $totalAtributos) * 100 : 0;
                 $listaComparacao[] = [
                     'maquina' => optional($especificacao->maquina->maquinasIdiomas->first())->nome ?? 'N/A',
-                    'codigo_focco' => $especificacaoMaquina->codigo_focco ?? null,
+                    'serie' => $especificacaoMaquina->serie ?? null,
                     'status' => $especificacao->status ?? __('messages.nao_informado'),
                     'porcentagem_similaridade' => round($porcentagem, 1),
                     'especificacao_id' => $especificacaoMaquina->id,
-                    'nomesAtributos' => implode('; ', $nomesAtributos)
+                    'nomesAtributos' => $nomesAtributos
+                    // 'nomesAtributos' => ''
                 ];
             }
         }
@@ -1196,26 +1130,8 @@ class EspecificacaoService
         foreach ($revisoes as $revisao) {
             $itens = []; 
             foreach ($revisao->especificacoes as $dado) {
-                $caracteristica = Caracteristica::where('id', $dado['caracteristica_id'])
-                    ->with([
-                        'caracteristicasIdiomas' => function ($q) use ($idioma) {
-                            $q->whereHas('idiomas', function ($query) use ($idioma) {
-                                $query->where('codigo', $idioma);
-                            });
-                        },
-                    ])
-                    ->first();
-
-                $atributo = Atributo::where('id', $dado['atributo_id'])
-                    ->whereNull('excluido')
-                    ->with([
-                        'atributosIdiomas' => function ($q) use ($idioma) {
-                            $q->whereHas('idiomas', function ($query) use ($idioma) {
-                                $query->where('codigo', $idioma);
-                            });
-                        },
-                    ])
-                    ->first();
+                $caracteristica = $this->getCaracteristica($dado, $idioma);
+                $atributo = $this->getAtributo($dado, $idioma);
 
                 $observacao = $dado['observacao_personalizada'] ?? '';
                 $conteudo = $dado['conteudo'] ?? '';
@@ -1255,6 +1171,9 @@ class EspecificacaoService
         //amostra de pedidos
         $amostrasPedido = AtributoAmostraIndicePedido::where('pedido_id', $especificacao->pedido_id)
         ->whereNull('excluido')
+        ->whereHas('amostra', function($query) {
+            $query->where('excluido', null);
+        })
         ->with(['amostra' => function ($query) use($idioma) {
             $query->whereNull('excluido')->orderBy('id')
                 ->with([
@@ -1272,6 +1191,9 @@ class EspecificacaoService
 
         $produtosPedido = AtributoProdutoIndicePedido::where('pedido_id', $especificacao->pedido_id)
         ->whereNull('excluido')
+        ->whereHas('produto', function($query) {
+            $query->where('excluido', null);
+        })
         ->with(['produto' => function ($query) use($idioma) {
             $query->whereNull('excluido')->orderBy('id')
                 ->with([
@@ -1302,7 +1224,7 @@ class EspecificacaoService
             'especificacaoAmostrasPedido',
             'produtosPedido',
             'especificacaoProdutosPedido',
-            'porcentagemResumo'
+            'porcentagemResumo',
         );
     }
 
@@ -1335,7 +1257,7 @@ class EspecificacaoService
             if ($caracteristica && $caracteristica->caracteristicasIdiomas->first()) {
                 $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome ?? __('messages.nao_informado');
                 $unidade = $caracteristica->caracteristicasIdiomas->first()->unidade ?  ' '.$caracteristica->caracteristicasIdiomas->first()->unidade : '';
-                $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? '';
+                $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? __('messages.nao_informado');
                 $caracteristicaId = $caracteristica->id ?? '';
                 $excluido = $caracteristica->excluido ? true : false;
                 $comparavel = $caracteristica->comparavel ? true : false;

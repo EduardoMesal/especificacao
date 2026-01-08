@@ -72,8 +72,9 @@
                                                     <option value="ml">ml</option>
                                                     <option value="g">g</option>
                                                     <option value="V">V</option>
-                                                    <option value="vol./min">vol./min</option>
+                                                    <option value="vol/min">vol/min</option>
                                                     <option value="un/min">un/min</option>
+                                                    <option value="m/min">m/min</option>
                                                     <option value="m²">m²</option>
                                                     <option value="m³">m³</option>
                                                     <option value="°c">°c</option>

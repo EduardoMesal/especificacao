@@ -45,7 +45,7 @@
                                             </div>
                                             <div class="col-md-6 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                    <span class="">Série</span>
+                                                    <span class="">Serie</span>
                                                 </label>
                                                 <input type="text" name="serie" class="bg-transparent" value=""/>
                                             </div>

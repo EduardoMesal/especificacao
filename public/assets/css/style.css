@@ -17,6 +17,9 @@ body {
   max-width: 1500px !important;
 }
 
+tr td:not(:first-child):not(:last-child) {
+  padding-right: 15px;
+}
 .navbar-logo svg {
   width: 160px;
   fill: #e2231a !important;
@@ -26,6 +29,7 @@ body {
   border-right: 1px solid #ebedf2;
   height: 100%;
 } */
+ 
 .btn-idiomas {
   width: fit-content;
   position: relative;

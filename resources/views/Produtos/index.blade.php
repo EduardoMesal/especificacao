@@ -76,7 +76,13 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                <span 
+                                                    class="text-gray-800 text-hover-primary mb-1 fs-6"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{ optional($item->produtosIdiomas[0])->nome }}"
+                                                    style="width: 300px">
                                                     {!! $item->produtosIdiomas[0]->nome !!}
                                                 </span>
                                             </div>

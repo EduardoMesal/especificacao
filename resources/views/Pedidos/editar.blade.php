@@ -76,6 +76,9 @@
                                         <h6>Status</h6>
                                     </th>
                                     <th class="th-info">
+                                        <h6>Serie</h6>
+                                    </th>
+                                    <th class="th-info">
                                         <h6>Máquina</h6>
                                     </th>
                                     <th class="th-info">
@@ -130,6 +133,19 @@
                                                         <span class="badge text-bg-grey">Em andamento</span>
                                                     @else
                                                     <span class="badge text-bg-danger">Não iniciada</span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    @if($item->serie)
+                                                        {!! $item->serie !!}
+                                                        @else
+                                                        -
                                                     @endif
                                                 </span>
                                             </div>

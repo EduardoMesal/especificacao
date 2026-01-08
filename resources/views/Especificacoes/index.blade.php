@@ -63,6 +63,9 @@
                                         <h6>Status</h6>
                                     </th>
                                     <th class="th-info">
+                                        <h6>Serie</h6>
+                                    </th>
+                                    <th class="th-info">
                                         <h6>Máquina</h6>
                                     </th>
                                     <th class="th-info">
@@ -103,34 +106,27 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <!-- <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                    @if($item->status)
-                                                        {!! $item->status !!}
-                                                        @else
-                                                        -
-                                                    @endif
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <span class="text-gray-400 d-block">Status</span>
-                                    </td> -->
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
                                                     @if ($item->status === 'Finalizada')
                                                         <span class="badge text-bg-finalizada">Finalizada</span>
-
-                                                    @elseif ($item->status === 'Não iniciada')
-                                                        <span class="badge text-bg-danger">Não iniciada</span>
-
-                                                    @elseif ($item->status === 'Em andamento')
-                                                        <span class="badge text-bg-grey">Em andamento</span>
                                                     @else
-                                                    <span class="badge text-bg-danger">Não iniciada</span>
+                                                        <span class="badge text-bg-grey">Em andamento</span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    @if($item->serie)
+                                                        {!! $item->serie !!}
+                                                        @else
+                                                        -
                                                     @endif
                                                 </span>
                                             </div>

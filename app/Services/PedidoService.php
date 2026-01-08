@@ -82,7 +82,6 @@ class PedidoService
         try {
 
             $pedido = new Pedido();
-
             $pedido->nome = $dados['nome'];
             $pedido->cliente_id = $dados['cliente_id'];
             $pedido->criado = date('Y-m-d H:i:s');
@@ -112,6 +111,9 @@ class PedidoService
             }])
             ->with(['amostras' => function ($query) {
                 $query->whereNull('excluido')
+                ->whereHas('amostra', function ($q) {
+                    $q->whereNull('excluido');
+                })
                 ->with(['amostra' => function ($subQuery) {
                     $subQuery->whereNull('excluido')
                      ->with([
@@ -125,6 +127,9 @@ class PedidoService
             }])
             ->with(['produtos' => function ($query) {
                 $query->whereNull('excluido')
+                ->whereHas('produto', function ($q) {
+                    $q->whereNull('excluido');
+                })
                 ->with(['produto' => function ($subQuery) {
                     $subQuery->whereNull('excluido')
                      ->with([

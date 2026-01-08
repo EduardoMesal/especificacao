@@ -69,6 +69,7 @@
                             <tbody>
                                 @if(count($produtos) > 0)
                                 @foreach($produtos as $item)
+                                @if($item['produto_nome'])
                                 <tr data-href="{{route('PedidosProdutos.editar', ['id' => $item['id']])}}">
                                     <td>
                                         <div class="d-flex align-items-center">
@@ -83,11 +84,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
                                                 <span
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                data-bs-custom-class="custom-tooltip"
-                                                data-bs-title="{{ $item['produto_nome'] }}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6">
                                                     {!! $item['produto_nome'] !!}
                                                 </span>
                                             </div>
@@ -101,7 +98,7 @@
                                                 data-bs-placement="top"
                                                 data-bs-custom-class="custom-tooltip"
                                                 data-bs-title="{{ $item['cliente_nome'] }}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 250px">
                                                     @if($item['cliente_nome'])
                                                         {!! $item['cliente_nome'] !!}
                                                         @else
@@ -135,6 +132,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                                @endif
                                 @endforeach
                                 @else
                                 <tr>

@@ -337,7 +337,7 @@
 							</div>
 							<div class="header-search d-none d-md-flex">
 								<form action="{{ route('Especificacoes.index') }}" method="GET" class="d-flex">
-									<input class="bg-transparent" type="text" name="codigo_focco" placeholder="Código Focco..." value="{{ request('codigo_focco') }}">
+									<input class="bg-transparent" type="text" name="serie" placeholder="Serie..." value="{{ request('serie') }}">
 									<button type="submit"><i class="lni lni-search-alt"></i></button>
 								</form>
 							</div>

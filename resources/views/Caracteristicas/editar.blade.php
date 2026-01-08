@@ -96,8 +96,9 @@
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'ml') selected @endif value="ml">ml</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'g') selected @endif value="g">g</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'V') selected @endif value="V">V</option>
-                                                    <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'vol./min') selected @endif value="vol./min">vol./min</option>
+                                                    <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'vol/min') selected @endif value="vol/min">vol/min</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'un/min') selected @endif value="un/min">un/min</option>
+                                                    <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'm/min') selected @endif value="m/min">m/min</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'm²') selected @endif value="m²">m²</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == 'm³') selected @endif value="m³">m³</option>
                                                     <option @if(optional($caracteristica->caracteristicasIdiomas->first())->unidade == '°c') selected @endif value="°c">°c</option>

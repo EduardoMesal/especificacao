@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class EspecificacoesControllerRequest extends FormRequest
 {
@@ -20,15 +21,19 @@ class EspecificacoesControllerRequest extends FormRequest
     public function rules()
     {
         $isEdit = $this->isEdit();
-
+        $especificacaoId = $this->route('id');
         $rules = [
             'pedido_id' => 'required',
-            // 'status' => 'required',
-            // 'caracteristicas.*.atributo_id' => 'nullable|exists:atributos,id',
             'caracteristicas.*.observacao_personalizada' => 'nullable',
             'att' => 'nullable|array',
             'att.*.observacao' => 'required_with:att',
             'caracteristicas.*.atributo_id' => $isEdit ? 'nullable|exists:atributos,id' : '',
+            'serie' => [
+                'nullable',
+                Rule::unique('especificacoes', 'serie')->ignore(
+                    $this->isEdit() ? $this->route('id') : null
+                ),
+            ],
         ];
 
         return $rules;
@@ -40,13 +45,11 @@ class EspecificacoesControllerRequest extends FormRequest
         
         $messages = [
             'pedido_id.required' => 'Preencha o campo pedido.',
-            // 'status.required' => 'Preencha o campo status.',
-            // 'caracteristicas.*.atributo_id.exists' => 'O atributo selecionado não existe.',
             'att.*.observacao.required_with' => 'Preencha o campo observação.',
+            'serie.unique' => 'Já existe uma serie com esse valor.',
         ];
 
         if ($isEdit) {
-            // $messages['status.required'] = 'Preencha o campo status.';
             $messages['caracteristicas.*.atributo_id.exists'] = 'O atributo selecionado não existe.';
         }
         

@@ -19,6 +19,9 @@ class PedidoAmostraService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = AtributoAmostraIndicePedido::whereNull('excluido')
+            ->whereHas('amostra', function($query) {
+                $query->where('excluido', null);
+            })
             ->with(['amostra' => function ($query) {
                 $query->whereNull('excluido')
                 ->with([
@@ -54,7 +57,7 @@ class PedidoAmostraService
         $resultado->getCollection()->transform(function ($item) {
             return [
                 'id' => $item->id,
-                'amostra_nome' => optional($item->amostra->amostrasIdiomas->first())->nome,
+                'amostra_nome' => optional($item->amostra?->amostrasIdiomas->first())->nome ?? null,
                 'cliente_nome' => optional($item->pedido?->cliente)->nome ?? null,
             ];
         });

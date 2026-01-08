@@ -17,7 +17,7 @@ class EspecificacoesController extends Controller
     {
         $dados = [
             'codigo_focco' => $request->input('codigo_focco'),
-            // 'serie' => $request->input('serie'),
+            'serie' => $request->input('serie'),
             'maquina_id' => $request->input('maquina_id'),
             'cliente_nome' => $request->input('cliente_nome'),
             'status' => $request->input('status'),
@@ -28,7 +28,7 @@ class EspecificacoesController extends Controller
         
         return view('Especificacoes/index', [
             'codigo_focco' => $dados['codigo_focco'] ?? '',
-            // 'serie' => $dados['serie'] ?? '',
+            'serie' => $dados['serie'] ?? '',
             'cliente_nome' => $dados['cliente_nome'] ?? '',
             'status' => $dados['status'] ?? '',
             'maquinas' => $query['maquinas'],
@@ -115,7 +115,6 @@ class EspecificacoesController extends Controller
         //         'error' => 'Nenhum cliente foi encontrado.'
         //     ]);
         // }
-
         return view('Especificacoes/editar', [
             'especificacao' => $query['especificacao'],
             // 'clientes' => $query['clientes'],
@@ -129,10 +128,8 @@ class EspecificacoesController extends Controller
         $user = Auth::User();
 
         try {
-            $data = $request->only(['cliente_id', 'codigo_focco', 'serie', 'caracteristicas', 'att', 'status', 'pedido_id', 'att_ids_originais']);
-            
+            $data = $request->only(['cliente_id', 'codigo_focco', 'serie', 'caracteristicas', 'att', 'pedido_id', 'att_ids_originais']);
             $especificacaoService->editar($data, $id, $user);
-
             return response()->json([
                 'success' => true,
                 'title' => 'Feito',
@@ -141,7 +138,7 @@ class EspecificacoesController extends Controller
             ], 201);
         } catch (\Exception $e) {
             
-           return response()->json([
+            return response()->json([
                 'success' => false,
                 'title' => 'Oops...',
                 'icon' => 'error',
@@ -149,7 +146,7 @@ class EspecificacoesController extends Controller
                 'message' => $e->getCode() === 404
                     ? $e->getMessage()
                     : 'Ocorreu um erro durante o processamento. Tente novamente.',
-            ], 500);
+            ],  500);
         }
     }
 
@@ -172,6 +169,9 @@ class EspecificacoesController extends Controller
                 'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
             ]);
         }
+
+
+        // return $query['atributosCaracteristicasComparaveis'];
 
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],
@@ -341,7 +341,7 @@ class EspecificacoesController extends Controller
     }
 
 
-     public function exportarWord(Request $request, $id, EspecificacaoService $especificacaoService)
+    public function exportarWord(Request $request, $id, EspecificacaoService $especificacaoService)
     {
         $document = $especificacaoService->exportarWord($id, $request);
 
@@ -446,34 +446,75 @@ class EspecificacoesController extends Controller
         $diferentesComparado = [];
         $diferentesBase = [];
 
-        foreach ($atributosComparar as $atributoComparado) {
-            $attrBase = $atributosBase->first(function ($base) use ($atributoComparado) {
-                return $base->caracteristica_id === $atributoComparado->caracteristica_id;
-            });
+        $comparadoPorCaracteristica = $atributosComparar->groupBy('caracteristica_id');
+        $basePorCaracteristica = $atributosBase->groupBy('caracteristica_id');
 
-            if ($attrBase) {
-                $conteudoComparado = trim(strtolower($atributoComparado->conteudo ?? ''));
-                $conteudoBase = trim(strtolower($attrBase->conteudo ?? ''));
-                $attrComparado = $atributoComparado->atributo_id;
-                $attrBaseId = $attrBase->atributo_id;
+       foreach ($comparadoPorCaracteristica as $caracteristicaId => $itensComparado) {
 
-                $ambosVazios = (empty($conteudoComparado) && empty($conteudoBase) && empty($attrComparado) && empty($attrBaseId));
+            $itensBase = $basePorCaracteristica->get($caracteristicaId);
+
+            if (!$itensBase) {
+                continue;
+            }
+
+            $tipo = $itensComparado->first()->caracteristica->tipo;
+
+            // 🔹 TEXTO / SELECIONÁVEL
+            if ($tipo !== 'multiplos') {
+                $attrComparado = $itensComparado->first();
+                $attrBase = $itensBase->first();
 
                 $iguais = false;
 
-                if ($ambosVazios) {
+                if ($tipo === 'texto') {
+                    $iguais = trim(strtolower($attrComparado->conteudo ?? '')) ===
+                            trim(strtolower($attrBase->conteudo ?? ''));
+                }
+
+                if ($tipo === 'selecionavel') {
+                    $iguais = $attrComparado->atributo_id === $attrBase->atributo_id;
+                }
+
+                if ($iguais) {
+                    $iguaisRaw[] = $attrComparado;
+                } else {
+                    $diferentesComparado[] = $attrComparado;
+                    $diferentesBase[] = $attrBase;
+                }
+
+                continue;
+            }
+
+            // 🔹 MULTIPLOS
+            $baseIndexado = $itensBase->keyBy('atributo_id');
+
+            foreach ($itensComparado as $itemComparado) {
+
+                $itemBase = $baseIndexado->get($itemComparado->atributo_id);
+
+                $conteudoComparado = trim(strtolower($itemComparado->conteudo ?? ''));
+                $conteudoBase = trim(strtolower($itemBase->conteudo ?? ''));
+
+                $iguais = false;
+
+                // ambos vazios
+                if ($conteudoComparado === '' && $conteudoBase === '') {
                     $iguais = true;
-                } elseif ($conteudoComparado === $conteudoBase && $conteudoComparado !== '') {
-                    $iguais = true;
-                } elseif ($attrComparado === $attrBaseId && !empty($attrComparado)) {
+                }
+
+                // ambos preenchidos e iguais
+                if ($conteudoComparado !== '' && $conteudoComparado === $conteudoBase) {
                     $iguais = true;
                 }
 
                 if ($iguais) {
-                    $iguaisRaw[] = $atributoComparado;
+                    $iguaisRaw[] = $itemComparado;
                 } else {
-                    $diferentesComparado[] = $atributoComparado;
-                    $diferentesBase[] = $attrBase;
+                    $diferentesComparado[] = $itemComparado;
+
+                    if ($itemBase) {
+                        $diferentesBase[] = $itemBase;
+                    }
                 }
             }
         }
@@ -505,18 +546,18 @@ class EspecificacoesController extends Controller
             $unidade = $item->caracteristica->caracteristicasIdiomas->first()->unidade ?? '';
 
             $valor = 'Não informado';
-
+            $nomeCaract = "<strong>{$nomeCaract}:</strong>";
             if ($tipo === 'texto') {
                 if (!empty($conteudo) && strtolower($conteudo) !== 'n/a') {
                     $valor = $conteudo;
                 }
-                $linha = "{$nomeCaract}: {$valor}";
-                if ($unidade) $linha .= " {$unidade}";
+                $linha = "{$nomeCaract} {$valor}";
+                if ($unidade && $valor !== 'Não informado') $linha .= " {$unidade}";
                 $linha .= ';';
                 $agrupados[] = $linha;
 
             } elseif ($tipo === 'multiplos') {
-                $linha = "{$nomeAttr}: ";
+                $linha = "<strong>{$nomeAttr}:</strong> ";
                 $linha .= (!empty($conteudo) && strtolower($conteudo) !== 'n/a') ? $conteudo : 'Não informado';
                 if ($unidade) $linha .= " {$unidade}";
                 $linha .= ';';
@@ -525,14 +566,14 @@ class EspecificacoesController extends Controller
             } elseif ($tipo === 'selecionavel') {
                 $valor = $nomeAttr ?? 'Não informado';
 
-                $linha = "{$nomeCaract}: {$valor}";
-                if ($unidade) {
+                $linha = "{$nomeCaract} {$valor}";
+                if ($unidade && $valor !== 'Não informado'){
                     $linha .= " {$unidade}";
                 }
                 $linha .= ';';
                 $agrupados[] = $linha;
             } else {
-                $linha = "{$nomeCaract}: Não informado;";
+                $linha = "{$nomeCaract} Não informado;";
                 $agrupados[] = $linha;
             }
         }

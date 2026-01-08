@@ -72,8 +72,8 @@
                     </label>
                     <select class="form-select form-select-solid" name="status" data-control="select2" data-placeholder="Status">
                         <option></option>
-                        <option {{$status == 'Pendente' ? 'selected' : ''}} value="Pendente">Pendente</option>
-                        <option {{$status == 'Em produção' ? 'selected' : ''}} value="Em produção">Em produção</option>
+                        <option {{$status == 'Não iniciada' ? 'selected' : ''}} value="Não iniciada">Não iniciada</option>
+                        <option {{$status == 'Em andamento' ? 'selected' : ''}} value="Em andamento">Em andamento</option>
                         <option {{$status == 'Finalizada' ? 'selected' : ''}} value="Finalizada">Finalizada</option>
                     </select>
                 </div>

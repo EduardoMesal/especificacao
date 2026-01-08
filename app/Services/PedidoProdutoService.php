@@ -17,6 +17,9 @@ class PedidoProdutoService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = AtributoProdutoIndicePedido::whereNull('excluido')
+            ->whereHas('produto', function($query) {
+                $query->where('excluido', null);
+            })
             ->with(['produto' => function ($query) {
                 $query->whereNull('excluido')
                 ->with([
@@ -52,7 +55,7 @@ class PedidoProdutoService
         $resultado->getCollection()->transform(function ($item) {
             return [
                 'id' => $item->id,
-                'produto_nome' => optional($item->produto->produtosIdiomas->first())->nome,
+                'produto_nome' => optional($item->produto?->produtosIdiomas->first())->nome,
                 'cliente_nome' => optional($item->pedido?->cliente)->nome ?? null,
             ];
         });

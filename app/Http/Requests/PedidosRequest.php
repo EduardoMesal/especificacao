@@ -14,8 +14,10 @@ class PedidosRequest extends FormRequest
 
     public function rules()
     {
+        $pedidoId = $this->route('id');
+
         return [
-            'nome' => 'required|max:255',
+            'nome' => 'required|max:255|unique:pedidos,nome,' . $pedidoId,
             'cliente_id' => 'required',
         ];
     }
@@ -25,6 +27,7 @@ class PedidosRequest extends FormRequest
         return [
             'nome.required' => 'Preencha o campo nome.',
             'nome.max' => 'O nome deve conter no máximo 255 caracteres.',
+            'nome.unique' => 'Já existe um pedido com esse nome.',
             'cliente_id.required' => 'Preencha o campo cliente.',
         ];
     }

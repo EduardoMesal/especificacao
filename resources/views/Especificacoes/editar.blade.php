@@ -40,25 +40,15 @@
                                             </div>
                                         </div>
                                         <div class="row g-9 mb-8">
-                                            <div class="col-md-4 fv-row selectArea input-style-1">
-                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                    <span class="">Status</span>
-                                                </label>
-                                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar status" name="status">
-                                                    <option {{$especificacao->status == 'Não iniciada' ? 'selected' : ''}} value="Não iniciada">Não iniciada</option>
-                                                    <option {{$especificacao->status == 'Em andamento' ? 'selected' : ''}} value="Em andamento">Em andamento</option>
-                                                    <option {{$especificacao->status == 'Finalizada' ? 'selected' : ''}} value="Finalizada">Finalizada</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 fv-row input-style-1">
+                                            <div class="col-md-6 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                     <span class="">Código Focco</span>
                                                 </label>
                                                 <input name="codigo_focco" type="text" class="form-control form-control-solid" value="{{$especificacao->codigo_focco}}"/>
                                             </div>
-                                            <div class="col-md-4 fv-row input-style-1">
+                                            <div class="col-md-6 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                    <span class="">Série</span>
+                                                    <span class="">Serie</span>
                                                 </label>
                                                 <input name="serie" type="text" class="form-control form-control-solid" value="{{$especificacao->serie}}"/>
                                             </div>
@@ -125,7 +115,7 @@
                                                                 data-control="select2"
                                                                 data-hide-search="true"
                                                                 data-placeholder="Selecionar atributo"
-                                                                name="caracteristicas[{{ $index }}][atributo_id]"
+                                                                name="caracteristicas[{{ $c->id }}][atributo_selecionavel][{{$loop->index}}][atributo_id]"
                                                                 >
                                                                 <option></option>
                                                                 @if(count($c->atributos) == 0)
@@ -166,10 +156,11 @@
                                                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                                 <span class="">Observações</span>
                                                             </label>
+
                                                             <input type="text" class="form-control form-control-solid"
-                                                                name="caracteristicas[{{ $index }}][observacao_personalizada]" 
+                                                                name="caracteristicas[{{ $c->id }}][atributo_selecionavel][{{$loop->index}}][observacao_personalizada]" 
                                                                 value="{{ $atributosSelecionados->where('caracteristica_id', $c->id)->first()->observacao_personalizada ?? '' }}" />
-                                                            <input type="hidden" name="caracteristicas[{{ $index }}][caracteristica_id]" value="{{ $c->id }}" />
+                                                            <input type="hidden" name="caracteristicas[{{ $c->id }}][atributo_selecionavel][{{$loop->index}}][caracteristica_id]" value="{{ $c->id }}" />
                                                         </div>
                                                         @elseif ($c->tipo == 'multiplos')
                                                             <label class="d-flex fs-6 fw-bold d-flex justify-content-between">

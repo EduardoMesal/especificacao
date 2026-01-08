@@ -13,7 +13,6 @@ class DashboardService
 {
     public function index(array $dados = []): array 
     {
-       
         $especificacoesSearch = Especificacao::where('excluido', null)
         ->with(['pedido.cliente' => fn($query) => $query->whereNull('excluido')])
         ->with(['maquina' => fn($query) => 
@@ -26,7 +25,7 @@ class DashboardService
             ])
         ])
         ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', $dados['codigo_focco']))
-        // ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
+        ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
         ->when($dados['status'], fn($q) => $q->where('status', 'LIKE', "%{$dados['status']}%"))
         ->when($dados['maquina_id'], fn($q) => $q->where('maquina_id', $dados['maquina_id']))
         // ->when($dados['cliente_id'], fn($q) => $q->whereHas('pedido.cliente', function ($query) use ($dados) {
@@ -127,24 +126,19 @@ class DashboardService
             ];
         }
 
-        $baseQuery = Especificacao::whereNull('excluido')
-        ->whereYear('criado', Carbon::now()->year);
+        $baseQuery = Especificacao::whereNull('excluido');
 
         $especificacoesCount = (clone $baseQuery)->count();
 
-        $especificacoesPendentesCount = (clone $baseQuery)
-            ->where('status', 'LIKE', '%Pendente%')
-            ->count();
-
         $especificacoesEmProducaoCount = (clone $baseQuery)
-            ->where('status', 'LIKE', '%Em produção%')
+            ->where('status', 'LIKE', '%Em andamento%')
             ->count();
 
         $especificacoesFinalizadasCount = (clone $baseQuery)
             ->where('status', 'LIKE', '%Finalizada%')
             ->count();
             $masquinasCount = Maquina::where('excluido', null)->count();
-            $pedidosCount = Pedido::where('excluido', null)->whereYear('criado', Carbon::now()->year)->count();
+            $pedidosCount = Pedido::where('excluido', null)->count();
 
         $query = [
             'especificacoes' => $especificacoes,
@@ -152,7 +146,6 @@ class DashboardService
             'maquinas' => $maquinas,
             // 'clientes' => $clientes,
             'especificacoesCount' => $especificacoesCount,
-            'especificacoesPendentesCount' => $especificacoesPendentesCount,
             'especificacoesEmProducaoCount' => $especificacoesEmProducaoCount,
             'especificacoesFinalizadasCount' => $especificacoesFinalizadasCount,
             'masquinasCount' => $masquinasCount,
