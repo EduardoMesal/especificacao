@@ -46,7 +46,7 @@
                     ])
                     @endcomponent
                     <div class="table-wrapper table-responsive">
-                        <table class="table">
+                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
                             <thead>
                                 <tr>
                                     <th class="th-info">
@@ -55,7 +55,7 @@
                                     <th class="th-info">
                                         <h6>Nome</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -82,8 +82,8 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-end">
-                                        <div style="position: relative">
+                                    <td>
+                                        <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
                                             </button>

@@ -13,7 +13,7 @@ class EquipamentoService
     {
         $idioma = 'pt';
 
-        $query = EquipamentoOrigem::where('excluido',  null)->with([
+        $query = EquipamentoOrigem::where('excluido',  null)->orderBy('id', 'desc')->with([
             'equipamentosOrigemIdiomas' => function ($q) use ($idioma) {
                 $q->when($idioma, function ($r) use ($idioma) {
                     $r->whereHas('idiomas', function ($query) use ($idioma) {

@@ -86,7 +86,7 @@
                                                 data-bs-placement="top"
                                                 data-bs-custom-class="custom-tooltip"
                                                 data-bs-title="{!! $item->maquinasIdiomas[0]->nome !!}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 250px">
                                                     {!! $item->maquinasIdiomas[0]->nome !!}
                                                 </span>
                                             </div>
@@ -100,7 +100,7 @@
                                                 data-bs-placement="top"
                                                 data-bs-custom-class="custom-tooltip"
                                                 data-bs-title="{!! $item->equipamento->equipamentosOrigemIdiomas[0]->nome !!}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 250px">
                                                     {!! $item->equipamento->equipamentosOrigemIdiomas[0]->nome !!}
                                                 </span>
                                             </div>

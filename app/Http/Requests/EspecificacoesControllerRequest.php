@@ -8,9 +8,9 @@ use Illuminate\Validation\Rule;
 
 class EspecificacoesControllerRequest extends FormRequest
 {
-    protected function isEdit()
+    protected function isEdit(): bool
     {
-        return $this->routeIs('Caracteristicas.editar_action');
+        return $this->routeIs('Especificacoes.editar_action');
     }
 
     public function authorize()
@@ -20,25 +20,24 @@ class EspecificacoesControllerRequest extends FormRequest
 
     public function rules()
     {
-        $isEdit = $this->isEdit();
-        $especificacaoId = $this->route('id');
-        $rules = [
+        $id = $this->route('id');
+
+        return [
             'pedido_id' => 'required',
             'caracteristicas.*.observacao_personalizada' => 'nullable',
             'att' => 'nullable|array',
             'att.*.observacao' => 'required_with:att',
-            'caracteristicas.*.atributo_id' => $isEdit ? 'nullable|exists:atributos,id' : '',
+            'caracteristicas.*.atributo_id' => $id
+                ? 'nullable|exists:atributos,id'
+                : 'required|exists:atributos,id',
+
             'serie' => [
                 'nullable',
-                Rule::unique('especificacoes', 'serie')->ignore(
-                    $this->isEdit() ? $this->route('id') : null
-                ),
+                Rule::unique('especificacoes', 'serie')
+                    ->ignore($id, 'id'),
             ],
         ];
-
-        return $rules;
     }
-
     public function messages()
     {
         $isEdit = $this->isEdit();

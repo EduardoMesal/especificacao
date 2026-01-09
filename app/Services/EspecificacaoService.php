@@ -1054,28 +1054,59 @@ class EspecificacaoService
                     }
                 }
 
-                $atributoIdsComparaveis = AtributoEspecificacao::where('especificacao_id', $especificacaoMaquina->id)
-                    ->whereIn('caracteristica_id', $caracteristicasIds)
-                    // ->whereNotNull('atributo_id')
-                    ->pluck('atributo_id')
-                    ->toArray();
+                $atributosComparaveis = AtributoEspecificacao::query()
+                ->where('atributos_especificacao.especificacao_id', $especificacaoMaquina->id)
+                ->where('atributos_especificacao.revisao_id', $especificacaoMaquina->revisao_selecionada_id)
+                ->whereIn('atributos_especificacao.caracteristica_id', $caracteristicasIds)
 
+                ->join('atributos_idiomas as ai', 'ai.atributo_id', '=', 'atributos_especificacao.atributo_id')
+                ->join('caracteristicas as c', 'c.id', '=', 'atributos_especificacao.caracteristica_id')
+                ->join('caracteristicas_idiomas as ci', 'ci.caracteristica_id', '=', 'c.id')
 
-                $nomesAtributos = Atributo::join('atributos_idiomas as ai', 'ai.atributo_id', '=', 'atributos.id')
-                    ->join('caracteristicas as c', 'c.id', '=', 'atributos.caracteristica_id')
-                    ->join('caracteristicas_idiomas as ci', 'ci.caracteristica_id', '=', 'c.id')
-                    ->where('ai.idioma_id', 1)
-                    ->where('ci.idioma_id', 1)
-                    ->whereIn('atributos.id', $atributoIdsComparaveis)
-                    ->select([
-                        'ai.nome as atributo_nome',
-                        'ci.nome as caracteristica_nome'
-                    ])
-                    ->get()
-                    ->map(function ($item) {
-                        return "{$item->caracteristica_nome}: {$item->atributo_nome}";
-                    })
-                    ->toArray();
+                ->where('ai.idioma_id', $idiomaId)
+                ->where('ci.idioma_id', $idiomaId)
+                ->whereNull('c.excluido')
+
+                ->select([
+                    'ai.nome as atributo_nome',
+                    'ci.nome as caracteristica_nome',
+                    'c.tipo as caracteristica_tipo',
+                    'atributos_especificacao.conteudo as conteudo',
+                ])
+                ->get();
+
+                $nomesAtributos = $atributosComparaveis
+                ->groupBy('caracteristica_nome')
+                ->map(function ($itens) {
+
+                    $tipo = $itens->first()->caracteristica_tipo;
+                    $nome = $itens->first()->caracteristica_nome;
+
+                    // 🔹 TEXTO
+                    if ($tipo === 'texto') {
+                        return "<b>{$nome}:</b> {$itens->first()->conteudo}";
+                    }
+
+                    // 🔹 SELECIONÁVEL (1)
+                    if ($tipo === 'selecionavel') {
+                        return "<b>{$nome}:</b> {$itens->first()->atributo_nome}";
+                    }
+
+                    // 🔹 MÚLTIPLOS (N)
+                    if ($tipo === 'multiplos') {
+                        
+                        $atributos = $itens->map(function ($item) {
+                            return "<b>{$item->atributo_nome}: </b>{$item->conteudo} <br/>";
+                        });
+
+                        return "<b>{$nome}: </b><br/>" . implode(' ', $atributos->toArray());
+                    }
+
+                    return null;
+                })
+                ->filter()
+                ->values()
+                ->toArray();
 
                 $totalAtributos = 0;
                 $atributosIguais = 0;
@@ -1100,7 +1131,6 @@ class EspecificacaoService
                     'porcentagem_similaridade' => round($porcentagem, 1),
                     'especificacao_id' => $especificacaoMaquina->id,
                     'nomesAtributos' => $nomesAtributos
-                    // 'nomesAtributos' => ''
                 ];
             }
         }

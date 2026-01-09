@@ -768,6 +768,7 @@
                                         <table id="tabelaAmostras" class="table">
                                             <thead>
                                                 <tr>
+                                                    <th class="th-info">Espec. ID</th>
                                                     <th class="th-info">Máquina</th>
                                                     <th class="th-info">Serie</th>
                                                     <th class="th-info">Similar (%)</th>
@@ -779,10 +780,24 @@
                                                     <tr>
                                                         <td>
                                                             <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
-                                                            {{$amostra['especificacao_id']}} {{ $amostra['maquina'] }} - 
-                                                            @foreach ($amostra['nomesAtributos'] as $nomes)
-                                                                <span>{{$nomes}}</span>
-                                                            @endforeach
+                                                                {{$amostra['especificacao_id']}}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <a href="{{ route('Especificacoes.especificacao', ['id' => $amostra['especificacao_id']]) }}">
+                                                                @php
+                                                                    $tooltip = "Características comparadas:<br/>". collect($amostra['nomesAtributos'])
+                                                                        ->map(fn($nome) => "{$nome} <br/>")
+                                                                        ->implode(' ');
+                                                                @endphp
+                                                                <span 
+                                                                    data-bs-toggle="tooltip"
+                                                                    data-bs-placement="top"
+                                                                    data-bs-custom-class="custom-tooltip"
+                                                                    data-bs-title="{!! $tooltip !!}"
+                                                                    class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                                    {{ $amostra['maquina'] }}
+                                                                </span>
                                                             </a>
                                                         </td>
                                                         <td>{{ $amostra['serie'] }}</td>
@@ -1659,5 +1674,14 @@ var chart = echarts.init(document.getElementById('donutEspecificacao'));
             }
         ]
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el, {
+                html: true
+            })
+        })
+    })
+
 </script>
 @endsection

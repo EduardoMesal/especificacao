@@ -17,6 +17,7 @@ class CaracteristicaService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = Caracteristica::where('excluido',  null)
+            ->orderBy('id', 'desc')
             ->with([
                 'caracteristicasIdiomas' => function ($q)  {
                     $q->whereHas('idiomas', function ($query) {

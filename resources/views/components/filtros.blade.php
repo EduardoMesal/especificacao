@@ -37,9 +37,9 @@
                 @if(isset($serie))
                 <div class="col-12 col-lg-12 input-style-1 mb-0">
                     <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                        <span>Série</span>
+                        <span>Serie</span>
                     </label>
-                    <input type="text" value="{{ $serie }}" name="serie" data-kt-ecommerce-product-filter="search" class="bg-transparent" placeholder="Pesquisar pela série" />
+                    <input type="text" value="{{ $serie }}" name="serie" data-kt-ecommerce-product-filter="search" class="bg-transparent" placeholder="Pesquisar pela serie" />
                 </div>
                 @endif
                 @if(isset($cliente_nome))

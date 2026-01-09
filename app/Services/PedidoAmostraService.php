@@ -19,6 +19,7 @@ class PedidoAmostraService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = AtributoAmostraIndicePedido::whereNull('excluido')
+            ->orderBy('id', 'desc')
             ->whereHas('amostra', function($query) {
                 $query->where('excluido', null);
             })

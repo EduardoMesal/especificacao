@@ -24,7 +24,7 @@ class MaquinaService
      public function index(array $dados = []): array 
     {
        
-       $maquinas = Maquina::where('excluido', null)
+       $maquinas = Maquina::where('excluido', null)->orderBy('id', 'desc')
        ->with(['equipamento' => function ($query) {
             $query->whereNull('excluido')
             ->with([

@@ -17,6 +17,7 @@ class PedidoProdutoService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = AtributoProdutoIndicePedido::whereNull('excluido')
+            ->orderBy('id', 'desc')
             ->whereHas('produto', function($query) {
                 $query->where('excluido', null);
             })

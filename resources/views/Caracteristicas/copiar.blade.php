@@ -83,7 +83,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-12 mb-8 fv-row ckEditorView">
+                                        <div class="col-md-12 mb-8 fv-row input-style-1 ckEditorView">
                                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                 <span class="notRequired">Avisos</span>
                                             </label>

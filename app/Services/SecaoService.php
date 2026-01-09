@@ -12,7 +12,7 @@ class SecaoService
 {   
     public function index(array $dados = []): LengthAwarePaginator
     {
-        $query = Secao::where('excluido',  null)
+        $query = Secao::where('excluido',  null)->orderBy('id', 'desc')
         ->with([
             'secoesIdiomas' => function ($q)  {
                 $q->whereHas('idiomas', function ($query) {

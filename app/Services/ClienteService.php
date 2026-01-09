@@ -11,7 +11,7 @@ class ClienteService
 {
     public function index(array $dados = []): LengthAwarePaginator
     {
-        $query =  Cliente::where('excluido',  null);
+        $query =  Cliente::where('excluido',  null)->orderBy('id', 'desc');
 
         if (!empty($dados['nome'])) {
             $query->where('nome', 'like', '%' . $dados['nome'] . '%');

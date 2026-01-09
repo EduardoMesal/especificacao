@@ -25,6 +25,7 @@ class AmostraService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = Amostra::whereNull('excluido')
+        ->orderBy('id', 'desc')
         ->with([
             'amostrasIdiomas' => function ($q)  {
                 $q->whereHas('idiomas', function ($query) {

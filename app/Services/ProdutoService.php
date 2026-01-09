@@ -22,6 +22,7 @@ class ProdutoService
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = Produto::where('excluido',  null)
+        ->orderBy('id', 'desc')
         ->with([
             'produtosIdiomas' => function ($q)  {
                 $q->whereHas('idiomas', function ($query) {

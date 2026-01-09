@@ -111,15 +111,15 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-12 mb-8 fv-row ckEditorView">
+                                        <div class="col-md-12 mb-8 fv-row input-style-1 ckEditorView">
                                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                 <span class="notRequired">Avisos</span>
                                             </label>
                                             <textarea name="aviso" id="texto-2" class="form-control ckText">
-                                        {!! preg_replace('/src=["\'](?:\.\.\/)+assets\/files\//', 'src="'.url('/assets/files/').'/', optional($caracteristica->caracteristicasIdiomas->first())->aviso) !!}
-                                        </textarea>
+                                                {!! preg_replace('/src=["\'](?:\.\.\/)+assets\/files\//', 'src="'.url('/assets/files/').'/', optional($caracteristica->caracteristicasIdiomas->first())->aviso) !!}
+                                            </textarea>
                                         </div>
-                                        <div class="col-md-12 fv-row obsTexto mb-8 input-style-1" style="{{ $caracteristica->tipo != 'texto' ? 'display:none' : '' }}">
+                                        <div class="col-md-12 fv-row selectArea input-style-1" style="{{ $caracteristica->tipo != 'texto' ? 'display:none' : '' }}">
                                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                 <span class="">Observação</span>
                                             </label>
