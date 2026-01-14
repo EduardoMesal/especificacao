@@ -128,7 +128,7 @@ class SecoesController extends Controller
                     'success' => false,
                     'title' => 'Oops...',
                     'icon' => 'error',
-                    'message' => 'Você não pode excluir esta seção, pois ele está vinculada em algumas características.',
+                    'message' => 'Você não pode excluir esta seção, pois ele está vinculada com algumas características.',
                 ], 500);
             }
     

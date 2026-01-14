@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class CaracteristicaRequest extends FormRequest
 {   
@@ -21,9 +22,14 @@ class CaracteristicaRequest extends FormRequest
     public function rules()
     {
         $isEdit = $this->isEdit();
+        $id = $this->route('id');
 
         $rules = [
-            'nome' => 'required',
+            'nome' => [
+                'required',
+                Rule::unique('caracteristicas_idiomas', 'nome')->where('excluido', null)
+                    ->ignore($id, 'caracteristica_id'),
+            ],
             'secao_id' => 'required',
             'tipo' => 'required',
             'att' => !$isEdit ? 'nullable|array' : '',
@@ -50,6 +56,7 @@ class CaracteristicaRequest extends FormRequest
             'tipo.required' => 'Preencha o campo tipo.',
             'att.required' => 'É necessário preencher pelo menos um atributo.',
             'att.*.atributo.required_with' => 'Preencha o campo atributo.',
+            'nome.unique' => 'Já existe uma característica com esse nome.',
         ];
 
         if ($isEdit) {

@@ -467,8 +467,8 @@ class AmostraService
                     $idsAtuais = collect($dados['att'])->pluck('att_id')->filter()->toArray(); // remove null
                     $idsRemovidos = array_diff($idsOriginais, $idsAtuais);
                     if (!empty($idsRemovidos)) {
-                        // SubAtributoAmostra::whereIn('id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
-                        SubAtributoAmostraIdioma::where('idioma_id', $getIdioma->id)->whereIn('sub_atributos_amostra_id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
+                        SubAtributoAmostra::whereIn('id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
+                        // SubAtributoAmostraIdioma::where('idioma_id', $getIdioma->id)->whereIn('sub_atributos_amostra_id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
                         if($dados['tipo'] == 'selecionavel'){
                             
                             foreach($idsRemovidos as $item){

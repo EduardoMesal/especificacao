@@ -23,6 +23,9 @@ class PedidoAmostraService
             ->whereHas('amostra', function($query) {
                 $query->where('excluido', null);
             })
+            ->whereHas('pedido', function($query) {
+                $query->where('excluido', null);
+            })
             ->with(['amostra' => function ($query) {
                 $query->whereNull('excluido')
                 ->with([
@@ -53,6 +56,12 @@ class PedidoAmostraService
             });
         }
 
+        if (!empty($dados['pedido'])) {
+            $query->whereHas('pedido', function ($q) use ($dados) {
+                $q->where('excluido', null)->where('nome', 'like', '%' . $dados['pedido'] . '%');
+            });
+        }
+
         $resultado = $query->paginate(20)->withQueryString();
 
         $resultado->getCollection()->transform(function ($item) {
@@ -60,6 +69,7 @@ class PedidoAmostraService
                 'id' => $item->id,
                 'amostra_nome' => optional($item->amostra?->amostrasIdiomas->first())->nome ?? null,
                 'cliente_nome' => optional($item->pedido?->cliente)->nome ?? null,
+                'pedido' => optional($item->pedido)->nome ?? null,
             ];
         });
 

@@ -132,7 +132,7 @@ class EquipamentosController extends Controller
                     'success' => false,
                     'title' => 'Oops...',
                     'icon' => 'error',
-                    'message' => 'Você não pode excluir esse equipamento, pois ele está vinculado a alguma máquina.',
+                    'message' => 'Você não pode excluir esse equipamento, pois ele está vinculado com algumas máquinas.',
                 ], 500);
             }
     

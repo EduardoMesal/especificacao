@@ -21,6 +21,9 @@ class PedidoProdutoService
             ->whereHas('produto', function($query) {
                 $query->where('excluido', null);
             })
+            ->whereHas('pedido', function($query) {
+                $query->where('excluido', null);
+            })
             ->with(['produto' => function ($query) {
                 $query->whereNull('excluido')
                 ->with([
@@ -51,6 +54,12 @@ class PedidoProdutoService
             });
         }
 
+        if (!empty($dados['pedido'])) {
+            $query->whereHas('pedido', function ($q) use ($dados) {
+                $q->where('excluido', null)->where('nome', 'like', '%' . $dados['pedido'] . '%');
+            });
+        }
+
         $resultado = $query->paginate(20)->withQueryString();
 
         $resultado->getCollection()->transform(function ($item) {
@@ -58,6 +67,7 @@ class PedidoProdutoService
                 'id' => $item->id,
                 'produto_nome' => optional($item->produto?->produtosIdiomas->first())->nome,
                 'cliente_nome' => optional($item->pedido?->cliente)->nome ?? null,
+                'pedido' => optional($item->pedido)->nome ?? null,
             ];
         });
 

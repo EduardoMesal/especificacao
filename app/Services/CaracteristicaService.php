@@ -156,8 +156,7 @@ class CaracteristicaService
         ])
         ->whereNull('excluido')
         ->with(['atributos' => function ($query) use ($id, $idioma) {
-            $query->where('caracteristica_id', $id) 
-            ->whereNull('excluido')
+            $query->where('caracteristica_id', $id)->whereNull('excluido')
             ->with([
                 'atributosIdiomas' => function ($q) use ($idioma) {
                     $q->where('excluido', null)->when($idioma, function ($r) use ($idioma) {
@@ -286,8 +285,8 @@ class CaracteristicaService
                     $idsRemovidos = array_diff($idsOriginais, $idsAtuais);
 
                     if (!empty($idsRemovidos)) {
-                        // Atributo::whereIn('id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
-                        AtributoIdioma::where('idioma_id', $getIdioma->id)->whereIn('atributo_id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
+                        Atributo::whereIn('id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
+                        // AtributoIdioma::where('idioma_id', $getIdioma->id)->whereIn('atributo_id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
 
                         if($dados['tipo'] == 'selecionavel'){
                             foreach($idsRemovidos as $item){

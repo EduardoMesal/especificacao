@@ -50,6 +50,14 @@
                     <input type="text" value="{{ $cliente_nome }}" name="cliente_nome" data-kt-ecommerce-product-filter="search" class="bg-transparent" placeholder="Pesquisar pelo nome do cliente" />
                 </div>
                 @endif
+                @if(isset($pedido))
+                <div class="col-12 col-lg-12 input-style-1 mb-0">
+                    <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                        <span>Pedido</span>
+                    </label>
+                    <input type="text" value="{{ $pedido }}" name="pedido" data-kt-ecommerce-product-filter="search" class="bg-transparent" placeholder="Pesquisar pelo pedido" />
+                </div>
+                @endif
                 @if($maquinas)
                 <div class="col-12 col-lg-12 input-style-1 mb-0">
                     <label class="d-flex align-items-center fs-6 fw-bold mb-2">

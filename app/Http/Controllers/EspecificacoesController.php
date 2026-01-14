@@ -171,7 +171,7 @@ class EspecificacoesController extends Controller
         }
 
 
-        // return $query['atributosCaracteristicasComparaveis'];
+        // return $query['amostrasPedido'];
 
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],

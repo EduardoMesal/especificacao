@@ -24,7 +24,8 @@ class PedidosAmostrasController extends Controller
     {
         $dados = [
             'nome' => $request->input('nome'),
-            'cliente_nome' => $request->input('cliente_nome')
+            'cliente_nome' => $request->input('cliente_nome'),
+            'pedido' => $request->input('pedido')
         ];
 
         $amostras = $pedidoAmostraService->index($dados);
@@ -33,6 +34,7 @@ class PedidosAmostrasController extends Controller
             'amostras' => $amostras,
             'nome' => $dados['nome'] ?? '',
             'cliente_nome' => $dados['cliente_nome'] ?? '',
+            'pedido' => $dados['pedido'] ?? '',
         ]);
     }
 

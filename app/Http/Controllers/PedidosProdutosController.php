@@ -25,7 +25,8 @@ class PedidosProdutosController extends Controller
     {
         $dados = [
             'nome' => $request->input('nome'),
-            'cliente_nome' => $request->input('cliente_nome')
+            'cliente_nome' => $request->input('cliente_nome'),
+            'pedido' => $request->input('pedido')
         ];
 
         $produtos = $pedidoProdutoService->index($dados);
@@ -34,6 +35,7 @@ class PedidosProdutosController extends Controller
             'produtos' => $produtos,
             'nome' => $dados['nome'] ?? '',
             'cliente_nome' => $dados['cliente_nome'] ?? '',
+            'pedido' => $dados['pedido'] ?? '',
         ]);
     }
 

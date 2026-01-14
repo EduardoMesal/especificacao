@@ -45,6 +45,7 @@
                         'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
                         'clientes' => isset($clientes) ? $clientes : null,
                         'status' => isset($status) ? $status : null,
+                        'pedido' => isset($pedido) ? $pedido : null,
                         ])
                         @endcomponent
                     </div>
@@ -60,6 +61,9 @@
                                     </th>
                                     <th class="th-info">
                                         <h6>Cliente</h6>
+                                    </th>
+                                    <th class="th-info">
+                                        <h6>Pedido</h6>
                                     </th>
                                     <th class="th-info text-end">
                                         <h6>Ações</h6>
@@ -104,6 +108,16 @@
                                                         @else
                                                         -
                                                     @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span 
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {!! $item['pedido'] !!}
                                                 </span>
                                             </div>
                                         </div>

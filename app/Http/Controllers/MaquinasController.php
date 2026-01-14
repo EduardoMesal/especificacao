@@ -158,7 +158,7 @@ class MaquinasController extends Controller
                     'success' => false,
                     'title' => 'Oops...',
                     'icon' => 'error',
-                    'message' => 'Você não pode excluir esta máquina, pois ela está vinculada a alguma especificação.',
+                    'message' => 'Você não pode excluir esta máquina, pois ela está vinculada com algumas especificações.',
                 ], 500);
             }
     

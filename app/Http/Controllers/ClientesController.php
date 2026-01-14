@@ -157,14 +157,14 @@ class ClientesController extends Controller
 
         try {
 
-            $verifyClient = Cliente::where('id', $id)->withCount('especificacoes')->first();
+            $verifyClient = Cliente::where('id', $id)->withCount('pedidos')->first();
             
-            if($verifyClient->especificacoes_count > 0) {
+            if($verifyClient->pedidos_count > 0) {
                  return response()->json([
                     'success' => false,
                     'title' => 'Oops...',
                     'icon' => 'error',
-                    'message' => 'Você não pode excluir este cliente, pois ele está vinculado em algumas especificações.',
+                    'message' => 'Você não pode excluir este cliente, pois ele está vinculado com alguns pedidos.',
                 ], 500);
             }
     

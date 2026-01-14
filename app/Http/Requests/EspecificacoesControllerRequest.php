@@ -33,7 +33,7 @@ class EspecificacoesControllerRequest extends FormRequest
 
             'serie' => [
                 'nullable',
-                Rule::unique('especificacoes', 'serie')
+                Rule::unique('especificacoes', 'serie')->where('excluido', null)
                     ->ignore($id, 'id'),
             ],
         ];

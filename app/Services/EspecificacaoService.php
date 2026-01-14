@@ -161,8 +161,20 @@ class EspecificacaoService
                 });
             },
         ])
-        ->whereHas('caracteristicas', function ($query) {
-            $query->whereNull('excluido');
+        ->with('caracteristicas', function ($query) {
+            $query->whereNull('excluido')
+            ->with(['atributos' => function ($queryA){
+                $queryA->whereNull('excluido')
+                ->with([
+                    'atributosIdiomas' => function ($q) {
+                        $q->where('excluido', null)->when(function ($r) {
+                            $r->whereHas('idiomas', function ($queryI) {
+                                $queryI->where('padrao', true);
+                            });
+                        });
+                    },
+                ]);
+            }]);
         })
         ->first();
 
@@ -491,6 +503,7 @@ class EspecificacaoService
 
                 if($statusNotFinished > 0){
                     $especificacao->status = 'Em andamento';
+                    $especificacao->finalizada = null;
                 } else {
                     $especificacao->status = 'Finalizada';
                     $especificacao->finalizada = Carbon::now();
@@ -910,6 +923,20 @@ class EspecificacaoService
         $porcentagemResumo = count($resumoItens) > 0 ? ($resumoItensInseridos / count($resumoItens)) * 100 : 0;
 
         $porcentagemResumo = number_format($porcentagemResumo, 1, '.', '');
+
+        if($porcentagemResumo === '100.0'){
+            $especificacao->status = 'Finalizada';
+            
+            if($especificacao->finalizada == null){
+                $especificacao->finalizada = Carbon::now();
+            }
+
+        }else{
+            $especificacao->status = 'Em andamento';
+            $especificacao->finalizada = null;
+        }
+
+        $especificacao->save();
         
         $indiceAmostraId = AtributoAmostraIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();

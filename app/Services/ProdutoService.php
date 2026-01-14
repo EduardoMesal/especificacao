@@ -470,8 +470,8 @@ class ProdutoService
                     $idsRemovidos = array_diff($idsOriginais, $idsAtuais);
 
                     if (!empty($idsRemovidos)) {
-                        // SubAtributoProduto::whereIn('id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
-                        SubAtributoProdutoIdioma::where('idioma_id', $getIdioma->id)->whereIn('sub_atributos_produtos_id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
+                        SubAtributoProduto::whereIn('id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
+                        // SubAtributoProdutoIdioma::where('idioma_id', $getIdioma->id)->whereIn('sub_atributos_produtos_id', $idsRemovidos)->update(['excluido' => Carbon::now()]);
                         if($dados['tipo'] == 'selecionavel'){
                             foreach($idsRemovidos as $item){
                                 AtributoProdutoEspecificacao::where('atributo_produto_id', $atributoProduto->id)

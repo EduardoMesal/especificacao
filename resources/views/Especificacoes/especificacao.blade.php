@@ -278,7 +278,7 @@
                                                                             </div>
                                                                         @endif
 
-                                                                        <div>
+                                                                        <div class="flex-grow-1">
                                                                             <span style="font-weight: 600; color: #000">
                                                                                 @if ($resumo['caracteristica'])
                                                                                     {!! $resumo['caracteristica'] !!}:
@@ -701,7 +701,7 @@
                                                                             </div>
                                                                         @endif
 
-                                                                        <div>
+                                                                        <div class="flex-grow-1">
                                                                             <span style="font-weight: 600; color: #000">
                                                                                 @if ($resumo['caracteristica'])
                                                                                     {!! $resumo['caracteristica'] !!}:
