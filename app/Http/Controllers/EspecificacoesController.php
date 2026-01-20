@@ -21,6 +21,7 @@ class EspecificacoesController extends Controller
             'maquina_id' => $request->input('maquina_id'),
             'cliente_nome' => $request->input('cliente_nome'),
             'status' => $request->input('status'),
+            'usuario' => $request->input('usuario'),
             'criado' => $request->input('criado'),
         ];
 
@@ -33,6 +34,7 @@ class EspecificacoesController extends Controller
             'status' => $dados['status'] ?? '',
             'maquinas' => $query['maquinas'],
             'maquina_id' => $dados['maquina_id'] ?? '',
+            'usuario' => $dados['usuario'] ?? '',
             'especificacoes' => $query['especificacoes'],
             'criado' => $dados['criado'] ?? '',
         ]);
@@ -72,7 +74,6 @@ class EspecificacoesController extends Controller
     {   
         try {
             $data = $request->only(['codigo_focco', 'pedido_id', 'serie', 'caracteristicas', 'att']);
-
             $especificacaoService->criar($data, $id);
 
             return response()->json([
@@ -160,7 +161,7 @@ class EspecificacoesController extends Controller
 
         if (!$query['especificacao']) {
             return redirect('/dashboard')->with([
-                'error' => 'Nenhuma especificação foi encontrada.'
+                'error' => 'Especificação não foi encontrada.'
             ]);
         }
 
@@ -169,9 +170,6 @@ class EspecificacoesController extends Controller
                 'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
             ]);
         }
-
-
-        // return $query['amostrasPedido'];
 
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],

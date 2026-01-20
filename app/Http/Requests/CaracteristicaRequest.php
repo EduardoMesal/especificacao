@@ -27,7 +27,12 @@ class CaracteristicaRequest extends FormRequest
         $rules = [
             'nome' => [
                 'required',
-                Rule::unique('caracteristicas_idiomas', 'nome')->where('excluido', null)
+                 Rule::unique('caracteristicas_idiomas', 'nome')
+                    ->whereIn('caracteristica_id', function ($query) {
+                        $query->select('id')
+                            ->from('caracteristicas')
+                            ->whereNull('excluido');
+                    })
                     ->ignore($id, 'caracteristica_id'),
             ],
             'secao_id' => 'required',

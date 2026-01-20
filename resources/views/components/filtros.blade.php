@@ -80,7 +80,6 @@
                     </label>
                     <select class="form-select form-select-solid" name="status" data-control="select2" data-placeholder="Status">
                         <option></option>
-                        <option {{$status == 'Não iniciada' ? 'selected' : ''}} value="Não iniciada">Não iniciada</option>
                         <option {{$status == 'Em andamento' ? 'selected' : ''}} value="Em andamento">Em andamento</option>
                         <option {{$status == 'Finalizada' ? 'selected' : ''}} value="Finalizada">Finalizada</option>
                     </select>
@@ -116,10 +115,18 @@
                     </select>
                 </div>
                 @endif
+                @if(isset($usuario))
+                <div class="col-12 col-lg-12 input-style-1 mb-0">
+                    <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                        <span>Criador</span>
+                    </label>
+                    <input type="text" value="{{ $usuario }}" name="usuario" data-kt-ecommerce-product-filter="search" class="bg-transparent" placeholder="Pesquisar pelo criador" />
+                </div>
+                @endif
                 @if(isset($criado))
                 <div class="col-12 col-lg-12 input-style-1 mb-0" style="position: relative;">
                     <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                        <span>Criado</span>
+                        <span>Criado em</span>
                     </label>
                     <input class="bg-transparent filter-daterangepicker" placeholder="Selecionar datas" type="text" value="{{ $criado ? $criado : '' }}" name="criado" />
                 </div>

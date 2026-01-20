@@ -60,7 +60,7 @@
                                     <th class="th-info">
                                         <h6>Equipamento de origem</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>

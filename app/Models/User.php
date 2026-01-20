@@ -62,4 +62,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Historico::class, 'usuario_id');
     }
+
+    public function especificacoes()
+    {
+        return $this->hasMany(Especificacao::class, 'usuario_id');
+    }
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class, 'usuario_id');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class PedidosRequest extends FormRequest
 {
@@ -17,7 +18,12 @@ class PedidosRequest extends FormRequest
         $pedidoId = $this->route('id');
 
         return [
-            'nome' => 'required|max:255|unique:pedidos,nome,' . $pedidoId,
+            'nome' => [
+                'required',
+                'max:255',
+                Rule::unique('pedidos', 'nome')->where('excluido', null)
+                    ->ignore($pedidoId, 'id'),
+            ],
             'cliente_id' => 'required',
         ];
     }
@@ -25,9 +31,9 @@ class PedidosRequest extends FormRequest
     public function messages()
     {
         return [
-            'nome.required' => 'Preencha o campo nome.',
+            'nome.required' => 'Preencha o campo n° pedido.',
             'nome.max' => 'O nome deve conter no máximo 255 caracteres.',
-            'nome.unique' => 'Já existe um pedido com esse nome.',
+            'nome.unique' => 'Já existe um pedido com esse número.',
             'cliente_id.required' => 'Preencha o campo cliente.',
         ];
     }

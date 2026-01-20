@@ -22,6 +22,7 @@ class PedidosController extends Controller
         $dados = [
             'nome' => $request->input('nome'),
             'cliente_id' => $request->input('cliente_id'),
+            'usuario' => $request->input('usuario'),
             'criado' => $request->input('criado'),
         ];
 
@@ -33,6 +34,7 @@ class PedidosController extends Controller
             'criado' => $dados['criado'] ?? '',
             'pedidos' => $query['pedidos'],
             'clientes' => $query['clientes'],
+            'usuario' => $query['usuario'] ?? '',
         ]);
     }
 

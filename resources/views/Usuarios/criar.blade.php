@@ -62,7 +62,7 @@
                                             <div class="col-md-6 fv-row input-style-1">
                                                 <label class="required fs-6 fw-bold mb-2">Tipo</label>
                                                 <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar tipo" name="tipo">
-                                                    <option value="admn">Administrador</option>
+                                                    <option value="adm">Administrador</option>
                                                     <option value="vendas">Vendas</option>
                                                     <option value="engenharia">Engenharia</option>
                                                 </select>

@@ -34,7 +34,7 @@
                                                 <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar pedido" name="pedido_id">
                                                     <option></option>
                                                     @foreach($pedidos as $item)
-                                                        <option @if($especificacao->pedido_id == $item->id) selected @endif value="{{$item->id}}">{{$item->id}} - {!! $item->nome !!}</option>
+                                                        <option @if($especificacao->pedido_id == $item->id) selected @endif value="{{$item->id}}">N° {!! $item->nome !!}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -313,7 +313,7 @@
                                                                             <input name="att[{{ $loop->index }}][observacao]" class="form-control form-control-solid" type="text" placeholder="Observação" value="{{ $att->conteudo }}" />
                                                                         </div>
                                                                         <div class="mb-5">
-                                                                            <a href="javascript:;" data-repeater-delete class="btn btn-flex btn-sm btn-light-danger mt-3">
+                                                                            <a href="javascript:;" data-repeater-delete class="btn btn-flex btn-sm btn-light-danger mt-3 btn-remove">
                                                                                 <i class="ki-duotone ki-trash fs-3"></i>
                                                                                 Remover
                                                                             </a>
@@ -346,7 +346,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <a href="javascript:avoid;" data-repeater-create class="btn btn-flex btn-light-primary">
+                                                    <a href="javascript:;" data-repeater-create class="btn btn-flex btn-light-primary">
                                                         <i class="ki-duotone ki-plus fs-3"></i>
                                                         Adicionar observação
                                                     </a>

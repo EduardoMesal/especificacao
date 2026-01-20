@@ -1730,8 +1730,8 @@ h6,
   text-overflow: ellipsis;
   width: 230px; /* ou o tamanho que quiser */
 }
-.table .th-info h6 {
-  font-weight: bold;
+.table h6 {
+  font-weight: bold !important;
 }
 
 .table .lead-company {

@@ -4,6 +4,11 @@
 @section('css')
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-zoom.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-thumbnail.css">
+
 @endsection
 
 @section('content')
@@ -63,7 +68,7 @@
                                                     <option></option>
                                                     @foreach($pedidos as $p)
                                                         <option @if ($p['id'] == $atributoProdutoPedido->pedido_id) selected @endif value="{{ $p['id'] }}">
-                                                            {{$p['nome']}}
+                                                            N° {{$p['nome']}}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -214,13 +219,20 @@
                                                                         <div class="alert alert-warning" style="margin-bottom: 0px;" role="alert">A imagem deve estar no formato jpg, png ou jpeg. Não exceder 3MB.</div>
                                                                     </div>
                                                                     <div class="schedules-area pt-7 imgsAmostra">
-                                                                        <div class="row" id="contentSortableProjects">
+                                                                        <div class="row galleryPedidoModal" id="contentSortableProjects">
                                                                             @if(count($a->imagensPedido) > 0)
                                                                             @foreach ($a->imagensPedido as $key => $item)
                                                                                 <div class="col-md-12 col-xxl-6 mb-2 projectContent" id="img-{{ $item->id }}">
                                                                                     <div class="card-style">
                                                                                         <div class="card-body d-flex flex-center flex-column">
-                                                                                            <img class="imgProject" src="{{ mixAssets('assets/img/produtos/atributos/pedido/' . $item->imagem) }}"/>
+                                                                                            <a
+                                                                                                href="{{ mixAssets('assets/img/produtos/atributos/pedido/' . $item->imagem) }}"
+                                                                                                class="light-item"
+                                                                                                data-sub-html="Imagem {{ $key + 1 }}">
+                                                                                                <img
+                                                                                                    class="imgProject img-fluid"
+                                                                                                    src="{{ mixAssets('assets/img/produtos/atributos/pedido/' . $item->imagem) }}" />
+                                                                                            </a>    
                                                                                             <div class="d-flex justify-content-end gap-2 align-items-center mt-4 mb-4" style="width: 100%;">
                                                                                                 <button 
                                                                                                     class="btn btn-sm btn-secondary deleteBt btn-secondary-delete btn-delete-imagem" 
@@ -279,11 +291,19 @@
                             <div class="schedules-area pt-7 imgsAmostra">
                                 <div class="row" id="contentSortableProjects">
                                     @if(count($atributoProdutoPedido->imagens) > 0)
+                                    <div id="galleryPedido" class="row">
                                         @foreach ($atributoProdutoPedido->imagens as $key => $item)
                                         <div class="col-md-4 col-xxl-3 mb-4 projectContent">
                                             <div class="card-style">
                                                 <div class="card-body d-flex flex-center flex-column">
-                                                    <img class="imgProject" src="{{ mixAssets('assets/img/produtos/pedido/' . $item->imagem) }}"/>
+                                                    <a
+                                                        href="{{ mixAssets('assets/img/produtos/pedido/' . $item->imagem) }}"
+                                                        class="light-item"
+                                                        data-sub-html="Imagem {{ $key + 1 }}">
+                                                        <img
+                                                            class="imgProject img-fluid"
+                                                            src="{{ mixAssets('assets/img/produtos/pedido/' . $item->imagem) }}" />
+                                                    </a>
                                                     <div class="d-flex justify-content-end gap-2 align-items-center mt-4 " style="width: 100%;">
                                                         <form class="responseAjax" action="{{route('PedidosProdutos.excluir_imagem', ['id' => $item->id])}}" method="post">
                                                             @csrf
@@ -315,8 +335,23 @@
 <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="{{ mixAssets('/assets/js/closeSave.js') }}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.js"></script>
+
 <script>
     $(document).ready(function() {
+        const gallery = document.getElementById('galleryPedido');
+
+        if (gallery || galleryModal) {
+            lightGallery(gallery, {
+                selector: 'a.light-item',
+                plugins: [lgZoom, lgThumbnail],
+                speed: 400,
+                download: false,
+            });
+        }
 
         $(document).on('change', '.selectAtributo', function() {
             let selectedOption = $(this).find('option:selected');
@@ -377,6 +412,21 @@
     document.addEventListener('shown.bs.modal', function (event) {
         const modal = event.target;
         modalAbertoId = modal.id;  
+
+        const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
+
+        galleriesModal.forEach(gallery => {
+            if (!gallery.dataset.lgInit) {
+                lightGallery(gallery, {
+                    selector: 'a.light-item',
+                    plugins: [lgZoom, lgThumbnail],
+                    speed: 400,
+                    download: false,
+                });
+
+                gallery.dataset.lgInit = "true";
+            }
+        });
     });
 
     $('.form__error').click(function () {

@@ -16,6 +16,8 @@ class Revisao extends Model
     protected $fillable = [
         'nome',
         'especificacao_id',
+        'revisao_anterior_id',
+        'usuario_id',
         'criado',
         'modificado',
         'excluido',
@@ -26,8 +28,23 @@ class Revisao extends Model
         return $this->belongsTo(Especificacao::class, 'especificacao_id');
     }
 
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
     public function especificacoes()
     {
         return $this->hasMany(AtributoEspecificacao::class, 'revisao_id');
+    }
+
+    public function especificacoesObservacoes()
+    {
+        return $this->hasMany(EspecificacaoObservacao::class, 'revisao_id');
+    }
+
+    public function revisaoAnterior()
+    {
+        return $this->belongsTo(self::class, 'revisao_anterior_id');
     }
 }

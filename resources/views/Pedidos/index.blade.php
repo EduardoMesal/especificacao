@@ -32,18 +32,19 @@
                         </div>
                     </div>
                     @component('components.filtros', [
-                    'url' => route('Pedidos.index'),
-                    'telefone' => isset($telefone) ? $telefone : null,
-                    'nome' => isset($nome) ? $nome : null,
-                    'codigo' => isset($codigo) ? $codigo : null,
-                    'maquina_id' => isset($maquina_id) ? $maquina_id : null,
-                    'cliente_id' => isset($cliente_id) ? $cliente_id : null,
-                    'maquinas' => isset($maquinasFilter) ? $maquinasFilter : null,
-                    'equipamentos' => isset($equipamentos) ? $equipamentos : null,
-                    'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
-                    'clientes' => isset($clientes) ? $clientes : null,
-                    'status' => isset($status) ? $status : null,
-                    'criado' => isset($criado) ? $criado : null,
+                        'url' => route('Pedidos.index'),
+                        'telefone' => isset($telefone) ? $telefone : null,
+                        'nome' => isset($nome) ? $nome : null,
+                        'codigo' => isset($codigo) ? $codigo : null,
+                        'maquina_id' => isset($maquina_id) ? $maquina_id : null,
+                        'cliente_id' => isset($cliente_id) ? $cliente_id : null,
+                        'maquinas' => isset($maquinasFilter) ? $maquinasFilter : null,
+                        'equipamentos' => isset($equipamentos) ? $equipamentos : null,
+                        'equipamento_id' => isset($equipamento_id) ? $equipamento_id : null,
+                        'clientes' => isset($clientes) ? $clientes : null,
+                        'status' => isset($status) ? $status : null,
+                        'criado' => isset($criado) ? $criado : null,
+                        'usuario' => isset($usuario) ? $usuario : null,
                     ])
                     @endcomponent
                     <div class="table-wrapper table-responsive">
@@ -54,15 +55,18 @@
                                         <h6>Id</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Nome</h6>
+                                        <h6>N° pedido</h6>
                                     </th>
                                     <th class="th-info">
                                         <h6>Cliente</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Criado</h6>
+                                        <h6>Criador</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="th-info">
+                                        <h6>Criado em</h6>
+                                    </th>
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -83,12 +87,7 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span 
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                data-bs-custom-class="custom-tooltip"
-                                                data-bs-title="{!! $item->nome !!}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
                                                     {!! $item->nome !!}
                                                 </span>
                                             </div>
@@ -102,8 +101,17 @@
                                                 data-bs-placement="top"
                                                 data-bs-custom-class="custom-tooltip"
                                                 data-bs-title="{{ $item->cliente->nome }}"
-                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
+                                                class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 250px">
                                                     {!! $item->cliente->nome !!}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {!! $item->usuario->nome !!}
                                                 </span>
                                             </div>
                                         </div>

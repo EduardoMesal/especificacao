@@ -55,7 +55,7 @@
                                     <th class="th-info">
                                         <h6>Nome</h6>
                                     </th>
-                                    <th class="">
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -82,7 +82,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="text-end">
                                         <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>

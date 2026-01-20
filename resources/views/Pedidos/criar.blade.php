@@ -22,9 +22,9 @@
                                         <div class="row g-9 mb-8">
                                             <div class="col-md-6 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                    <span class="required">Nome</span>
+                                                    <span class="required">N° pedido</span>
                                                 </label>
-                                                <input type="text" class="form-control form-control-solid" placeholder="Preencha o campo nome" name="nome" />
+                                                <input type="number" class="form-control form-control-solid" placeholder="Preencha o campo número do pedido" name="nome" />
                                             </div>
                                             <div class="col-md-6 fv-row selectArea input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">

@@ -21,6 +21,7 @@ class Especificacao extends Model
         'status',
         'finalizada',
         'revisao_selecionada_id',
+        'usuario_id',
         'criado',
         'modificado',
         'excluido',
@@ -29,6 +30,11 @@ class Especificacao extends Model
     public function maquina()
     {
         return $this->belongsTo(Maquina::class, 'maquina_id');
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     public function revisaoSelecionada()

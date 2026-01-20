@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ColaboradorMiddleware
+class VendasMiddleware
 {
     /**
      * Handle an incoming request.
@@ -22,7 +22,7 @@ class ColaboradorMiddleware
             return redirect()->route('login')->with('error', 'Você precisa estar logado para acessar essa rota.');
         }
 
-        if (Auth::user()->tipo === 'colaborador') {
+        if (Auth::user()->tipo === 'vendas') {
             return $next($request);
         }
 

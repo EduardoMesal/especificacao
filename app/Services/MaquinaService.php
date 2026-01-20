@@ -247,8 +247,8 @@ class MaquinaService
         }]);
 
         $caracteristicas = Caracteristica::where(function ($q) use ($criadoEm) {
-            $q->whereNull('excluido')
-            ->orWhere('excluido', '>', $criadoEm);
+            $q->whereNull('excluido');
+            // ->orWhere('excluido', '>', $criadoEm);
         })
         ->with([
             'caracteristicasIdiomas' => function ($q) use ($idioma) {

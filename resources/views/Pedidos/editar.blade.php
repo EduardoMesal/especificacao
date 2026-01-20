@@ -22,9 +22,9 @@
                                         <div class="row g-9 mb-8">
                                             <div class="col-md-6 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                    <span class="required">Nome</span>
+                                                    <span class="required">N° pedido</span>
                                                 </label>
-                                                <input type="text" value="{{$pedido->nome}}" class="form-control form-control-solid" placeholder="Preencha o campo nome" name="nome" />
+                                                <input type="number" value="{{$pedido->nome}}" class="form-control form-control-solid" placeholder="Preencha o campo número do pedido" name="nome" />
                                             </div>
                                             <div class="col-md-6 fv-row selectArea input-style-1">
                                                 <label class="fs-6 fw-bold mb-2">Cliente</label>
@@ -85,9 +85,12 @@
                                         <h6>Cliente</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Criado</h6>
+                                        <h6>Criador</h6>
                                     </th>
-                                    <th class="">
+                                    <th class="th-info">
+                                        <h6>Criado em</h6>
+                                    </th>
+                                    <th class="th-info text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -191,13 +194,23 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                {{ $item->criado->format('d/m/Y') }}
+                                                {{ $item->usuario->nome }}
                                                 </span>
                                             </div>
                                         </div>
                                         <span class="d-block"></span>
                                     </td>
                                     <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                {{ $item->criado->format('d/m/Y') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="d-block"></span>
+                                    </td>
+                                    <td class="text-end">
                                         <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>
@@ -263,7 +276,7 @@
                                     <th class="th-info">
                                         <h6>Amostra</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -360,7 +373,7 @@
                                     <th class="th-info">
                                         <h6>Produto</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>

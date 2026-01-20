@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class ClienteRequest extends FormRequest
 {
@@ -14,8 +15,14 @@ class ClienteRequest extends FormRequest
 
     public function rules()
     {
+        $clienteId = $this->route('id');
+
         return [
-            'nome' => 'required',
+            'nome' => [
+                'required',
+                Rule::unique('clientes', 'nome')->where('excluido', null)
+                    ->ignore($clienteId, 'id'),
+            ],
         ];
     }
 
@@ -23,6 +30,7 @@ class ClienteRequest extends FormRequest
     {
         return [
             'nome.required' => 'Preencha o campo nome.',
+            'nome.unique' => 'Já existe um cliente com esse nome.',
         ];
     }
 

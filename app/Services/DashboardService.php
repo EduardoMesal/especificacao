@@ -24,6 +24,7 @@ class DashboardService
                 },
             ])
         ])
+        ->with('usuario')
         ->when($dados['codigo_focco'], fn($q) => $q->where('codigo_focco', $dados['codigo_focco']))
         ->when($dados['serie'], fn($q) => $q->where('serie', 'LIKE', "%{$dados['serie']}%"))
         ->when($dados['status'], fn($q) => $q->where('status', 'LIKE', "%{$dados['status']}%"))
@@ -34,6 +35,11 @@ class DashboardService
         ->when($dados['cliente_nome'], fn($q) =>
             $q->whereHas('pedido.cliente', function ($query) use ($dados) {
                 $query->where('nome', 'LIKE', "%{$dados['cliente_nome']}%");
+            })
+        )
+        ->when($dados['usuario'], fn($q) =>
+            $q->whereHas('usuario', function ($query) use ($dados) {
+                $query->where('nome', 'LIKE', "%{$dados['usuario']}%");
             })
         )
         ->when($dados['criado'] ?? null, function ($q) use ($dados) {

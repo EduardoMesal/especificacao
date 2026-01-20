@@ -18,6 +18,7 @@ class Pedido extends Model
         'nome',
         'cliente_id',
         'criado',
+        'usuario_id',
         'modificado',
         'excluido',
     ];
@@ -25,6 +26,11 @@ class Pedido extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'cliente_id');
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     public function especificacoes()

@@ -35,10 +35,6 @@ class TwoFactorController extends Controller
 
             Auth::login($user);
 
-            // if ($user->tipo == 'adm') {
-            //     return  redirect()->intended("/dashboard");
-            // }
-            
             $request->session()->regenerate();
             return  redirect()->intended("/dashboard");
         }

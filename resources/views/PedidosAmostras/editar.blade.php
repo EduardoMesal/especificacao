@@ -4,6 +4,9 @@
 @section('css')
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-zoom.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-thumbnail.css">
 @endsection
 
 @section('content')
@@ -62,190 +65,197 @@
                                                     name="pedido_id">
                                                     <option></option>
                                                     @foreach($pedidos as $p)
-                                                        <option @if ($p['id'] == $atributoAmostraPedido->pedido_id) selected @endif value="{{ $p['id'] }}">
-                                                            {{$p['nome']}}
-                                                        </option>
+                                                    <option @if ($p['id']==$atributoAmostraPedido->pedido_id) selected @endif value="{{ $p['id'] }}">
+                                                        N° {{$p['nome']}}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                             @foreach($amostra->atributos as $key => $a)
-                                                <input type="hidden" name="amostrasAtributo[{{ $key }}][atributo_id]" value="{{ $a->id }}">
-                                            
-                                                @if($a->tipo == 'multiplos')
-                                                    <div class="col-md-12 clearfix d-flex gap-2 align-itens-center">
-                                                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                            <span>{{ optional($a->atributosAmostrasIdiomas->first())->nome }} @if(optional($a->atributosAmostrasIdiomas->first())->unidade) | {!! optional($a->atributosAmostrasIdiomas->first())->unidade !!} @endif</span>
-                                                        </label>
+                                            <input type="hidden" name="amostrasAtributo[{{ $key }}][atributo_id]" value="{{ $a->id }}">
+
+                                            @if($a->tipo == 'multiplos')
+                                            <div class="col-md-12 clearfix d-flex gap-2 align-itens-center">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span>{{ optional($a->atributosAmostrasIdiomas->first())->nome }} @if(optional($a->atributosAmostrasIdiomas->first())->unidade) | {!! optional($a->atributosAmostrasIdiomas->first())->unidade !!} @endif</span>
+                                                </label>
+                                                <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
+                                                    <i class="bi bi-image-fill"></i>
+                                                </div>
+                                            </div>
+                                            @foreach($a->subAtributos as $sub)
+                                            @php
+                                            $isSubResumo = $sub->pedido->resumo ?? 0;
+                                            @endphp
+                                            <div class="col-md-6 fv-row input-style-1">
+                                                <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
+                                                    <div class="d-flex gap-5 align-items-center">
+                                                        <span>{!! optional($sub->subAtributosAmostrasIdiomas->first())->nome !!}</span>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="amostrasAtributo[{{ $key }}][atributo_multiplo][{{ $loop->index }}][subatributo_id]" value="{{ $sub->id }}" />
+                                                <input type="text" class="form-control form-control-solid textAtributo" placeholder="Preencha o campo valor" name="amostrasAtributo[{{ $key }}][atributo_multiplo][{{ $loop->index }}][conteudo]" value="{{ $sub->pedido->conteudo ?? '' }}" />
+                                                @if(optional($sub->subAtributosAmostrasIdiomas->first())->observacao)
+                                                <div class="observacao mt-2 alert alert-warning mb-0">
+                                                    <label class="d-flex align-items-center fs-6 fw-bold">
+                                                        <span class="">Observação</span>
+                                                    </label>
+                                                    <p class="observacaoDefault italic" style="margin-bottom:0px;">
+                                                        {{ optional($sub->subAtributosAmostrasIdiomas->first())->observacao }}
+                                                    </p>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            <div class="col-md-6 input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span>Observações</span>
+                                                </label>
+                                                <input type="text" class="form-control form-control-solid" placeholder="Preencha a observação" name="amostrasAtributo[{{ $key }}][atributo_multiplo][{{ $loop->index }}][observacao_personalizada]" value="{{ $sub->pedido->observacao_personalizada ?? '' }}" />
+                                            </div>
+                                            @endforeach
+                                            @elseif($a->tipo == 'texto')
+                                            <div class="col-md-6 fv-row input-style-1">
+                                                <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <span>{!! optional($a->atributosAmostrasIdiomas->first())->nome !!}@if(optional($a->atributosAmostrasIdiomas->first())->unidade) | {!! optional($a->atributosAmostrasIdiomas->first())->unidade !!} @endif</span>
                                                         <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
                                                             <i class="bi bi-image-fill"></i>
                                                         </div>
                                                     </div>
-                                                    @foreach($a->subAtributos as $sub)
-                                                        @php
-                                                            $isSubResumo = $sub->pedido->resumo ?? 0;
-                                                        @endphp
-                                                        <div class="col-md-6 fv-row input-style-1">
-                                                            <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
-                                                                <div class="d-flex gap-5 align-items-center">
-                                                                    <span>{!! optional($sub->subAtributosAmostrasIdiomas->first())->nome !!}</span>
-                                                                </div>
-                                                            </div>
-                                                            <input type="hidden" name="amostrasAtributo[{{ $key }}][atributo_multiplo][{{ $loop->index }}][subatributo_id]" value="{{ $sub->id }}" />
-                                                            <input type="text" class="form-control form-control-solid textAtributo" placeholder="Preencha o campo valor" name="amostrasAtributo[{{ $key }}][atributo_multiplo][{{ $loop->index }}][conteudo]" value="{{ $sub->pedido->conteudo ?? '' }}" />
-                                                            @if(optional($sub->subAtributosAmostrasIdiomas->first())->observacao)
-                                                            <div class="observacao mt-2 alert alert-warning mb-0">
-                                                                <label class="d-flex align-items-center fs-6 fw-bold">
-                                                                    <span class="">Observação</span>
-                                                                </label>
-                                                                <p class="observacaoDefault italic" style="margin-bottom:0px;">
-                                                                    {{ optional($sub->subAtributosAmostrasIdiomas->first())->observacao }}
-                                                                </p>
-                                                            </div>
-                                                            @endif
-                                                        </div>
-                                                        <div class="col-md-6 input-style-1">
-                                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                                <span>Observações</span>
-                                                            </label>
-                                                            <input type="text" class="form-control form-control-solid" placeholder="Preencha a observação" name="amostrasAtributo[{{ $key }}][atributo_multiplo][{{ $loop->index }}][observacao_personalizada]" value="{{ $sub->pedido->observacao_personalizada ?? '' }}" />
-                                                        </div>
-                                                    @endforeach
-                                                @elseif($a->tipo == 'texto')
-                                                    <div class="col-md-6 fv-row input-style-1">
-                                                        <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
-                                                            <div class="d-flex gap-2 align-items-center">
-                                                                <span>{!! optional($a->atributosAmostrasIdiomas->first())->nome !!}@if(optional($a->atributosAmostrasIdiomas->first())->unidade) | {!! optional($a->atributosAmostrasIdiomas->first())->unidade !!} @endif</span>
-                                                                <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
-                                                                    <i class="bi bi-image-fill"></i>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <input type="text" class="form-control form-control-solid textAtributo" placeholder="Preencha o campo texto" name="amostrasAtributo[{{ $key }}][conteudo]" value="{{ $a->atributoAmostraPedidos->conteudo ?? '' }}" />
-                                                        @if(optional($a->subAtributos->first()->subAtributosAmostrasIdiomas->first())->observacao)
-                                                        <div class="observacao mt-2 alert alert-warning mb-0">
-                                                            <label class="d-flex align-items-center fs-6 fw-bold">
-                                                                <span class="">Observação</span>
-                                                            </label>
-                                                            <p class="observacaoDefault italic" style="margin-bottom:0px;">
-                                                                {{ optional($a->subAtributos->first()->subAtributosAmostrasIdiomas->first())->observacao }}
-                                                            </p>
-                                                        </div>
-                                                        @endif
-                                                    </div>
-                                                    <div class="col-md-6 input-style-1">
-                                                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                            <span>Observações</span>
-                                                        </label>
-                                                        <input type="text" class="form-control form-control-solid" placeholder="Preencha a observação" name="amostrasAtributo[{{ $key }}][observacao_personalizada]" value="{{ $a->atributoAmostraPedidos->observacao_personalizada ?? '' }}" />
-                                                    </div>
-                                                @elseif($a->tipo == 'selecionavel')
-                                                    <div class="col-md-6 fv-row selectArea input-style-1">
-                                                        <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
-                                                            <div class="d-flex gap-2 align-items-center">
-                                                                <span>{!! optional($a->atributosAmostrasIdiomas->first())->nome !!}@if( optional($a->atributosAmostrasIdiomas->first())->unidade) | {!!  optional($a->atributosAmostrasIdiomas->first())->unidade !!} @endif</span>
-                                                                <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
-                                                                    <i class="bi bi-image-fill"></i>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <select class="form-select form-select-solid selectAtributo"
-                                                            data-control="select2"
-                                                            data-hide-search="true"
-                                                            data-placeholder="Selecionar atributo"
-                                                            name="amostrasAtributo[{{ $key }}][atributo_selecionavel][subatributo_id]">
-                                                            <option></option>
-                                                            @foreach($a->subAtributos as $subA)
-                                                                <option value="{{ $subA->id }}" data-observacao="{{ optional($subA->subAtributosAmostrasIdiomas->first())->observacao }}" 
-                                                                    {{ $subA->id == ($a->atributoAmostraPedidos->sub_atributo_id ?? null) ? 'selected' : '' }}>
-                                                                    {!! optional($subA->subAtributosAmostrasIdiomas->first())->nome !!}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                            <input type="hidden" name="amostrasAtributo[{{ $key }}][atributo_selecionavel][old]" 
-                                                            value="{{ $a->atributoAmostraPedidos->sub_atributo_id ?? '' }}">
-                                                            @php
-                                                                $subAtributo = optional($a->subAtributos)
-                                                                    ->where('id', optional($a->atributoAmostraPedidos)->sub_atributo_id)
-                                                                    ->first();
-
-                                                                $hasObs = optional(
-                                                                    optional($subAtributo?->subAtributosAmostrasIdiomas()
-                                                                        ->where('idioma_id', 1)
-                                                                        ->first())
-                                                                )->observacao ?? '';
-                                                            @endphp
-                                                        <div class="observacao mt-2 {{$hasObs ? 'alert alert-warning' : ''}}">
-                                                            @if($hasObs)
-                                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                                    <span>Observação</span>
-                                                                </label>
-                                                                <p class="observacaoText italic">{!! $hasObs !!}</p>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 input-style-1">
-                                                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                            <span>Observações</span>
-                                                        </label>
-                                                        <input type="text" class="form-control form-control-solid" placeholder="Preencha a observação" name="amostrasAtributo[{{ $key }}][observacao_personalizada]" value="{{ $a->atributoAmostraPedidos->observacao_personalizada ?? '' }}" />
-                                                    </div>
+                                                </div>
+                                                <input type="text" class="form-control form-control-solid textAtributo" placeholder="Preencha o campo texto" name="amostrasAtributo[{{ $key }}][conteudo]" value="{{ $a->atributoAmostraPedidos->conteudo ?? '' }}" />
+                                                @if(optional($a->subAtributos->first()->subAtributosAmostrasIdiomas->first())->observacao)
+                                                <div class="observacao mt-2 alert alert-warning mb-0">
+                                                    <label class="d-flex align-items-center fs-6 fw-bold">
+                                                        <span class="">Observação</span>
+                                                    </label>
+                                                    <p class="observacaoDefault italic" style="margin-bottom:0px;">
+                                                        {{ optional($a->subAtributos->first()->subAtributosAmostrasIdiomas->first())->observacao }}
+                                                    </p>
+                                                </div>
                                                 @endif
-                                                <div class="modal fade modalImagem" id="modalImagem--{{$a->id}}" role="dialog">
-                                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title align-self-center">Imagens</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body input-style-1">
-                                                                <div class="row">
-                                                                    <div class="col-md-12 fv-row ckEditorView">
-                                                                        <div>
-                                                                            <input type="file" 
-                                                                                class="filepondAjax" 
-                                                                                name="file"
-                                                                                data-atributo-id="{{ $a->id }}" 
-                                                                                data-indice-id="{{ $atributoAmostraPedido->id }}" 
-                                                                                multiple>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div style="display: none;" class="form__error errorFilepond"></div>
-                                                                    <div style="padding:0px 10px; margin-bottom: 30px;">
-                                                                        <div class="alert alert-warning" style="margin-bottom: 0px;" role="alert">A imagem deve estar no formato jpg, png ou jpeg. Não exceder 3MB.</div>
-                                                                    </div>
-                                                                    <div class="schedules-area pt-7 imgsAmostra">
-                                                                        <div class="row" id="contentSortableProjects">
-                                                                            @if(count($a->imagensPedido) > 0)
-                                                                            @foreach ($a->imagensPedido as $key => $item)
-                                                                                <div class="col-md-12 col-xxl-6 mb-2 projectContent" id="img-{{ $item->id }}">
-                                                                                    <div class="card-style">
-                                                                                        <div class="card-body d-flex flex-center flex-column">
-                                                                                            <img class="imgProject" src="{{ mixAssets('assets/img/amostras/atributos/pedido/' . $item->imagem) }}"/>
-                                                                                            <div class="d-flex justify-content-end gap-2 align-items-center" style="width: 100%;">
-                                                                                                <button 
-                                                                                                    class="btn btn-sm btn-secondary deleteBt btn-secondary-delete btn-delete-imagem" 
-                                                                                                    type="button"
-                                                                                                    data-id="{{ $item->id }}">
-                                                                                                    <i class="bi bi-trash-fill"></i>Excluir
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            @endforeach
-                                                                            @else
-                                                                            <p>Nenhuma imagem inserida!</p>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
-                                                            </div>
+                                            </div>
+                                            <div class="col-md-6 input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span>Observações</span>
+                                                </label>
+                                                <input type="text" class="form-control form-control-solid" placeholder="Preencha a observação" name="amostrasAtributo[{{ $key }}][observacao_personalizada]" value="{{ $a->atributoAmostraPedidos->observacao_personalizada ?? '' }}" />
+                                            </div>
+                                            @elseif($a->tipo == 'selecionavel')
+                                            <div class="col-md-6 fv-row selectArea input-style-1">
+                                                <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <span>{!! optional($a->atributosAmostrasIdiomas->first())->nome !!}@if( optional($a->atributosAmostrasIdiomas->first())->unidade) | {!! optional($a->atributosAmostrasIdiomas->first())->unidade !!} @endif</span>
+                                                        <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
+                                                            <i class="bi bi-image-fill"></i>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <select class="form-select form-select-solid selectAtributo"
+                                                    data-control="select2"
+                                                    data-hide-search="true"
+                                                    data-placeholder="Selecionar atributo"
+                                                    name="amostrasAtributo[{{ $key }}][atributo_selecionavel][subatributo_id]">
+                                                    <option></option>
+                                                    @foreach($a->subAtributos as $subA)
+                                                    <option value="{{ $subA->id }}" data-observacao="{{ optional($subA->subAtributosAmostrasIdiomas->first())->observacao }}"
+                                                        {{ $subA->id == ($a->atributoAmostraPedidos->sub_atributo_id ?? null) ? 'selected' : '' }}>
+                                                        {!! optional($subA->subAtributosAmostrasIdiomas->first())->nome !!}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" name="amostrasAtributo[{{ $key }}][atributo_selecionavel][old]"
+                                                    value="{{ $a->atributoAmostraPedidos->sub_atributo_id ?? '' }}">
+                                                @php
+                                                $subAtributo = optional($a->subAtributos)
+                                                ->where('id', optional($a->atributoAmostraPedidos)->sub_atributo_id)
+                                                ->first();
+
+                                                $hasObs = optional(
+                                                optional($subAtributo?->subAtributosAmostrasIdiomas()
+                                                ->where('idioma_id', 1)
+                                                ->first())
+                                                )->observacao ?? '';
+                                                @endphp
+                                                <div class="observacao mt-2 {{$hasObs ? 'alert alert-warning' : ''}}">
+                                                    @if($hasObs)
+                                                    <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                        <span>Observação</span>
+                                                    </label>
+                                                    <p class="observacaoText italic">{!! $hasObs !!}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 input-style-1">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span>Observações</span>
+                                                </label>
+                                                <input type="text" class="form-control form-control-solid" placeholder="Preencha a observação" name="amostrasAtributo[{{ $key }}][observacao_personalizada]" value="{{ $a->atributoAmostraPedidos->observacao_personalizada ?? '' }}" />
+                                            </div>
+                                            @endif
+                                            <div class="modal fade modalImagem" id="modalImagem--{{$a->id}}" role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title align-self-center">Imagens</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body input-style-1">
+                                                            <div class="row">
+                                                                <div class="col-md-12 fv-row ckEditorView">
+                                                                    <div>
+                                                                        <input type="file"
+                                                                            class="filepondAjax"
+                                                                            name="file"
+                                                                            data-atributo-id="{{ $a->id }}"
+                                                                            data-indice-id="{{ $atributoAmostraPedido->id }}"
+                                                                            multiple>
+                                                                    </div>
+                                                                </div>
+                                                                <div style="display: none;" class="form__error errorFilepond"></div>
+                                                                <div style="padding:0px 10px; margin-bottom: 30px;">
+                                                                    <div class="alert alert-warning" style="margin-bottom: 0px;" role="alert">A imagem deve estar no formato jpg, png ou jpeg. Não exceder 3MB.</div>
+                                                                </div>
+                                                                <div class="schedules-area pt-7 imgsAmostra">
+                                                                    <div class="row galleryPedidoModal" id="contentSortableProjects">
+                                                                        @if(count($a->imagensPedido) > 0)
+                                                                            @foreach ($a->imagensPedido as $key => $item)
+                                                                            <div class="col-md-12 col-xxl-6 mb-2 projectContent" id="img-{{ $item->id }}">
+                                                                                <div class="card-style">
+                                                                                    <div class="card-body d-flex flex-center flex-column">
+                                                                                        <a
+                                                                                            href="{{ mixAssets('assets/img/amostras/atributos/pedido/' . $item->imagem) }}"
+                                                                                            class="light-item"
+                                                                                            data-sub-html="Imagem {{ $key + 1 }}">
+                                                                                            <img
+                                                                                                class="imgProject img-fluid"
+                                                                                                src="{{ mixAssets('assets/img/amostras/atributos/pedido/' . $item->imagem) }}" />
+                                                                                        </a>
+                                                                                        <div class="d-flex justify-content-end gap-2 align-items-center" style="width: 100%;">
+                                                                                            <button
+                                                                                                class="btn btn-sm btn-secondary deleteBt btn-secondary-delete btn-delete-imagem"
+                                                                                                type="button"
+                                                                                                data-id="{{ $item->id }}">
+                                                                                                <i class="bi bi-trash-fill"></i>Excluir
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            @endforeach
+                                                                        @else
+                                                                        <p>Nenhuma imagem inserida!</p>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             @endforeach
                                             <div class="col-md-12 fv-row imgArea">
                                                 <input type="file" class="filepond" name="imagens[]" multiple>
@@ -279,23 +289,37 @@
                             <div class="schedules-area pt-7 imgsAmostra">
                                 <div class="row" id="contentSortableProjects">
                                     @if(count($atributoAmostraPedido->imagens) > 0)
+                                    <div id="galleryPedido" class="row">
                                         @foreach ($atributoAmostraPedido->imagens as $key => $item)
                                         <div class="col-md-4 col-xxl-3 mb-4 projectContent">
                                             <div class="card-style">
                                                 <div class="card-body d-flex flex-center flex-column">
-                                                    <img class="imgProject" src="{{ mixAssets('assets/img/amostras/pedido/' . $item->imagem) }}"/>
-                                                    <div class="d-flex justify-content-end gap-2 align-items-center " style="width: 100%;">
-                                                        <form class="responseAjax" action="{{route('PedidosAmostras.excluir_imagem', ['id' => $item->id])}}" method="post">
+
+                                                    <a
+                                                        href="{{ mixAssets('assets/img/amostras/pedido/' . $item->imagem) }}"
+                                                        class="light-item"
+                                                        data-sub-html="Imagem {{ $key + 1 }}">
+                                                        <img
+                                                            class="imgProject img-fluid"
+                                                            src="{{ mixAssets('assets/img/amostras/pedido/' . $item->imagem) }}" />
+                                                    </a>
+
+                                                    <div class="d-flex justify-content-end gap-2 align-items-center mt-2" style="width: 100%;">
+                                                        <form class="responseAjax"
+                                                            action="{{ route('PedidosAmostras.excluir_imagem', ['id' => $item->id]) }}"
+                                                            method="post">
                                                             @csrf
                                                             <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
                                                                 <i class="bi bi-trash-fill"></i> Excluir
                                                             </button>
                                                         </form>
                                                     </div>
+
                                                 </div>
                                             </div>
                                         </div>
                                         @endforeach
+                                    </div>
                                     @else
                                     <p>Nenhuma imagem inserida!</p>
                                     @endif
@@ -315,8 +339,23 @@
 <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="{{ mixAssets('/assets/js/closeSave.js') }}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.js"></script>
+
 <script>
     $(document).ready(function() {
+        const gallery = document.getElementById('galleryPedido');
+
+        if (gallery || galleryModal) {
+            lightGallery(gallery, {
+                selector: 'a.light-item',
+                plugins: [lgZoom, lgThumbnail],
+                speed: 400,
+                download: false,
+            });
+        }
 
         $(document).on('change', '.selectAtributo', function() {
             let selectedOption = $(this).find('option:selected');
@@ -352,16 +391,17 @@
 
         const modal = new bootstrap.Modal(modalEl);
 
-        modalEl.addEventListener('show.bs.modal', function () {
+        modalEl.addEventListener('show.bs.modal', function() {
             const url = new URL(window.location);
+            alert('a')
             url.searchParams.set('modal', 'open');
             history.pushState({}, '', url);
         });
 
-        modalEl.addEventListener('hidden.bs.modal', function () {
+        modalEl.addEventListener('hidden.bs.modal', function() {
             handleModalClose();
         });
-        
+
         function handleModalClose() {
             const url = new URL(window.location);
             url.searchParams.delete('modal');
@@ -374,12 +414,27 @@
 
     let modalAbertoId = null;
 
-    document.addEventListener('shown.bs.modal', function (event) {
+    document.addEventListener('shown.bs.modal', function(event) {
         const modal = event.target;
-        modalAbertoId = modal.id;  
+        modalAbertoId = modal.id;
+
+        const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
+
+        galleriesModal.forEach(gallery => {
+            if (!gallery.dataset.lgInit) {
+                lightGallery(gallery, {
+                    selector: 'a.light-item',
+                    plugins: [lgZoom, lgThumbnail],
+                    speed: 400,
+                    download: false,
+                });
+
+                gallery.dataset.lgInit = "true";
+            }
+        });
     });
 
-    $('.form__error').click(function () {
+    $('.form__error').click(function() {
         $(this).slideUp();
         $('.errorFilepond').css({
             'display': 'none',
@@ -410,7 +465,7 @@
                     ondata: (formData) => {
                         formData.append('atributo_id', atributoId);
                         formData.append('indice_id', indiceId);
-                       
+
                         if (modalAbertoId) {
                             const modalAtual = document.getElementById(modalAbertoId);
                             const errorDiv = modalAtual.querySelector('.errorFilepond');
@@ -453,7 +508,7 @@
                             return 'Erro inesperado.';
                         }
                     }
-                    },
+                },
                 revert: null
             },
             storeAsFile: false
@@ -461,7 +516,7 @@
     });
 
 
-    $(document).on('click', '.btn-delete-imagem', function () {
+    $(document).on('click', '.btn-delete-imagem', function() {
         const imagemId = $(this).data('id');
 
         Swal.fire({
@@ -491,7 +546,7 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             $(`#img-${imagemId}`).remove();
 
@@ -506,7 +561,7 @@
                             Swal.fire('Erro!', 'Não foi possível excluir a imagem.', 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         Swal.fire('Erro!', 'Erro inesperado ao tentar excluir.', 'error');
                     }
                 });

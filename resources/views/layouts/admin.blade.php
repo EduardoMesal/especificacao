@@ -139,6 +139,7 @@
 						</li>
 					</ul>
 				</li>
+				@if($loggedUser->tipo == 'adm')
 				<span class="divider">
 					<hr />
 				</span>
@@ -208,6 +209,7 @@
 						</li>
 					</ul>
 				</li>
+				@endif
 				<span class="divider">
 					<hr />
 				</span>
@@ -355,12 +357,12 @@
 											<div>
 												<h6 class="fw-500">{{ $loggedUser->nome }}</h6>
 												<p class="mb-0">
-													@if($loggedUser->tipo == 'gestor_loja')
-													Gestor
+													@if($loggedUser->tipo == 'vendas')
+														Vendas
 													@elseif($loggedUser->tipo == 'colaborador_loja')
-													Colaborador
+														Colaborador
 													@elseif($loggedUser->tipo == 'adm')
-													Admin
+														Admin
 													@endif
 												</p>
 											</div>
@@ -480,21 +482,19 @@
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			@if(session('success'))
-			Swal.fire({
-				icon: 'success',
-				title: 'Sucesso',
-				text: '{{ session('
-				success ') }}'
-			});
-			@endif
+				Swal.fire({
+					icon: 'success',
+					title: 'Sucesso',
+					text: '{{ session('success') }}'
+				});
+				@endif
 
-			@if(session('error'))
-			Swal.fire({
-				icon: 'error',
-				title: 'Erro',
-				text: '{{ session('
-				error ') }}'
-			});
+				@if(session('error'))
+				Swal.fire({
+					icon: 'error',
+					title: 'Erro',
+					text: '{{ session('error') }}'
+				});
 			@endif
 		});
 

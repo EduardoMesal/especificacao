@@ -1634,11 +1634,17 @@ div.dataTables_wrapper div.dataTables_filter {
 }
 .daterangepicker {
   width: fit-content !important;
-  left: 50% !important;
   top: 50% !important;
+  left: 50% !important;
   position: fixed !important;
-  transform: translate(-16%, -50%) !important;
-
+  transform: translate(-50%, -50%);
+}
+.lg-container.lg-show{
+  position: relative;
+  z-index: 1065 !important;
+}
+.lg-counter span{
+  color: white !important;
 }
 .daterangepicker::before, .daterangepicker:after{
   display: none !important;
@@ -1764,7 +1770,7 @@ div.dataTables_wrapper div.dataTables_filter {
   right: -999px;
   background-color: white;
   overflow-x: hidden;
-  padding-top: 60px;
+  padding: 30px 0px;
   transition: 0.8s;
   transition: ease-in-out visibility 0.8s, right 0.8s;
 }

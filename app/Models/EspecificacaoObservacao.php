@@ -17,6 +17,8 @@ class EspecificacaoObservacao extends Model
     protected $fillable = [
         'conteudo',
         'especificacao_id',
+        'revisao_id',
+        'observacao_anterior_id',
         'criado',
         'modificado',
         'excluido',
@@ -25,6 +27,11 @@ class EspecificacaoObservacao extends Model
     public function especificacao()
     {
         return $this->belongsTo(Especificacao::class, 'especificacao_id');
+    }
+
+    public function observacaoAnterior()
+    {
+        return $this->belongsTo(self::class, 'observacao_anterior_id');
     }
 }
 

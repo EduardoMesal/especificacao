@@ -64,7 +64,7 @@
                                                     <option></option>
                                                     @foreach($pedidos as $p)
                                                         <option value="{{ $p['id'] }}">
-                                                            {{$p['nome']}}
+                                                            N° {{$p['nome']}}
                                                         </option>
                                                     @endforeach
                                                 </select>

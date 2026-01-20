@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class MaquinaRequest extends FormRequest
 {
@@ -14,8 +15,19 @@ class MaquinaRequest extends FormRequest
 
     public function rules()
     {
+        $maquinaId = $this->route('id');
+
         return [
-            'nome' => 'required',
+            'nome' => [
+                'required',
+                 Rule::unique('maquinas_idiomas', 'nome')
+                    ->whereIn('maquina_id', function ($query) {
+                        $query->select('id')
+                            ->from('maquinas')
+                            ->whereNull('excluido');
+                    })
+                    ->ignore($maquinaId, 'maquina_id'),
+            ],
             'ncm' => 'required',
             'equipamento_id' => 'required|exists:equipamento_origem,id',
             'caracteristicas' => 'required|array',
@@ -27,6 +39,7 @@ class MaquinaRequest extends FormRequest
     {
         return [
             'nome.required' => 'Preencha o campo nome.',
+            'nome.unique' => 'Já existe uma máquina com esse nome.',
             'ncm.required' => 'Preencha o campo ncm.',
             'equipamento_id.required' => 'Preencha o campo equipamento de origem.',
             'equipamento_id.exists' => 'O equipamento de origem selecionado não existe.',

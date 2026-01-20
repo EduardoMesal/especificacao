@@ -40,17 +40,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('segunda-etapa', [TwoFactorController::class, 'verifyCode'])->name('segunda-etapa.verify');
 });
 
-Route::middleware(['auth', '2fa'])->group(function () {
+// Route::middleware(['auth', '2fa'])->group(function () {
     //notificacoes
-    Route::get('/notificacoes', [NotificacoesController::class, 'index'])->name('Notifications');
-    Route::post('/notificacao/action', [NotificacoesController::class, 'action'])->name('Notification.action');
-    Route::post('/{marca}/{slug}/notificacao/{id}', [NotificacoesController::class, 'actionSingle'])->name('Notification.action.single');
-    Route::get('/notificacao/ler-todas', [NotificacoesController::class, 'readAll'])->name('Notification.read.all');
-
-    Route::get('/perfil', [UsuariosController::class, 'perfil'])->name('Usuario.perfil');
-    Route::post('/perfil', [UsuariosController::class, 'perfil_action'])->name('Usuario.perfil_action');
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-});
+    // Route::get('/notificacoes', [NotificacoesController::class, 'index'])->name('Notifications');
+    // Route::post('/notificacao/action', [NotificacoesController::class, 'action'])->name('Notification.action');
+    // Route::post('/{marca}/{slug}/notificacao/{id}', [NotificacoesController::class, 'actionSingle'])->name('Notification.action.single');
+    // Route::get('/notificacao/ler-todas', [NotificacoesController::class, 'readAll'])->name('Notification.read.all');
+    
+// });
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'login_action'])->name('login_action');
@@ -59,7 +56,11 @@ Route::post('/recuperar/senha', [UsuariosController::class, 'forgotPasswordActio
 Route::get('/recuperar/senha/{token}', [UsuariosController::class, 'showResetForm'])->name('ShowResetForm');
 Route::post('/resetar/senha', [UsuariosController::class, 'resetpassword'])->name('Resetpassword');
 
-Route::middleware(['adm', '2fa'])->group(function () {
+Route::middleware(['auth', '2fa'])->group(function () {
+    Route::get('/perfil', [UsuariosController::class, 'perfil'])->name('Usuario.perfil');
+    Route::post('/perfil', [UsuariosController::class, 'perfil_action'])->name('Usuario.perfil_action');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
     Route::post('/upload-imagem', [DashboardController::class, 'uploadImage'])->name('Upload.imagem');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard.index');
     Route::post('/especificacoes/revisao/', [EspecificacoesController::class, 'revisao'])->name('Especificacoes.revisao');
@@ -113,49 +114,54 @@ Route::middleware(['adm', '2fa'])->group(function () {
         Route::post('/excluir/{id}', [EquipamentosController::class, 'excluir'])->name('Equipamentos.excluir');
     });
 
-    Route::prefix('/caracteristicas')->group(function () {
-        Route::get('/', [CaracteristicasController::class, 'index'])->name('Caracteristicas.index');
-        Route::get('/criar', [CaracteristicasController::class, 'criar'])->name('Caracteristicas.criar');
-        Route::post('/criar', [CaracteristicasController::class, 'criar_action'])->name('Caracteristicas.criar_action');
-        Route::get('/editar/{id}', [CaracteristicasController::class, 'editar'])->name('Caracteristicas.editar');
-        Route::post('/editar/{id}', [CaracteristicasController::class, 'editar_action'])->name('Caracteristicas.editar_action');
-        Route::post('/excluir/{id}', [CaracteristicasController::class, 'excluir'])->name('Caracteristicas.excluir');
-        Route::get('/copiar/{id}', [CaracteristicasController::class, 'copiar'])->name('Caracteristicas.copiar');
-    });
+    Route::middleware(['adm'])->group(function () {
+        Route::prefix('/caracteristicas')->group(function () {
+            Route::get('/', [CaracteristicasController::class, 'index'])->name('Caracteristicas.index');
+            Route::get('/criar', [CaracteristicasController::class, 'criar'])->name('Caracteristicas.criar');
+            Route::post('/criar', [CaracteristicasController::class, 'criar_action'])->name('Caracteristicas.criar_action');
+            Route::get('/editar/{id}', [CaracteristicasController::class, 'editar'])->name('Caracteristicas.editar');
+            Route::post('/editar/{id}', [CaracteristicasController::class, 'editar_action'])->name('Caracteristicas.editar_action');
+            Route::post('/excluir/{id}', [CaracteristicasController::class, 'excluir'])->name('Caracteristicas.excluir');
+            Route::get('/copiar/{id}', [CaracteristicasController::class, 'copiar'])->name('Caracteristicas.copiar');
+        });
 
-    Route::prefix('/amostras')->group(function () {
-        Route::get('/', [AmostrasController::class, 'index'])->name('Amostras.index');
-        Route::get('/criar', [AmostrasController::class, 'criar'])->name('Amostras.criar');
-        Route::get('/criar/atributo/{id}', [AmostrasController::class, 'criar_atributo'])->name('Amostras.criar_atributo');
-        Route::post('/criar', [AmostrasController::class, 'criar_action'])->name('Amostras.criar_action');
-        Route::post('/criar/atributo/{id}', [AmostrasController::class, 'criar_atributo_action'])->name('Amostras.criar_atributo_action');
-        Route::get('/editar/{id}', [AmostrasController::class, 'editar'])->name('Amostras.editar');
-        Route::get('/editar/amostra/atributo/{id}', [AmostrasController::class, 'editar_atributo'])->name('Amostras.editar_atributo');
-        Route::post('/editar/{id}', [AmostrasController::class, 'editar_action'])->name('Amostras.editar_action');
-        Route::post('/editar/amostra/atributo/{id}', [AmostrasController::class, 'editar_atributo_action'])->name('Amostras.editar_atributo_action');
-        Route::post('/excluir/{id}', [AmostrasController::class, 'excluir'])->name('Amostras.excluir');
-        Route::post('/atributo/excluir/{id}', [AmostrasController::class, 'excluir_amostra_atributo'])->name('Amostras.excluir_amostra_atributo');
-        Route::post('/imagem/excluir/{id}', [AmostrasController::class, 'excluir_imagem'])->name('Amostras.excluir_imagem');
-        Route::post('/upload-atributo-imagens', [AmostrasController::class, 'upload_atributo_imagens'])->name('Amostras.atributo_imagem');
-        Route::post('/excluir-atributo-imagem/{id}', [AmostrasController::class, 'excluir_atributo_imagens'])->name('Amostras.atributo_excluir_imagem');
-        Route::post('/copiar', [AmostrasController::class, 'copiar_action'])->name('Amostras.copiar_amostra');
-    });
+        Route::prefix('/amostras')->group(function () {
+            Route::get('/', [AmostrasController::class, 'index'])->name('Amostras.index');
+            Route::get('/criar', [AmostrasController::class, 'criar'])->name('Amostras.criar');
+            Route::get('/criar/atributo/{id}', [AmostrasController::class, 'criar_atributo'])->name('Amostras.criar_atributo');
+            Route::post('/criar', [AmostrasController::class, 'criar_action'])->name('Amostras.criar_action');
+            Route::post('/criar/atributo/{id}', [AmostrasController::class, 'criar_atributo_action'])->name('Amostras.criar_atributo_action');
+            Route::get('/editar/{id}', [AmostrasController::class, 'editar'])->name('Amostras.editar');
+            Route::get('/editar/amostra/atributo/{id}', [AmostrasController::class, 'editar_atributo'])->name('Amostras.editar_atributo');
+            Route::post('/editar/{id}', [AmostrasController::class, 'editar_action'])->name('Amostras.editar_action');
+            Route::post('/editar/amostra/atributo/{id}', [AmostrasController::class, 'editar_atributo_action'])->name('Amostras.editar_atributo_action');
+            Route::post('/excluir/{id}', [AmostrasController::class, 'excluir'])->name('Amostras.excluir');
+            Route::post('/atributo/excluir/{id}', [AmostrasController::class, 'excluir_amostra_atributo'])->name('Amostras.excluir_amostra_atributo');
+            Route::post('/imagem/excluir/{id}', [AmostrasController::class, 'excluir_imagem'])->name('Amostras.excluir_imagem');
+            Route::post('/upload-atributo-imagens', [AmostrasController::class, 'upload_atributo_imagens'])->name('Amostras.atributo_imagem');
+            Route::post('/excluir-atributo-imagem/{id}', [AmostrasController::class, 'excluir_atributo_imagens'])->name('Amostras.atributo_excluir_imagem');
+            Route::post('/copiar', [AmostrasController::class, 'copiar_action'])->name('Amostras.copiar_amostra');
+        });
 
-    Route::prefix('/produtos')->group(function () {
-        Route::get('/', [ProdutosController::class, 'index'])->name('Produtos.index');
-        Route::get('/criar', [ProdutosController::class, 'criar'])->name('Produtos.criar');
-        Route::get('/criar/atributo/{id}', [ProdutosController::class, 'criar_atributo'])->name('Produtos.criar_atributo');
-        Route::post('/criar', [ProdutosController::class, 'criar_action'])->name('Produtos.criar_action');
-        Route::post('/criar/atributo/{id}', [ProdutosController::class, 'criar_atributo_action'])->name('Produtos.criar_atributo_action');
-        Route::get('/editar/{id}', [ProdutosController::class, 'editar'])->name('Produtos.editar');
-        Route::get('/editar/produto/atributo/{id}', [ProdutosController::class, 'editar_atributo'])->name('Produtos.editar_atributo');
-        Route::post('/editar/{id}', [ProdutosController::class, 'editar_action'])->name('Produtos.editar_action');
-        Route::post('/editar/produto/atributo/{id}', [ProdutosController::class, 'editar_atributo_action'])->name('Produtos.editar_atributo_action');
-        Route::post('/excluir/{id}', [ProdutosController::class, 'excluir'])->name('Produtos.excluir');
-        Route::post('/atributo/excluir/{id}', [ProdutosController::class, 'excluir_produto_atributo'])->name('Produtos.excluir_produto_atributo');
-        Route::post('/imagem/excluir/{id}', [ProdutosController::class, 'excluir_imagem'])->name('Produtos.excluir_imagem');
-        Route::post('/upload-atributo-imagens', [ProdutosController::class, 'upload_atributo_imagens'])->name('Produtos.atributo_imagem');
-        Route::post('/excluir-atributo-imagem/{id}', [ProdutosController::class, 'excluir_atributo_imagens'])->name('Produtos.atributo_excluir_imagem');
+        Route::prefix('/produtos')->group(function () {
+            Route::get('/', [ProdutosController::class, 'index'])->name('Produtos.index');
+            Route::get('/criar', [ProdutosController::class, 'criar'])->name('Produtos.criar');
+            Route::get('/criar/atributo/{id}', [ProdutosController::class, 'criar_atributo'])->name('Produtos.criar_atributo');
+            Route::post('/criar', [ProdutosController::class, 'criar_action'])->name('Produtos.criar_action');
+            Route::post('/criar/atributo/{id}', [ProdutosController::class, 'criar_atributo_action'])->name('Produtos.criar_atributo_action');
+            Route::get('/editar/{id}', [ProdutosController::class, 'editar'])->name('Produtos.editar');
+            Route::get('/editar/produto/atributo/{id}', [ProdutosController::class, 'editar_atributo'])->name('Produtos.editar_atributo');
+            Route::post('/editar/{id}', [ProdutosController::class, 'editar_action'])->name('Produtos.editar_action');
+            Route::post('/editar/produto/atributo/{id}', [ProdutosController::class, 'editar_atributo_action'])->name('Produtos.editar_atributo_action');
+            Route::post('/excluir/{id}', [ProdutosController::class, 'excluir'])->name('Produtos.excluir');
+            Route::post('/atributo/excluir/{id}', [ProdutosController::class, 'excluir_produto_atributo'])->name('Produtos.excluir_produto_atributo');
+            Route::post('/imagem/excluir/{id}', [ProdutosController::class, 'excluir_imagem'])->name('Produtos.excluir_imagem');
+            Route::post('/upload-atributo-imagens', [ProdutosController::class, 'upload_atributo_imagens'])->name('Produtos.atributo_imagem');
+            Route::post('/excluir-atributo-imagem/{id}', [ProdutosController::class, 'excluir_atributo_imagens'])->name('Produtos.atributo_excluir_imagem');
+        });
+
+        Route::get('/usuarios', [UsuariosController::class, 'index'])->name('Usuario.index');
+
     });
 
     Route::prefix('/especificacoes-amostras')->group(function () {
@@ -233,17 +239,19 @@ Route::middleware(['adm', '2fa'])->group(function () {
         Route::post('/editar/{id}', [ClientesController::class, 'editar_action'])->name('Clientes.editar_action');
         Route::get('/criar', [ClientesController::class, 'criar'])->name('Clientes.criar');
         Route::post('/criar', [ClientesController::class, 'criar_action'])->name('Clientes.criar_action');
-        Route::post('/enviar-mensagem/{id}', [WhatsappController::class, 'sendMessage'])->name('Clientes.mensagem');
-        Route::post('/enviar-mensagens', [WhatsappController::class, 'sendMultipeMessage'])->name('Clientes.mensagens');
+        // Route::post('/enviar-mensagem/{id}', [WhatsappController::class, 'sendMessage'])->name('Clientes.mensagem');
+        // Route::post('/enviar-mensagens', [WhatsappController::class, 'sendMultipeMessage'])->name('Clientes.mensagens');
         Route::post('/excluir/{id}', [ClientesController::class, 'excluir'])->name('Clientes.excluir');
     });
 
-    Route::get('/usuarios', [UsuariosController::class, 'index'])->name('Usuario.index');
+
     Route::prefix('/usuario')->group(function() {
-        Route::get('/criar', [UsuariosController::class, 'criar'])->name('Usuario.criar');
-        Route::post('/criar', [UsuariosController::class, 'criar_action'])->name('Usuario.criar_action');
+        Route::middleware(['adm'])->group(function () {
+            Route::get('/criar', [UsuariosController::class, 'criar'])->name('Usuario.criar');
+            Route::post('/criar', [UsuariosController::class, 'criar_action'])->name('Usuario.criar_action');
+            Route::post('/excluir/{id}', [UsuariosController::class, 'excluir'])->name('Usuario.excluir');
+        });
         Route::get('/editar/{id}', [UsuariosController::class, 'editar'])->name('Usuario.editar');
         Route::post('/editar/{id}', [UsuariosController::class, 'editar_action'])->name('Usuario.editar_action');
-        Route::post('/excluir/{id}', [UsuariosController::class, 'excluir'])->name('Usuario.excluir');
     });
 });

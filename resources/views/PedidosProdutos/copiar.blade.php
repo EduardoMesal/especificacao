@@ -63,7 +63,7 @@
                                                     <option></option>
                                                     @foreach($pedidos as $p)
                                                         <option @if ($p['id'] == $atributoProdutoPedido->pedido_id) selected @endif value="{{ $p['id'] }}">
-                                                            {{$p['nome']}}
+                                                            N° {{$p['nome']}}
                                                         </option>
                                                     @endforeach
                                                 </select>

@@ -33,7 +33,7 @@
                                                 <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar pedido" name="pedido_id">
                                                     <option></option>
                                                     @foreach($pedidos as $item)
-                                                        <option value="{{$item->id}}">{!! $item->id !!} - {!! $item->nome !!}</option>
+                                                        <option value="{{$item->id}}">N° {!! $item->nome !!}</option>
                                                     @endforeach
                                                 </select>
                                             </div>

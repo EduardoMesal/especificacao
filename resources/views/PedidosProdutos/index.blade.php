@@ -63,9 +63,9 @@
                                         <h6>Cliente</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Pedido</h6>
+                                        <h6>N° pedido</h6>
                                     </th>
-                                    <th class="th-info text-end">
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -129,6 +129,10 @@
                                             </button>
                                             <div class="hidden modal-options-menu" data-modal="modalOpenFilterEspcificacoes{{$item['id']}}">
                                                 <ul class="modal-options">
+                                                    <li class="dropdown-item">
+                                                        <a class="link-modal" href="{{route('PedidosProdutos.copiar', ['id' => $item['id']])}}"> <i class="bi bi-copy"></i> Copiar
+                                                        </a>
+                                                    </li>
                                                     <li class="dropdown-item">
                                                         <a class="link-modal" href="{{route('PedidosProdutos.editar', ['id' => $item['id']])}}"> <i class="bi bi-pencil"></i> Editar
                                                         </a>

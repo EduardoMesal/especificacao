@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PedidosAmostraRequest;
-use App\Models\AtributoAmostraIndicePedido;
+use App\Models\AtributoProdutoIndicePedido;
+use App\Models\EspecificacaoProdutoPedido;
 use App\Models\ImagemAmostraPedido;
 use App\Models\ImagemAtributoProdutoPedido;
 use App\Models\Produto;
@@ -352,11 +353,13 @@ class PedidosProdutosController extends Controller
 
         try {
 
-            AtributoAmostraIndicePedido::where('id', $id)->first(); 
+            AtributoProdutoIndicePedido::where('id', $id)->first(); 
     
-            $deleteDefaultService->remove(new AtributoAmostraIndicePedido(), 'id', null, $id, null);
+            $deleteDefaultService->remove(new AtributoProdutoIndicePedido(), 'id', null, $id, null);
 
-           return response()->json([
+            EspecificacaoProdutoPedido::where('atributo_produto_indice_pedido_id', $id)->delete();
+
+            return response()->json([
                 'success' => true,
                 'title' => 'Feito',
                 'icon' => 'success',

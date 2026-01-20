@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PedidosAmostraRequest;
 use App\Models\AtributoAmostraIndicePedido;
+use App\Models\EspecificacaoAmostraPedido;
 use App\Models\ImagemAmostraPedido;
 use App\Models\ImagemAtributoAmostraPedido;
 use Illuminate\Http\Request;
@@ -354,6 +355,8 @@ class PedidosAmostrasController extends Controller
             AtributoAmostraIndicePedido::where('id', $id)->first(); 
     
             $deleteDefaultService->remove(new AtributoAmostraIndicePedido(), 'id', null, $id, null);
+
+            EspecificacaoAmostraPedido::where('atributo_amostra_indice_pedido_id', $id)->delete();
 
            return response()->json([
                 'success' => true,

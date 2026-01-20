@@ -842,7 +842,7 @@ $(document).ready(function () {
 	});
 
 	//fechar closeSide
-	$(document).on('click', function (event) {
+	$(document).on('dblclick', function (event) {
 		if (!$(event.target).closest('.sidenav, .openSide, .ranges, .daterangepicker, .drp-calendar, .prev, .next, .select2-search__field').length) {
 			if ($('.sidenav').hasClass('sidenavAcitve')) {
 				$('.sidenav').removeClass('sidenavAcitve');

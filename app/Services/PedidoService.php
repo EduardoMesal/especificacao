@@ -6,12 +6,13 @@ use App\Models\Cliente;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 
 class PedidoService
 {
 
     public function index(array $dados = []): array     {
-        $pedidos = Pedido::where('excluido',  null)->orderBy('id', 'DESC')->with('cliente');
+        $pedidos = Pedido::where('excluido',  null)->orderBy('id', 'DESC')->with('cliente')->with('usuario');
         $clientes = Cliente::where('excluido', null)->get();
         
         if (!empty($dados['nome'])) {
@@ -20,6 +21,12 @@ class PedidoService
 
         if (!empty($dados['cliente_id'])) {
             $pedidos->where('cliente_id', $dados['cliente_id']);
+        }
+
+        if(!empty($dados['usuario'])) {
+            $pedidos->whereHas('usuario', function ($query) use ($dados) {
+                $query->where('nome', 'LIKE', "%{$dados['usuario']}%");
+            });
         }
 
         if (!empty($dados['criado'])) {
@@ -84,6 +91,7 @@ class PedidoService
             $pedido = new Pedido();
             $pedido->nome = $dados['nome'];
             $pedido->cliente_id = $dados['cliente_id'];
+            $pedido->usuario_id = Auth::user()->id;
             $pedido->criado = date('Y-m-d H:i:s');
 
             $response = $pedido->save();

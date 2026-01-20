@@ -73,7 +73,7 @@
                 <div class="card-style" >
                     <div class="title d-flex flex-wrap align-items-center justify-content-between">
                         <div class="left">
-                            <h6 class=" text-bold">Especificações</h6>
+                            <h6 class="text-medium">Especificações</h6>
                         </div>
                     </div>
                     <div class="chartStatusArea">
@@ -125,6 +125,7 @@
                     'clientes' => isset($clientes) ? $clientes : null,
                     'status' => isset($status) ? $status : null,
                     'criado' => isset($criado) ? $criado : null,
+                    'usuario' => isset($usuario) ? $usuario : null,
                     ])
                     @endcomponent
                     <div class="table-wrapper table-responsive">
@@ -150,9 +151,12 @@
                                         <h6>Cliente</h6>
                                     </th>
                                     <th class="th-info">
-                                        <h6>Criado</h6>
+                                        <h6>Criador</h6>
                                     </th>
-                                    <th>
+                                    <th class="th-info">
+                                        <h6>Criado em</h6>
+                                    </th>
+                                    <th class="text-end">
                                         <h6>Ações</h6>
                                     </th>
                                 </tr>
@@ -201,7 +205,7 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6" >
                                                     @if($item->serie)
                                                     {!! $item->serie !!}
                                                     @else
@@ -253,13 +257,23 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                    {{ $item->usuario->nome }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="d-block"></span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex justify-content-start flex-column">
+                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
                                                     {{ $item->criado->format('d/m/Y') }}
                                                 </span>
                                             </div>
                                         </div>
                                         <span class="d-block"></span>
                                     </td>
-                                    <td >
+                                    <td class="text-end">
                                         <div>
                                             <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$item->id}}">
                                                 <i class="lni lni-more-alt"></i>

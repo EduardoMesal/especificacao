@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registra middlewares personalizados
         $middleware->alias([
             'adm' => \App\Http\Middleware\AdmMiddleware::class,
+            'vendas' => \App\Http\Middleware\VendasMiddleware::class,
             '2fa' => \App\Http\Middleware\TwoFactorMiddleware::class,
             // 'colaborador' => \App\Http\Middleware\ColaboradorMiddleware::class,
             'localeSessionRedirect' => \Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect::class,

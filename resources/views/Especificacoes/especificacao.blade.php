@@ -210,7 +210,7 @@
                                     <div class="mb-5 input-style-1">
                                         <select data-original="<?= $especificacao->revisao_selecionada_id ?>" class="form-select form-select-solid selectRv" data-control="select2" data-hide-search="true" data-placeholder="Selecionar revisão" name="revisao">
                                             @foreach ($revisoes as $rev)
-                                                <option @if($especificacao->revisao_selecionada_id == $rev->id) selected @endif value="{{ $rev->id }}">{{ $rev->nome }}</option>
+                                                <option @if($especificacao->revisao_selecionada_id == $rev->id) selected @endif value="{{ $rev->id }}">{{ $rev->nome }} - {{$rev->usuario->nome}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -253,7 +253,7 @@
                                                                                     @endif
                                                                                     </span>
                                                                                     @if($item['conteudo'])
-                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
+                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? $item['unidade'] : '' }};
                                                                                     @else
                                                                                         <span>{{__('messages.nao_informado')}};</span>
                                                                                     @endif
@@ -287,9 +287,9 @@
                                                                                 @endif
                                                                             </span>
                                                                             @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
-                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
+                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? $resumo['unidade'] : '') : '' }};
                                                                             @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
-                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
+                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? $resumo['unidade'] : '' }};
                                                                             @else
                                                                                 <span>{{__('messages.nao_informado')}};</span>
                                                                             @endif
@@ -642,47 +642,64 @@
                                             <div class="accordion-item">
                                                 <h2 class="accordion-header" id="headingEspecificacoes">
                                                     <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEspecificacoes--{{$key}}" aria-expanded="false" aria-controls="collapseEspecificacoes--{{$key}}">
-                                                        {{ $rev['revisao'] }}
+                                                        {{ $rev['revisao'] }} - {{ $rev['usuario'] }}
                                                     </button>
                                                 </h2>
                                                 <div id="collapseEspecificacoes--{{$key}}" class="accordion-collapse collapse" aria-labelledby="headingEspecificacoes">
                                                     <div class="accordion-body">
-                                                        <ul class="list-group resumoContent">
+                                                        <ul class="list-group resumoContent" style="margin-bottom: 15px;">
                                                             @php
                                                                 $renderizados = [];
                                                                 $multiplosAgrupados = collect($rev['itens'])->where('tipo', 'multiplos')->groupBy('caracteristica');
                                                             @endphp
+                                                           
                                                             @foreach ($rev['itens'] as $resumo)
                                                                 {{-- MULTIPLOS: renderizar agrupado por caracteristica, apenas 1 vez --}}
                                                                 @if($resumo['tipo'] === 'multiplos')
                                                                     @if(!in_array($resumo['caracteristica'], $renderizados))
                                                                         @php $renderizados[] = $resumo['caracteristica']; @endphp
 
-                                                                        <li class="p-3 bg-light rounded-2 border border-light position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}}">
-                                                                            <div><span style="font-weight: 600; color: #000">
-                                                                                @if ($resumo['caracteristica'])
-                                                                                    {!! $resumo['caracteristica'] !!}:
-                                                                                    @else
-                                                                                    {{__('messages.nao_informado')}}:
-                                                                                @endif
-                                                                            </span></div>
-                                                                            @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
-                                                                                <div>
-                                                                                    <span style="font-weight: 600; color: #000">
-                                                                                    @if($item['atributo'])
-                                                                                    {{ $item['atributo'] }}: 
-                                                                                    @else
-                                                                                    {{__('messages.nao_informado')}}:
+                                                                        <li class="p-3 bg-light rounded-2 border position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}} {{$resumo['especificacaoAnteriorHasChanged'] ? 'border-warning' : 'border-light'}}">
+                                                                            <div>
+                                                                                <span style="font-weight: 600; color: #000">
+                                                                                    @if ($resumo['caracteristica'])
+                                                                                        {!! $resumo['caracteristica'] !!}:
+                                                                                        @else
+                                                                                        {{__('messages.nao_informado')}}:
                                                                                     @endif
+                                                                                </span>
+                                                                            </div>
+                                                                            @foreach($multiplosAgrupados[$resumo['caracteristica']] as $item)
+                                                                                <div class="">
+                                                                                    <span style="font-weight: 600; color: #000">
+                                                                                        @if($item['atributo'])
+                                                                                            {{ $item['atributo'] }}: 
+                                                                                        @else
+                                                                                            {{__('messages.nao_informado')}}:
+                                                                                        @endif
                                                                                     </span>
+                                                                                    @if($rev['hasBeforeRevisao'] && ($item['conteudoRevisao'] != $item['conteudo']))
+                                                                                        @if($item['conteudoRevisao'])
+                                                                                            {{ $item['conteudoRevisao'] }}{{ $item['unidade'] ? $item['unidade'] : '' }};
+                                                                                        @else
+                                                                                            <span>{{__('messages.nao_informado')}};</span>
+                                                                                        @endif
+                                                                                        <i class="bi bi-arrow-right"></i>
+                                                                                    @endif
                                                                                     @if($item['conteudo'])
-                                                                                    {{ $item['conteudo'] }}{{ $item['unidade'] ? ' ' . $item['unidade'] : '' }};
+                                                                                        {{ $item['conteudo'] }}{{ $item['unidade'] ? $item['unidade'] : '' }};
                                                                                     @else
                                                                                         <span>{{__('messages.nao_informado')}};</span>
                                                                                     @endif
                                                                                 </div>
-                                                                                @if($item['observacao'])
-                                                                                    <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
+                                                                                @if($rev['hasBeforeRevisao'] && ($item['observacaoRevisao'] && $item['observacaoRevisao'] != $item['observacao']))
+                                                                                    @if($item['observacaoRevisao'])
+                                                                                        <div class="obsText">OBS:  {!! $item['observacaoRevisao'] !!} <i class="bi bi-arrow-right"></i> {!! $item['observacao'] !!}</div>
+                                                                                    @endif
+                                                                                @else
+                                                                                    @if($item['observacao'])
+                                                                                        <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
+                                                                                    @endif
                                                                                 @endif
                                                                             @endforeach
                                                                         </li>
@@ -690,7 +707,7 @@
 
                                                                 {{-- SELECIONÁVEL ou TEXTO --}}
                                                                 @else
-                                                                    <li class="p-3 bg-light rounded-2 border border-light position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}}">
+                                                                    <li class="p-3 bg-light rounded-2 border  position-relative {{ $resumo['excluido'] ? 'disabledList' : ''}} {{$resumo['especificacaoAnteriorHasChanged'] ? 'border-warning' : 'border-light'}}">
                                                                         @if($resumo['comparavel'])
                                                                             <div class="isComparavel" 
                                                                                 data-bs-toggle="tooltip" 
@@ -709,17 +726,33 @@
                                                                                     {{__('messages.nao_informado')}}:
                                                                                 @endif
                                                                             </span>
+                                                                            @if($rev['hasBeforeRevisao'] && ($resumo['conteudoRevisao'] != $resumo['conteudo'] || $resumo['atributoNomeRevisao'] != $resumo['atributo']))
+                                                                                @if($resumo['tipo'] === 'selecionavel' && $resumo['atributoNomeRevisao'])
+                                                                                    {{ $resumo['atributoNomeRevisao'] }}{{ $resumo['atributoNomeRevisao'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? $resumo['unidade'] : '') : '' }};
+                                                                                @elseif($resumo['tipo'] === 'texto' && $resumo['conteudoRevisao'])
+                                                                                    {{ $resumo['conteudoRevisao'] }}{{ $resumo['unidade'] ? $resumo['unidade'] : '' }};
+                                                                                @else
+                                                                                    <span>{{__('messages.nao_informado')}};</span>
+                                                                                @endif
+                                                                                <i class="bi bi-arrow-right"></i>
+                                                                            @endif
                                                                             @if($resumo['tipo'] === 'selecionavel' && $resumo['atributo'])
-                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? ' ' . $resumo['unidade'] : '') : '' }};
+                                                                                {{ $resumo['atributo'] }}{{ $resumo['atributo'] != 'PERSONALIZADO' ? ($resumo['unidade'] ? $resumo['unidade'] : '') : '' }};
                                                                             @elseif($resumo['tipo'] === 'texto' && $resumo['conteudo'])
-                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? ' ' . $resumo['unidade'] : '' }};
+                                                                                {{ $resumo['conteudo'] }}{{ $resumo['unidade'] ? $resumo['unidade'] : '' }};
                                                                             @else
                                                                                 <span>{{__('messages.nao_informado')}};</span>
                                                                             @endif
                                                                         </div>
-
-                                                                        @if($resumo['observacao'])
-                                                                            <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
+                                                                        
+                                                                        @if($rev['hasBeforeRevisao'] && ($resumo['observacaoRevisao'] && $resumo['observacaoRevisao'] != $resumo['observacao']))
+                                                                            @if($resumo['observacaoRevisao'])
+                                                                                <div class="obsText">OBS:  {!! $resumo['observacaoRevisao'] !!} <i class="bi bi-arrow-right"></i> {!! $resumo['observacao'] !!}</div>
+                                                                            @endif
+                                                                        @else
+                                                                            @if($resumo['observacao'])
+                                                                                <div class="obsText">OBS: {!! $resumo['observacao'] !!}</div>
+                                                                            @endif
                                                                         @endif
 
                                                                         @if($resumo['excluido'])
@@ -736,9 +769,41 @@
                                                                 @endif
                                                             @endforeach
                                                         </ul>
+                                                        <div class="accordion-item">
+                                                            <h2 class="accordion-header" id="headingObservacoes--{{$rev['id']}}">
+                                                                <button class="accordion-button collapsed" style="font-weight: bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseObservacoes--{{$rev['id']}}" aria-expanded="false" aria-controls="collapseObservacoes--{{$rev['id']}}">
+                                                                    Observações
+                                                                </button>
+                                                            </h2>
+                                                            <div id="collapseObservacoes--{{$rev['id']}}" class="accordion-collapse collapse" aria-labelledby="headingObservacoes--{{$rev['id']}}">
+                                                                <div class="accordion-body">
+                                                                    <div class="resumoContent">
+                                                                        <ul class="list-group">
+                                                                        @if (count($rev['observacoes']) > 0)
+                                                                            @foreach ($rev['observacoes'] as $key => $observacao)
+                                                                            @php
+                                                                                $hasChanged = (
+                                                                                    $observacao['conteudo_anterior'] !== null &&
+                                                                                    $observacao['conteudo_anterior'] !== $observacao['conteudo']
+                                                                                );
+                                                                            @endphp
+                                                                                <li class="p-3 bg-light rounded-2 border position-relative {{$hasChanged ? 'border-warning' : 'border-light'}}"><span style="font-weight: 600; color: #000">Observação {!! $key + 1 !!}:</span style="font-weight: 600; color: #000">
+                                                                                 @if($hasChanged) {{ $observacao['conteudo_anterior'] }} <i class="bi bi-arrow-right"></i>@endif {!! $observacao['conteudo'] !!}
+                                                                                </li>
+                                                                            @endforeach
+                                                                        @else
+                                                                            <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma observação foi encontrada.</li>
+                                                                        @endif
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                
                                             </div>
+                                            
                                         </div>
                                     @endforeach
                                 @endif
@@ -1273,12 +1338,12 @@
                                                     <h6>Id</h6>
                                                 </th>
                                                 <th class="th-info">
-                                                    <h6>Nome</h6>
+                                                    <h6>N° pedido</h6>
                                                 </th>
                                                 <th class="th-info">
                                                     <h6>Cliente</h6>
                                                 </th>
-                                                <th class="th-info text-end">
+                                                <th class="">
                                                     <h6></h6>
                                                 </th>
                                             </tr>
@@ -1318,8 +1383,8 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="text-end">
-                                                    <div style="position: relative">
+                                                <td>
+                                                    <div class="d-flex justify-content-end">
                                                         <button class="p-0 dropdown-modal" id="modalOpenFilterEspcificacoes{{$especificacao->pedido->id}}">
                                                             <i class="lni lni-more-alt"></i>
                                                         </button>
@@ -1358,6 +1423,20 @@
                 </div>
             </div>
         </div>
+    </div>
+</section>
+<section class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12 d-flex justify-content-end">
+                <form class="responseAjax" action="{{route('Especificacoes.excluir', ['id' => $especificacao->id])}}" method="post">
+                    @csrf
+                    <button class="deleteBt text-white btn btn-sm btn-primary" type="submit">
+                        <i class="bi bi-trash"></i> Excluir especificação
+                    </button>
+                </form>
+            </div>
+        </div>    
     </div>
 </section>
 
