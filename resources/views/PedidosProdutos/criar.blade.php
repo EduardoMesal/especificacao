@@ -19,6 +19,7 @@
                                 <div class="flex-column">
                                     <form class="form responseAjax" method="POST" action="{{route('PedidosProdutos.criar_action', ['id' => $produto->id])}}" novalidate enctype="multipart/form-data">
                                         @csrf
+                                        <input type="hidden" name="produtoIndicePedidoId" value="">
                                         <div class="d-flex justify-content-between align-items-center mb-8">
                                             <div class="d-flex justify-content-center gap-2 align-items-center">
                                                 <h2 style="margin:0px;" class="">{!! optional($produto->produtosIdiomas->first())->nome !!}</h2>

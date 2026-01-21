@@ -4,9 +4,7 @@
 @section('css')
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-zoom.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-thumbnail.css">
+
 @endsection
 
 @section('content')
@@ -19,35 +17,35 @@
                         <div class="flex-grow-1">
                             <div class="justify-content-between align-items-start flex-wrap mb-2">
                                 <div class="flex-column">
-                                    <form class="form responseAjax" method="POST" action="{{route('PedidosAmostras.editar_action', ['id' => $atributoAmostraPedido->id])}}" novalidate enctype="multipart/form-data">
+                                    <form class="form responseAjax" method="POST" action="{{route('PedidosAmostras.editar_action', ['id' => $atributoAmostraPedido['id']])}}" novalidate enctype="multipart/form-data">
                                         @csrf
                                         <div class="d-flex justify-content-between align-items-center mb-8">
                                             <div class="d-flex justify-content-center gap-2 align-items-center">
                                                 <h2 style="margin:0px;" class="text-center">{!! optional($amostra->amostrasIdiomas->first())->nome !!}</h2>
                                                 @if(optional($amostra->amostrasIdiomas->first())->aviso)
-                                                <p style="margin-bottom: 0px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalAviso--{{$amostra->id}}">
-                                                    <i class="bi bi-info-square-fill"></i>
-                                                </p>
-                                                <div class="modal fade" id="modalAviso--{{$amostra->id}}" role="dialog">
-                                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title align-self-center" id="modalAviso--{{$amostra->id}}">Aviso</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body modal-imagem-aviso">
-                                                                <div class="row">
-                                                                    <div class="col-md-12 col-xl-12">
-                                                                        {!! preg_replace('/src=["\'](?:\.\.\/)+assets\/files\//', 'src="'.url('/assets/files/').'/', optional($amostra->amostrasIdiomas->first())->aviso) !!}
+                                                    <p style="margin-bottom: 0px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalAviso--{{$amostra->id}}">
+                                                        <i class="bi bi-info-square-fill"></i>
+                                                    </p>
+                                                    <div class="modal fade" id="modalAviso--{{$amostra->id}}" role="dialog">
+                                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title align-self-center" id="modalAviso--{{$amostra->id}}">Aviso</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body modal-imagem-aviso">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12 col-xl-12">
+                                                                            {!! preg_replace('/src=["\'](?:\.\.\/)+assets\/files\//', 'src="'.url('/assets/files/').'/', optional($amostra->amostrasIdiomas->first())->aviso) !!}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
                                                 @endif
                                             </div>
                                             <div class="d-flex justify-content-center gap-2 align-items-center">
@@ -65,7 +63,7 @@
                                                     name="pedido_id">
                                                     <option></option>
                                                     @foreach($pedidos as $p)
-                                                    <option @if ($p['id']==$atributoAmostraPedido->pedido_id) selected @endif value="{{ $p['id'] }}">
+                                                    <option @if ($p['id']==$atributoAmostraPedido['pedido_id']) selected @endif value="{{ $p['id'] }}">
                                                         N° {{$p['nome']}}
                                                     </option>
                                                     @endforeach
@@ -208,7 +206,7 @@
                                                                             class="filepondAjax"
                                                                             name="file"
                                                                             data-atributo-id="{{ $a->id }}"
-                                                                            data-indice-id="{{ $atributoAmostraPedido->id }}"
+                                                                            data-indice-id="{{ $atributoAmostraPedido['id'] }}"
                                                                             multiple>
                                                                     </div>
                                                                 </div>
@@ -233,10 +231,10 @@
                                                                                         </a>
                                                                                         <div class="d-flex justify-content-end gap-2 align-items-center" style="width: 100%;">
                                                                                             <button
-                                                                                                class="btn btn-sm btn-secondary deleteBt btn-secondary-delete btn-delete-imagem"
+                                                                                                class="btn btn-sm btn-primary deleteBt btn-delete-imagem"
                                                                                                 type="button"
                                                                                                 data-id="{{ $item->id }}">
-                                                                                                <i class="bi bi-trash-fill"></i>Excluir
+                                                                                                <i class="bi bi-trash"></i>Excluir
                                                                                             </button>
                                                                                         </div>
                                                                                     </div>
@@ -258,7 +256,7 @@
                                             </div>
                                             @endforeach
                                             <div class="col-md-12 fv-row imgArea">
-                                                <input type="file" class="filepond" name="imagens[]" multiple>
+                                                <input type="file" class="filepond" name="imagens[]" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" multiple>
                                             </div>
                                         </div>
                                         <div class="text-center">
@@ -288,29 +286,29 @@
                             </div>
                             <div class="schedules-area pt-7 imgsAmostra">
                                 <div class="row" id="contentSortableProjects">
-                                    @if(count($atributoAmostraPedido->imagens) > 0)
+                                    @if(count($atributoAmostraPedido['imagens']) > 0)
                                     <div id="galleryPedido" class="row">
-                                        @foreach ($atributoAmostraPedido->imagens as $key => $item)
+                                        @foreach ($atributoAmostraPedido['imagens'] as $key => $item)
                                         <div class="col-md-4 col-xxl-3 mb-4 projectContent">
                                             <div class="card-style">
                                                 <div class="card-body d-flex flex-center flex-column">
 
                                                     <a
-                                                        href="{{ mixAssets('assets/img/amostras/pedido/' . $item->imagem) }}"
+                                                        href="{{ mixAssets('assets/img/amostras/pedido/' . $item['arquivo']) }}"
                                                         class="light-item"
                                                         data-sub-html="Imagem {{ $key + 1 }}">
                                                         <img
                                                             class="imgProject img-fluid"
-                                                            src="{{ mixAssets('assets/img/amostras/pedido/' . $item->imagem) }}" />
+                                                            src="{{ mixAssets('assets/img/amostras/pedido/' . $item['arquivo']) }}" />
                                                     </a>
 
-                                                    <div class="d-flex justify-content-end gap-2 align-items-center mt-2" style="width: 100%;">
+                                                    <div class="d-flex justify-content-center gap-2 align-items-center mt-2" style="width: 100%;">
                                                         <form class="responseAjax"
-                                                            action="{{ route('PedidosAmostras.excluir_imagem', ['id' => $item->id]) }}"
+                                                            action="{{ route('PedidosAmostras.excluir_imagem', ['id' => $item['id']]) }}"
                                                             method="post">
                                                             @csrf
-                                                            <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                <i class="bi bi-trash-fill"></i> Excluir
+                                                            <button class="btn btn-sm btn-primary deleteBt" type="submit">
+                                                                <i class="bi bi-trash"></i> Excluir
                                                             </button>
                                                         </form>
                                                     </div>
@@ -332,6 +330,68 @@
         </div>
     </div>
 </div>
+<div class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-5">
+                                <h2>Arquivos</h2>
+                            </div>
+                            <div class="schedules-area pt-7 imgsAmostra">
+                                <div class="row" id="contentSortableProjects">
+                                    @if(count($atributoAmostraPedido['documentos']) > 0)
+                                        <div class="table-wrapper table-responsive">
+                                            <table class="table striped-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            <h6>Arquivo</h6>
+                                                        </th>
+                                                        <th>
+                                                            <h6>Ação</h6>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                @foreach ($atributoAmostraPedido['documentos'] as $key => $item)
+                                                    <tbody>
+                                                        <tr style="padding: 15px !important;">
+                                                            <td>
+                                                                <a target="_blank" href="{{ mixAssets('assets/img/amostras/pedido/' . $item['arquivo']) }}">
+                                                                {{$item['arquivo']}}
+                                                                </a>
+                                                            </td>
+                                                            <td>
+                                                                <div class="action">
+                                                                    <form class="responseAjax"
+                                                                        action="{{ route('PedidosAmostras.excluir_imagem', ['id' => $item['id']]) }}"
+                                                                        method="post">
+                                                                        @csrf
+                                                                        <button class="text-danger deleteBt"  type="submit">
+                                                                            <i class="lni lni-trash-can"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                @endforeach
+                                            </table>
+                                        </div>
+                                    @else
+                                    <p>Nenhum arquivo inserido!</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -340,22 +400,9 @@
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="{{ mixAssets('/assets/js/closeSave.js') }}"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.js"></script>
 
 <script>
     $(document).ready(function() {
-        const gallery = document.getElementById('galleryPedido');
-
-        if (gallery || galleryModal) {
-            lightGallery(gallery, {
-                selector: 'a.light-item',
-                plugins: [lgZoom, lgThumbnail],
-                speed: 400,
-                download: false,
-            });
-        }
 
         $(document).on('change', '.selectAtributo', function() {
             let selectedOption = $(this).find('option:selected');
@@ -454,7 +501,7 @@
             maxFileSize: '3MB',
             allowImagePreview: true,
             imagePreviewHeight: 150,
-            labelIdle: `Arraste e solte suas imagens aqui ou clique`,
+            labelIdle: `Arraste e solte seus arquivos aqui!`,
             server: {
                 process: {
                     url: '/especificacoes-amostras/upload-atributo-imagens',

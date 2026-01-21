@@ -19,6 +19,7 @@
                                 <div class="flex-column">
                                     <form class="form responseAjax" method="POST" action="{{route('PedidosAmostras.criar_action', ['id' => $amostra->id])}}" novalidate enctype="multipart/form-data">
                                         @csrf
+                                        <input type="hidden" name="amostraIndicePedidoId" value="">
                                         <div class="d-flex justify-content-between align-items-center mb-8">
                                             <div class="d-flex justify-content-center gap-2 align-items-center">
                                                 <h2 style="margin:0px;" class="">{!! optional($amostra->amostrasIdiomas->first())->nome !!}</h2>
@@ -174,7 +175,7 @@
                                                 @endif
                                             @endforeach
                                             <div class="col-md-12 imgArea">
-                                                <input type="file" class="filepond" name="imagens[]" multiple>
+                                                <input type="file" class="filepond" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" name="imagens[]" multiple>
                                             </div>
                                         </div>
                                         <div class="text-center">

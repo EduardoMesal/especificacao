@@ -15,7 +15,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PedidoAmostraService
 {
-
     public function index(array $dados = []): LengthAwarePaginator
     {
         $query = AtributoAmostraIndicePedido::whereNull('excluido')
@@ -148,21 +147,48 @@ class PedidoAmostraService
                 'criado' => date('Y-m-d H:i:s')
             ]);
 
-            if (isset($dados['imagens']) && is_array($dados['imagens'])) {
-                foreach ($dados['imagens'] as $img) {
-                    $extension = $img->getClientOriginalExtension();
-                    $photoName = md5(time().rand(0,9999)) . '.' . $extension;
+            if (!empty($dados['imagens']) && is_array($dados['imagens'])) {
+                foreach ($dados['imagens'] as $arquivo) {
+
+                    $extension = strtolower($arquivo->getClientOriginalExtension());
+                    $nomeArquivo = md5(uniqid() . time()) . '.' . $extension;
+
                     $dest = public_path('assets/img/amostras/pedido');
-                    $image = Image::make($img->getRealPath());
-                    $image->save($dest . '/' . $photoName);
+
+                    if (!file_exists($dest)) {
+                        mkdir($dest, 0755, true);
+                    }
+
+                    $type = '';
+
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+
+                        $image = Image::make($arquivo->getRealPath());
+                        $image->save($dest . '/' . $nomeArquivo);
+                        $type = 'imagem';
+                    } 
+
+                    else {
+                        $nomeArquivo = $arquivo->getClientOriginalName() . '.' . $extension;
+                        $hasFileName = 1;
+
+                        while (file_exists($dest . '/' . $nomeArquivo)) {
+                            $nomeArquivo = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME) . '_' . $hasFileName . '.' . $extension;
+                            $hasFileName++;
+                        }
+
+                        $arquivo->move($dest, $nomeArquivo);
+                        $type = 'documento';
+                    }
 
                     ImagemAmostraPedido::create([
-                        'imagem' => $photoName,
+                        'arquivo' => $nomeArquivo,
                         'amostra_indice_pedido_id' => $indiceAmostraPedido->id,
+                        'tipo' => $type
                     ]);
                 }
             }
-            
+
             if (isset($dados['amostrasAtributo']) && is_array($dados['amostrasAtributo'])){
                 foreach ($dados['amostrasAtributo'] as $amostra) {
                     if (isset($amostra['atributo_multiplo'])) {
@@ -188,6 +214,20 @@ class PedidoAmostraService
             }
 
             $response = AtributoAmostraPedido::insert($dadosFormatados);
+
+            if($dados['amostraIndicePedidoId']) {
+                $imagensToCopy = ImagemAmostraPedido::where('amostra_indice_pedido_id', $dados['amostraIndicePedidoId'])->get();
+
+                if(count($imagensToCopy) > 0) {
+                     foreach ($imagensToCopy as $imagem) {
+                        ImagemAmostraPedido::create([
+                            'arquivo' => $imagem->arquivo,
+                            'amostra_indice_pedido_id' => $indiceAmostraPedido->id,
+                            'tipo' => $imagem->tipo
+                        ]);
+                    }
+                }
+            }
 
             if (!$response) {
                 throw new \Exception('Erro ao salvar os dados.');
@@ -253,7 +293,29 @@ class PedidoAmostraService
         $pedidos = Pedido::where('excluido', null)->orderBy('id', 'DESC')->get();
 
         $query = [
-            'atributoAmostraPedido' => $atributoAmostraPedido,
+            'atributoAmostraPedido' => [
+                'id' => $atributoAmostraPedido->id,
+                'amostra_id' => $atributoAmostraPedido->amostra_id,
+                'pedido_id' => $atributoAmostraPedido->pedido_id,
+
+                'imagens' => $atributoAmostraPedido->imagens
+                    ->where('tipo', 'imagem')
+                    ->values()
+                    ->map(fn ($item) => [
+                        'id' => $item->id,
+                        'arquivo' => $item->arquivo,
+                        'tipo' => $item->tipo,
+                    ]),
+
+                'documentos' => $atributoAmostraPedido->imagens
+                    ->where('tipo', 'documento')
+                    ->values()
+                    ->map(fn ($item) => [
+                        'id' => $item->id,
+                        'arquivo' => $item->arquivo,
+                        'tipo' => $item->tipo,
+                    ]),
+            ],
             'amostra' => $amostra,
             'pedidos' => $pedidos
         ];
@@ -296,9 +358,9 @@ class PedidoAmostraService
 
                         $response = AtributoAmostraPedido::updateOrCreate(
                             [
-                            'indice_amostra_pedido_id' => $atributoAmostraPedido->id,
-                            'atributo_id' => $amostra['atributo_id'],
-                            'sub_atributo_id' => $amostra['atributo_selecionavel']['old'] ?? null,
+                                'indice_amostra_pedido_id' => $atributoAmostraPedido->id,
+                                'atributo_id' => $amostra['atributo_id'],
+                                'sub_atributo_id' => $amostra['atributo_selecionavel']['old'] ?? null,
                             ],
                             [
                                 'sub_atributo_id' => $amostra['atributo_selecionavel']['subatributo_id'] ?? null,
@@ -310,17 +372,44 @@ class PedidoAmostraService
                 }
             }
 
-            if (isset($dados['imagens']) && is_array($dados['imagens'])) {
-                foreach ($dados['imagens'] as $img) {
-                    $extension = $img->getClientOriginalExtension();
-                    $photoName = md5(time().rand(0,9999)) . '.' . $extension;
+            if (!empty($dados['imagens']) && is_array($dados['imagens'])) {
+                foreach ($dados['imagens'] as $arquivo) {
+
+                    $extension = strtolower($arquivo->getClientOriginalExtension());
+                    $nomeArquivo = md5(uniqid() . time()) . '.' . $extension;
+
                     $dest = public_path('assets/img/amostras/pedido');
-                    $image = Image::make($img->getRealPath());
-                    $image->save($dest . '/' . $photoName);
+
+                    if (!file_exists($dest)) {
+                        mkdir($dest, 0755, true);
+                    }
+
+                    $type = '';
+
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+
+                        $image = Image::make($arquivo->getRealPath());
+                        $image->save($dest . '/' . $nomeArquivo);
+                        $type = 'imagem';
+                    } 
+
+                    else {
+                        $nomeArquivo = $arquivo->getClientOriginalName();
+                        $hasFileName = 1;
+                        
+                        while (file_exists($dest . '/' . $nomeArquivo)) {
+                            $nomeArquivo = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME) . '_' . $hasFileName . '.' . $extension;
+                            $hasFileName++;
+                        }
+
+                        $arquivo->move($dest, $nomeArquivo);
+                        $type = 'documento';
+                    }
 
                     ImagemAmostraPedido::create([
-                        'imagem' => $photoName,
+                        'arquivo' => $nomeArquivo,
                         'amostra_indice_pedido_id' => $atributoAmostraPedido->id,
+                        'tipo' => $type
                     ]);
                 }
             }

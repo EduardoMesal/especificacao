@@ -304,8 +304,8 @@
                                                                                 @csrf
                                                                                 @method('DELETE')
                                                                                 <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
-                                                                                <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                                    <i class="bi bi-trash-fill"></i>Excluir
+                                                                                <button class="btn btn-sm btn-primary deleteBt" type="submit">
+                                                                                    <i class="bi bi-trash"></i> Excluir
                                                                                 </button>
                                                                             </form>
                                                                         @endif
@@ -693,14 +693,31 @@
                                                                                     @endif
                                                                                 </div>
                                                                                 @if($rev['hasBeforeRevisao'] && ($item['observacaoRevisao'] && $item['observacaoRevisao'] != $item['observacao']))
-                                                                                    @if($item['observacaoRevisao'])
+                                                                                    <!-- @if($item['observacaoRevisao'])
                                                                                         <div class="obsText">OBS:  {!! $item['observacaoRevisao'] !!} <i class="bi bi-arrow-right"></i> {!! $item['observacao'] !!}</div>
+                                                                                    @endif -->
+                                                                                     @if($resumo['observacaoRevisao'])
+                                                                                        <div class="obsText">
+                                                                                            OBS:
+                                                                                            @if(!empty($resumo['observacaoRevisao']))
+                                                                                                {!! $resumo['observacaoRevisao'] !!}
+                                                                                            @else
+                                                                                                <span style="color: #e2231a;"></span>
+                                                                                            @endif  
+                                                                                            <i class="bi bi-arrow-right"></i>
+                                                                                            @if(!empty($resumo['observacao']))
+                                                                                                {!! $resumo['observacao'] !!}
+                                                                                            @else
+                                                                                                <span style="color: #e2231a;">Observação removida pelo usuário.</span>
+                                                                                            @endif
+                                                                                        </div>
                                                                                     @endif
                                                                                 @else
                                                                                     @if($item['observacao'])
                                                                                         <div class="obsText">OBS: {!! $item['observacao'] !!}</div>
                                                                                     @endif
                                                                                 @endif
+                                                                                
                                                                             @endforeach
                                                                         </li>
                                                                     @endif
@@ -747,7 +764,20 @@
                                                                         
                                                                         @if($rev['hasBeforeRevisao'] && ($resumo['observacaoRevisao'] && $resumo['observacaoRevisao'] != $resumo['observacao']))
                                                                             @if($resumo['observacaoRevisao'])
-                                                                                <div class="obsText">OBS:  {!! $resumo['observacaoRevisao'] !!} <i class="bi bi-arrow-right"></i> {!! $resumo['observacao'] !!}</div>
+                                                                                <div class="obsText">
+                                                                                    OBS:
+                                                                                    @if(!empty($resumo['observacaoRevisao']))
+                                                                                        {!! $resumo['observacaoRevisao'] !!}
+                                                                                    @else
+                                                                                        <span style="color: #e2231a;"></span>
+                                                                                    @endif  
+                                                                                    <i class="bi bi-arrow-right"></i>
+                                                                                    @if(!empty($resumo['observacao']))
+                                                                                        {!! $resumo['observacao'] !!}
+                                                                                    @else
+                                                                                        <span style="color: #e2231a;">Observação removida pelo usuário.</span>
+                                                                                    @endif
+                                                                                </div>
                                                                             @endif
                                                                         @else
                                                                             @if($resumo['observacao'])
@@ -760,8 +790,8 @@
                                                                                 @csrf
                                                                                 @method('DELETE')
                                                                                 <input type="hidden" name="especificacao_id" value="{{ $especificacao->id }}">
-                                                                                <button class="btn btn-sm btn-secondary deleteBt btn-secondary-delete" type="submit">
-                                                                                    <i class="bi bi-trash-fill"></i>Excluir
+                                                                                <button class="btn btn-sm btn-primary deleteBt" type="submit">
+                                                                                    <i class="bi bi-trash"></i> Excluir
                                                                                 </button>
                                                                             </form>
                                                                         @endif
@@ -779,21 +809,21 @@
                                                                 <div class="accordion-body">
                                                                     <div class="resumoContent">
                                                                         <ul class="list-group">
-                                                                        @if (count($rev['observacoes']) > 0)
-                                                                            @foreach ($rev['observacoes'] as $key => $observacao)
-                                                                            @php
-                                                                                $hasChanged = (
-                                                                                    $observacao['conteudo_anterior'] !== null &&
-                                                                                    $observacao['conteudo_anterior'] !== $observacao['conteudo']
-                                                                                );
-                                                                            @endphp
-                                                                                <li class="p-3 bg-light rounded-2 border position-relative {{$hasChanged ? 'border-warning' : 'border-light'}}"><span style="font-weight: 600; color: #000">Observação {!! $key + 1 !!}:</span style="font-weight: 600; color: #000">
-                                                                                 @if($hasChanged) {{ $observacao['conteudo_anterior'] }} <i class="bi bi-arrow-right"></i>@endif {!! $observacao['conteudo'] !!}
-                                                                                </li>
-                                                                            @endforeach
-                                                                        @else
-                                                                            <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma observação foi encontrada.</li>
-                                                                        @endif
+                                                                            @if (count($rev['observacoes']) > 0)
+                                                                                @foreach ($rev['observacoes'] as $key => $observacao)
+                                                                                    @php
+                                                                                        $hasChanged = (
+                                                                                            $observacao['conteudo_anterior'] !== null &&
+                                                                                            $observacao['conteudo_anterior'] !== $observacao['conteudo']
+                                                                                        );
+                                                                                    @endphp
+                                                                                    <li class="p-3 bg-light rounded-2 border position-relative {{$hasChanged ? 'border-warning' : 'border-light'}}"><span style="font-weight: 600; color: #000">Observação {!! $key + 1 !!}:</span style="font-weight: 600; color: #000">
+                                                                                        @if($hasChanged) {{ $observacao['conteudo_anterior'] }} <i class="bi bi-arrow-right"></i>@endif {!! $observacao['conteudo'] !!}
+                                                                                    </li>
+                                                                                @endforeach
+                                                                            @else
+                                                                                <li class="p-3 bg-light rounded-2 border border-light position-relative">Nenhuma observação foi encontrada.</li>
+                                                                            @endif
                                                                         </ul>
                                                                     </div>
                                                                 </div>

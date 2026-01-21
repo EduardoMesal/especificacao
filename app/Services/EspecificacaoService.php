@@ -1264,7 +1264,7 @@ class EspecificacaoService
                     $comparavel = $caracteristica->comparavel ? true : false;
                     $tipo = $caracteristica->tipo ?? '';
 
-                    if (strtolower($atributoNome) != 'n/a') {
+                    // if (strtolower($atributoNome) != 'n/a') {
                         $itens[] = [
                             'caracteristica_id' => $caracteristicaId,
                             'caracteristica' => $caracteristicaNome,
@@ -1282,7 +1282,7 @@ class EspecificacaoService
                             'atributoNomeRevisao' => $atributoNomeRevisao,
                             'especificacaoAnteriorHasChanged' => $especificacaoAnteriorHasChanged
                         ];
-                    }
+                    // }
                 }
             }
 

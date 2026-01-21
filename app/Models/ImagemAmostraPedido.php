@@ -14,10 +14,10 @@ class ImagemAmostraPedido extends Model
     protected $table = 'imagens_amostra_pedido';
 
     protected $fillable = [
-        'imagem',
+        'arquivo',
         'amostra_indice_pedido_id',
+        'tipo',
     ];
-
 
     public function amostraIndice()
     {

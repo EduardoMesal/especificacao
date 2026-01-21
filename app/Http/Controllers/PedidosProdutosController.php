@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PedidosAmostraRequest;
 use App\Models\AtributoProdutoIndicePedido;
 use App\Models\EspecificacaoProdutoPedido;
-use App\Models\ImagemAmostraPedido;
+use App\Models\ImagemProdutoPedido;
 use App\Models\ImagemAtributoProdutoPedido;
 use App\Models\Produto;
 use Illuminate\Http\Request;
@@ -74,7 +74,7 @@ class PedidosProdutosController extends Controller
     {   
         try {
     
-            $data = $request->only(['imagens', 'produtosAtributo', 'unidade', 'tipo', 'att', 'pedido_id']);
+            $data = $request->only(['imagens', 'produtosAtributo', 'unidade', 'tipo', 'att', 'pedido_id', 'produtoIndicePedidoId']);
 
             $pedidoProdutoService->criar_produto($data, $id);
 
@@ -287,7 +287,8 @@ class PedidosProdutosController extends Controller
             ], 400);
         }
 
-        $imagem = ImagemAmostraPedido::where('id', $id)->first();
+        $imagem = ImagemProdutoPedido::where('id', $id)->first();
+        $hasMoreThanOneImg = ImagemProdutoPedido::where('arquivo', $imagem->arquivo)->count() > 1;
         if (!$imagem) {
             return response()->json([
                 'success' => false,
@@ -310,7 +311,9 @@ class PedidosProdutosController extends Controller
 
                 if ($response) {
                     DB::commit();
-                    File::delete(public_path("/assets/img/produtos/pedido/" . $oldImg->imagem));
+                    if($hasMoreThanOneImg == false){
+                        File::delete(public_path("/assets/img/produtos/pedido/" . $oldImg->arquivo));
+                    }
                     return response()->json([
                         'success' => true,
                         'title' => 'Feito',

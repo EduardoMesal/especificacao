@@ -1005,6 +1005,7 @@ document.addEventListener('focusin', (e) => {
 });
 
 
+
 $(document).ready(function () {
 	//AJAX
 	var csrfToken = $('input[name="_token"]').val();
@@ -1055,7 +1056,7 @@ $(document).ready(function () {
 			maxFileSize: '3MB',
 			allowImagePreview: true,
 			imagePreviewHeight: 150,
-			labelIdle: `Arraste e solte suas imagens aqui!`,
+			labelIdle: `Arraste e solte seus arquivos aqui!`,
 			labelFileProcessingComplete: "Arquivo anexado",
 			labelFileProcessing: "Carregando...",
 			storeAsFile: true
@@ -1083,6 +1084,16 @@ $(document).ready(function () {
 		$(".removeCrop").hide();
 	});
 
+	const gallery = document.getElementById('galleryPedido');
+
+	if (gallery || galleryModal) {
+		lightGallery(gallery, {
+			selector: 'a.light-item',
+			plugins: [lgZoom, lgThumbnail],
+			speed: 400,
+			download: false,
+		});
+	}
 });
 
 let open = false;

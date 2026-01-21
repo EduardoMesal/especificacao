@@ -19,7 +19,9 @@
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/multi-select.css') }}" />
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/plugins.bundle.css') }}" />
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-zoom.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-thumbnail.css">
 	@yield('css')
 </head>
 
@@ -411,18 +413,20 @@
 											</div>
 										</div>
 									</li>
-									<li class="dropdown-item link-modal" style="cursor: pointer;">
+									<li class="dropdown-item link-modal mt-3" style="cursor: pointer;">
 										<a class="link-modal" 
 											href="{{ route('Usuario.perfil') }}">
 											<i class="lni lni-user"></i> Meu perfil
 										</a>
 									</li>
+									@if($loggedUser->tipo == 'adm')
 									<li class="dropdown-item link-modal" style="cursor: pointer;">
 										<a class="link-modal" 
 											href="{{route('Usuario.index')}}">
 											<i class="lni lni-users"></i> Usuários
 										</a>
 									</li>
+									@endif
 									<li class="dropdown-item link-modal" style="cursor: pointer;">
 										<a class="link-modal" 
 											href="{{route('logout')}}">
@@ -474,6 +478,11 @@
 	<script src="{{ mixAssets('assets/js/polyfill.js') }}"></script>
 	<script src="{{ mixAssets('assets/js/main.js') }}"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.js"></script>
+	
 	<script src="{{ mixAssets('assets/js/functions.js') }}"></script>
 
 	@yield('plugins')

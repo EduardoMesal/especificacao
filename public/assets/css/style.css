@@ -35,6 +35,12 @@ tr td:not(:first-child):not(:last-child) {
   position: relative;
 }
 
+.filepond--file-info .filepond--file-info-main{
+  color: white !important;
+}
+.filepond--file-info-sub{
+  color: white !important;
+}
 .card-statistics {
   font-size: 14px;
   display: flex;

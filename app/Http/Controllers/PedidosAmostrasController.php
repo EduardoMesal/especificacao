@@ -73,8 +73,7 @@ class PedidosAmostrasController extends Controller
     {   
         try {
     
-            $data = $request->only(['imagens', 'amostrasAtributo', 'unidade', 'tipo', 'att', 'pedido_id']);
-
+            $data = $request->only(['imagens', 'amostrasAtributo', 'unidade', 'tipo', 'att', 'pedido_id', 'amostraIndicePedidoId']);
             $pedidoAmostraService->criar_amostra($data, $id);
 
             return response()->json([
@@ -103,6 +102,7 @@ class PedidosAmostrasController extends Controller
                 'error' => 'Nenhuma amostra foi encontrada.'
             ]);
         }
+
 
         return view('PedidosAmostras/editar', [
             'amostra' => $query['amostra'],
@@ -287,6 +287,8 @@ class PedidosAmostrasController extends Controller
         }
 
         $imagem = ImagemAmostraPedido::where('id', $id)->first();
+        $hasMoreThanOneImg = ImagemAmostraPedido::where('arquivo', $imagem->arquivo)->count() > 1;
+        
         if (!$imagem) {
             return response()->json([
                 'success' => false,
@@ -309,7 +311,9 @@ class PedidosAmostrasController extends Controller
 
                 if ($response) {
                     DB::commit();
-                    File::delete(public_path("/assets/img/amostras/pedido/" . $oldImg->imagem));
+                    if($hasMoreThanOneImg == false){
+                        File::delete(public_path("/assets/img/amostras/pedido/" . $oldImg->arquivo));
+                    }
                     return response()->json([
                         'success' => true,
                         'title' => 'Feito',

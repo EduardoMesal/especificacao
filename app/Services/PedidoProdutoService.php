@@ -146,17 +146,44 @@ class PedidoProdutoService
                 'criado' => date('Y-m-d H:i:s')
             ]);
 
-            if (isset($dados['imagens']) && is_array($dados['imagens'])) {
-                foreach ($dados['imagens'] as $img) {
-                    $extension = $img->getClientOriginalExtension();
-                    $photoName = md5(time().rand(0,9999)) . '.' . $extension;
+            if (!empty($dados['imagens']) && is_array($dados['imagens'])) {
+                foreach ($dados['imagens'] as $arquivo) {
+
+                    $extension = strtolower($arquivo->getClientOriginalExtension());
+                    $nomeArquivo = md5(uniqid() . time()) . '.' . $extension;
+
                     $dest = public_path('assets/img/produtos/pedido');
-                    $image = Image::make($img->getRealPath());
-                    $image->save($dest . '/' . $photoName);
+
+                    if (!file_exists($dest)) {
+                        mkdir($dest, 0755, true);
+                    }
+
+                    $type = '';
+
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+
+                        $image = Image::make($arquivo->getRealPath());
+                        $image->save($dest . '/' . $nomeArquivo);
+                        $type = 'imagem';
+                    } 
+
+                    else {
+                        $nomeArquivo = $arquivo->getClientOriginalName() . '.' . $extension;
+                        $hasFileName = 1;
+
+                        while (file_exists($dest . '/' . $nomeArquivo)) {
+                            $nomeArquivo = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME) . '_' . $hasFileName . '.' . $extension;
+                            $hasFileName++;
+                        }
+
+                        $arquivo->move($dest, $nomeArquivo);
+                        $type = 'documento';
+                    }
 
                     ImagemProdutoPedido::create([
-                        'imagem' => $photoName,
+                        'arquivo' => $nomeArquivo,
                         'produto_indice_pedido_id' => $indiceProdutoPedido->id,
+                        'tipo' => $type
                     ]);
                 }
             }
@@ -186,6 +213,20 @@ class PedidoProdutoService
             }
 
             $response = AtributoProdutoPedido::insert($dadosFormatados);
+
+            if($dados['produtoIndicePedidoId']) {
+                $imagensToCopy = ImagemProdutoPedido::where('produto_indice_pedido_id', $dados['produtoIndicePedidoId'])->get();
+
+                if(count($imagensToCopy) > 0) {
+                     foreach ($imagensToCopy as $imagem) {
+                        ImagemProdutoPedido::create([
+                            'arquivo' => $imagem->arquivo,
+                            'produto_indice_pedido_id' => $indiceProdutoPedido->id,
+                            'tipo' => $imagem->tipo
+                        ]);
+                    }
+                }
+            }
 
             if (!$response) {
                 throw new \Exception('Erro ao salvar os dados.');
@@ -251,7 +292,29 @@ class PedidoProdutoService
         $pedidos = Pedido::where('excluido', null)->orderBy('id', 'DESC')->get();
 
         $query = [
-            'atributoProdutoPedido' => $atributoProdutoPedido,
+            'atributoProdutoPedido' => [
+                'id' => $atributoProdutoPedido->id,
+                'produto_id' => $atributoProdutoPedido->produto_id,
+                'pedido_id' => $atributoProdutoPedido->pedido_id,
+
+                'imagens' => $atributoProdutoPedido->imagens
+                    ->where('tipo', 'imagem')
+                    ->values()
+                    ->map(fn ($item) => [
+                        'id' => $item->id,
+                        'arquivo' => $item->arquivo,
+                        'tipo' => $item->tipo,
+                    ]),
+
+                'documentos' => $atributoProdutoPedido->imagens
+                    ->where('tipo', 'documento')
+                    ->values()
+                    ->map(fn ($item) => [
+                        'id' => $item->id,
+                        'arquivo' => $item->arquivo,
+                        'tipo' => $item->tipo,
+                    ]),
+            ],
             'produto' => $produto,
             'pedidos' => $pedidos
         ];
@@ -308,17 +371,44 @@ class PedidoProdutoService
                 }
             }
 
-            if (isset($dados['imagens']) && is_array($dados['imagens'])) {
-                foreach ($dados['imagens'] as $img) {
-                    $extension = $img->getClientOriginalExtension();
-                    $photoName = md5(time().rand(0,9999)) . '.' . $extension;
+            if (!empty($dados['imagens']) && is_array($dados['imagens'])) {
+                foreach ($dados['imagens'] as $arquivo) {
+
+                    $extension = strtolower($arquivo->getClientOriginalExtension());
+                    $nomeArquivo = md5(uniqid() . time()) . '.' . $extension;
+
                     $dest = public_path('assets/img/produtos/pedido');
-                    $image = Image::make($img->getRealPath());
-                    $image->save($dest . '/' . $photoName);
+
+                    if (!file_exists($dest)) {
+                        mkdir($dest, 0755, true);
+                    }
+
+                    $type = '';
+
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+
+                        $image = Image::make($arquivo->getRealPath());
+                        $image->save($dest . '/' . $nomeArquivo);
+                        $type = 'imagem';
+                    } 
+
+                    else {
+                        $nomeArquivo = $arquivo->getClientOriginalName() . '.' . $extension;
+                        $hasFileName = 1;
+
+                        while (file_exists($dest . '/' . $nomeArquivo)) {
+                            $nomeArquivo = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME) . '_' . $hasFileName . '.' . $extension;
+                            $hasFileName++;
+                        }
+
+                        $arquivo->move($dest, $nomeArquivo);
+                        $type = 'documento';
+                    }
 
                     ImagemProdutoPedido::create([
-                        'imagem' => $photoName,
+                        'arquivo' => $nomeArquivo,
                         'produto_indice_pedido_id' => $atributoProdutoPedido->id,
+                        'tipo' => $type
                     ]);
                 }
             }
