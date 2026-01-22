@@ -1189,7 +1189,7 @@
                                         <tbody>
                                             @if(count($amostrasPedido) > 0)
                                             @foreach($amostrasPedido as $item)
-                                            <tr data-href="{{route('PedidosAmostras.editar', ['id' => $item->id])}}">
+                                            <tr>
                                                 <td>
                                                     <div class="d-flex gap-3 align-items-center">
                                                         <div class="form-check">
@@ -1200,9 +1200,36 @@
                                                         </div>
                                                         <div class="d-flex align-items-center">
                                                             <div class="d-flex justify-content-start flex-column">
-                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6" onclick="getAmostra({{ $item->id }})" data-bs-toggle="modal" data-bs-target="#modalAmostra--{{$item->id}}">
                                                                     {!! $item->id !!}) {{optional($item->amostra->amostrasIdiomas->first())->nome }}
                                                                 </span>
+                                                            </div>
+                                                        </div>
+                                                          
+                                                        <div class="modal fade" id="modalAmostra--{{$item->id}}" role="dialog">
+                                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                <div class="modal-content accordion">
+                                                                    <div class="modal-header">
+                                                                        <div>
+                                                                            <h5 class="modal-title align-self-center" id="modalAmostra--{{$item->id}}">
+                                                                                {{$item->id}}) {{optional($item->amostra->amostrasIdiomas->first())->nome }}
+                                                                            </h5>
+                                                                        </div>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12 mb-5 fv-row">
+                                                                                <div class="spinner-border hidden position-absolute top-50 start-50" id="spinnerModal--{{$item->id}}" style="margin-top: -1.5%;" role="status">
+                                                                                    <span class="sr-only">Loading...</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1282,9 +1309,9 @@
                                         <tbody>
                                             @if(count($produtosPedido) > 0)
                                             @foreach($produtosPedido as $item)
-                                            <tr data-href="{{route('PedidosProdutos.editar', ['id' => $item->id])}}">
+                                            <tr>
                                                 <td>
-                                                <div class="d-flex gap-3 align-items-center">
+                                                    <div class="d-flex gap-3 align-items-center">
                                                         <div class="form-check">
                                                             <label class="form-check-label">
                                                                 <input class="form-check-input form-check-input-produtos" type="checkbox" value="{{ $item->id }}" {{in_array($item->id, $especificacaoProdutosPedido) ? 'checked' : ''}} name="produto_pedido_id">
@@ -1293,9 +1320,35 @@
                                                         </div>
                                                         <div class="d-flex align-items-center">
                                                             <div class="d-flex justify-content-start flex-column">
-                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
+                                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6" onclick="getProduto({{ $item->id }})" data-bs-toggle="modal" data-bs-target="#modalProduto--{{$item->id}}">
                                                                     {!! $item->id !!}) {{optional($item->produto->produtosIdiomas->first())->nome }}
                                                                 </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal fade" id="modalProduto--{{$item->id}}" role="dialog">
+                                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                <div class="modal-content accordion">
+                                                                    <div class="modal-header">
+                                                                        <div>
+                                                                            <h5 class="modal-title align-self-center" id="modalProduto--{{$item->id}}">
+                                                                                {{$item->id}}) {{optional($item->produto->produtosIdiomas->first())->nome }}
+                                                                            </h5>
+                                                                        </div>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12 mb-5 fv-row">
+                                                                                <div class="spinner-border hidden position-absolute top-50 start-50" id="spinnerModal--{{$item->id}}" style="margin-top: -1.5%;" role="status">
+                                                                                    <span class="sr-only">Loading...</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1659,6 +1712,291 @@ $(document).ready(function() {
             error: function(err) {
                $("#spinnerModal--" + especificacaoId + "").addClass("hidden");
                 console.error('Erro ao buscar comparação:', err);
+            }
+        });
+    }
+
+    function agruparMultiplos(atributos) {
+        const map = new Map();
+
+        atributos.forEach(attr => {
+
+            if (attr.atributo_tipo !== 'multiplos') {
+                map.set(Symbol(), attr);
+                return;
+            }
+
+            if (!map.has(attr.atributo_id)) {
+                map.set(attr.atributo_id, {
+                    atributo_id: attr.atributo_id,
+                    atributo_nome: attr.atributo_nome,
+                    atributo_tipo: attr.atributo_tipo,
+                    imagens: attr.imagens || [],
+                    subatributos: []
+                });
+            }
+
+            map.get(attr.atributo_id).subatributos.push({
+                nome: attr.sub_atributo_nome,
+                conteudo: attr.conteudo,
+                observacao: attr.observacao_personalizada
+            });
+        });
+
+        return Array.from(map.values());
+    }
+    
+    function getContentModal(itemPedidoId, response, idName, tipo) {
+        const container = $(`#${idName}--${itemPedidoId} .modal-body`);
+        const urlBase = window.APP_URL_ESPECIFICACAO || '';
+        let html = `<ul class="list-group">`;
+
+        Object.entries(response).forEach(([nomeAmostra, pedidos]) => {
+            pedidos.forEach(pedido => {
+                Object.values(pedido).forEach(dados => {
+
+                    const atributosAgrupados = agruparMultiplos(dados.atributos);
+
+                    atributosAgrupados.forEach(attr => {
+
+                        const type = attr.atributo_tipo;
+                        const name = attr.atributo_nome;
+
+                        /* ===============================
+                        SELECIONÁVEL / TEXTO
+                        =============================== */
+                        if (type === 'selecionavel' || type === 'texto') {
+
+                            let valor =
+                                attr.conteudo ? `${attr.conteudo}${attr.atributo_unidade ? " " + attr.atributo_unidade : ''};` :
+                                attr.sub_atributo_nome ? `${attr.sub_atributo_nome}${attr.atributo_unidade ? " " + attr.atributo_unidade : ''};` :
+                                'Não informado;';
+
+                            html += `
+                                <li class="p-3 bg-light rounded-2 border border-light position-relative" style="margin-left: 0px;">
+                                    <span style="font-weight:600">${name}:</span>
+                                    ${valor}
+                            `;
+
+                            if (attr.observacao_personalizada) {
+                                html += `<div class="obsText">Obs: ${attr.observacao_personalizada}</div>`;
+                            }
+
+                            if (attr.imagens?.length) {
+                                html += `<div>`;
+                                attr.imagens.forEach(img => {
+                                    html += `<img src="${urlBase}/assets/img/${tipo}/atributos/pedido/${img.imagem}" class="layout" style="margin:10px 0;">`;
+                                });
+                                html += `</div>`;
+                            }
+
+                            html += `</li>`;
+                        }
+
+                        /* ===============================
+                        MÚLTIPLOS (AGRUPADO)
+                        =============================== */
+                        if (type === 'multiplos') {
+
+                            html += `
+                                <li class="p-3 bg-light rounded-2 border border-light position-relative" style="margin-left: 0px;">
+                                    <span style="font-weight:600;">${name}:</span>
+                            `;
+
+                            attr.subatributos.forEach((sub, i) => {
+                                html += `
+                                    <div class="">
+                                        <span style="font-weight:600;">${sub.nome}:</span> ${sub.conteudo ?? 'Não informado'};
+                                `;
+
+                                if (sub.observacao) {
+                                    html += `<div class="obsText">Obs: ${sub.observacao}</div>`;
+                                }
+
+                                html += `</div>`;
+                            });
+
+                            if (attr.imagens?.length) {
+                                html += `<div>`;
+                                attr.imagens.forEach(img => {
+                                    html += `<img src="${urlBase}/assets/img/${tipo}/atributos/pedido/${img.arquivo}" class="layout" style="margin:10px 0;">`;
+                                });
+                                html += `</div>`;
+                            }
+
+                            html += `</li>`;
+                        }
+                    });
+
+                    if(dados.imagens_gerais.length > 0) {
+
+                        html += 
+                            `<div class="d-flex flex-wrap flex-sm-nowrap mt-3">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6>Imagens</h6>
+                                    </div>
+                                    <div class="row galleryPedidoModal" id="contentSortableProjects">
+                        `;
+                        
+                        dados.imagens_gerais.forEach((attr, index) => {
+                            const imgUrl = `${urlBase}/assets/img/${tipo}/pedido/${attr.arquivo}`;
+                            html += `
+                                <div class="col-md-4 mb-3 projectContent">
+                                    <div class="card-style">
+                                        <div class="card-body d-flex flex-center flex-column">
+
+                                            <a
+                                                href="${imgUrl}"
+                                                class="light-item"
+                                                data-sub-html="Imagem ${index + 1}">
+                                                <img
+                                                    class="imgProject img-fluid"
+                                                    src="${imgUrl}" />
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += `
+                            </div>
+                            </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if(dados.documentos_gerais.length > 0) {
+                        html += 
+                        `
+                            <div class="table-wrapper table-responsive">
+                                <table class="table striped-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <h6>Arquivo(s)</h6>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                        `;
+
+                        dados.documentos_gerais.forEach((attr, index) => {
+                            const imgUrl = `${urlBase}/assets/img/${tipo}/pedido/${attr.arquivo}`;
+                            html += `
+                                <tbody style="padding: 15px !important;">
+                                    <tr>
+                                        <td>
+                                            <a target="_blank" href="${imgUrl}">
+                                            ${attr.arquivo}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            `;
+                        });
+                        
+                        html += `</table></div>`;
+                    }
+                    
+                });
+            });
+
+        });
+
+        html += `</ul>`;
+        container.html(html);
+    }
+
+    window.getAmostra = function(amostraPedidoId) {
+        $("#spinnerModal--" + amostraPedidoId + "").removeClass("hidden");
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || 'pt';
+        $.ajax({
+            url: `/especificacoes/amostra/pedido/${amostraPedidoId}`,
+            method: 'GET',
+            data: {
+                atributo_amostra_indice_pedido_id: amostraPedidoId,
+                lang: lang 
+            },
+            success: function (response) {
+                $("#spinnerModal--" + amostraPedidoId).addClass("hidden");
+
+                getContentModal(amostraPedidoId, response.amostra, 'modalAmostra', 'amostras');
+
+                let modalAbertoId = null;
+
+                document.addEventListener('shown.bs.modal', function(event) {
+                    const modal = event.target;
+                    modalAbertoId = modal.id;
+
+                    const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
+
+                    galleriesModal.forEach(gallery => {
+                        if (!gallery.dataset.lgInit) {
+                            lightGallery(gallery, {
+                                selector: 'a.light-item',
+                                plugins: [lgZoom, lgThumbnail],
+                                speed: 400,
+                                download: false,
+                            });
+
+                            gallery.dataset.lgInit = "true";
+                        }
+                    });
+                });
+            },
+
+            error: function(err) {
+               $("#spinnerModal--" + amostraPedidoId + "").addClass("hidden");
+                console.error('Erro ao buscar amostras:', err);
+            }
+        });
+    }
+
+    window.getProduto = function(produtoPedidoId) {
+        $("#spinnerModal--" + produtoPedidoId + "").removeClass("hidden");
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || 'pt';
+        $.ajax({
+            url: `/especificacoes/produto/pedido/${produtoPedidoId}`,
+            method: 'GET',
+            data: {
+                atributo_produto_indice_pedido_id: produtoPedidoId,
+                lang: lang 
+            },
+            success: function (response) {
+                $("#spinnerModal--" + produtoPedidoId).addClass("hidden");
+
+                getContentModal(produtoPedidoId, response.produto, 'modalProduto', 'produtos');
+
+                let modalAbertoId = null;
+
+                document.addEventListener('shown.bs.modal', function(event) {
+                    const modal = event.target;
+                    modalAbertoId = modal.id;
+
+                    const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
+
+                    galleriesModal.forEach(gallery => {
+                        if (!gallery.dataset.lgInit) {
+                            lightGallery(gallery, {
+                                selector: 'a.light-item',
+                                plugins: [lgZoom, lgThumbnail],
+                                speed: 400,
+                                download: false,
+                            });
+
+                            gallery.dataset.lgInit = "true";
+                        }
+                    });
+                });
+            },
+
+            error: function(err) {
+               $("#spinnerModal--" + produtoPedidoId + "").addClass("hidden");
+                console.error('Erro ao buscar produtos:', err);
             }
         });
     }

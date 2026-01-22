@@ -169,11 +169,13 @@ class PedidoAmostraService
                     } 
 
                     else {
-                        $nomeArquivo = $arquivo->getClientOriginalName() . '.' . $extension;
+                        $nomeArquivo = $arquivo->getClientOriginalName();
                         $hasFileName = 1;
 
                         while (file_exists($dest . '/' . $nomeArquivo)) {
-                            $nomeArquivo = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME) . '_' . $hasFileName . '.' . $extension;
+                            $nomeBase   = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME);
+                            $nomeArquivo = $nomeBase . '_' . $hasFileName . '.' . $extension;
+
                             $hasFileName++;
                         }
 
@@ -398,7 +400,9 @@ class PedidoAmostraService
                         $hasFileName = 1;
                         
                         while (file_exists($dest . '/' . $nomeArquivo)) {
-                            $nomeArquivo = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME) . '_' . $hasFileName . '.' . $extension;
+                            $nomeBase   = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME);
+                            $nomeArquivo = $nomeBase . '_' . $hasFileName . '.' . $extension;
+
                             $hasFileName++;
                         }
 

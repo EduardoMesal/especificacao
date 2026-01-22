@@ -1686,7 +1686,7 @@ div.dataTables_wrapper div.dataTables_filter {
   color: #e2231a;
 }
 
-.resumoContent .obsText {
+.obsText {
   color: #181c32;
   margin-left: 20px;
   display: block;
@@ -1697,6 +1697,20 @@ div.dataTables_wrapper div.dataTables_filter {
   margin-bottom: 0px !important;
 }
 
+.modal-body .imgProject{
+  max-height: 130px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 0px;
+}
+.modal-body .card-style{
+  padding: 10px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
 .contentResumoImg {
   display: flex;
   background-color: #f8f9fa;
@@ -2116,7 +2130,7 @@ span.indicator-label {
 }
 
 .modal-content {
-  color: #5d657b !important;
+  color: #000 !important;
   font-size: 16px;
   font-weight: 400;
   line-height: 25px;

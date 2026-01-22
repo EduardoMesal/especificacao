@@ -18,11 +18,17 @@ use App\Models\ImagemAtributoAmostra;
 use App\Models\ImagemAtributoProduto;
 use App\Models\AtributoAmostraIndiceEspecificacao;
 use App\Models\AtributoAmostraIndicePedido;
+use App\Models\AtributoAmostraPedido;
 use App\Models\AtributoProdutoIndiceEspecificacao;
 use App\Models\AtributoProdutoIndicePedido;
+use App\Models\AtributoProdutoPedido;
 use App\Models\EspecificacaoAmostraPedido;
 use App\Models\EspecificacaoProdutoPedido;
 use App\Models\Idioma;
+use App\Models\ImagemAmostraPedido;
+use App\Models\ImagemAtributoAmostraPedido;
+use App\Models\ImagemAtributoProdutoPedido;
+use App\Models\ImagemProdutoPedido;
 use App\Models\Revisao;
 use BcMath\Number;
 use Illuminate\Support\Facades\DB;
@@ -1389,9 +1395,9 @@ class EspecificacaoService
             $conteudo = $dado['conteudo'] ?? '';
 
             if ($caracteristica && $caracteristica->caracteristicasIdiomas->first()) {
-                $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome ?? __('messages.nao_informado');
+                $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome ?? null;
                 $unidade = $caracteristica->caracteristicasIdiomas->first()->unidade ?  ' '.$caracteristica->caracteristicasIdiomas->first()->unidade : '';
-                $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? __('messages.nao_informado');
+                $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? null;
                 $caracteristicaId = $caracteristica->id ?? '';
                 $excluido = $caracteristica->excluido ? true : false;
                 $comparavel = $caracteristica->comparavel ? true : false;
@@ -1505,7 +1511,7 @@ class EspecificacaoService
                             $textRun->addText("{$subitem['atributo']}: {$subitem['conteudo']}" . (!empty($subitem['unidade']) ? ' ' . $subitem['unidade'] : '') . ';');
                         } else {
                             $textRun->addText("{$subitem['atributo']}:");
-                            $textRun->addText(" Não informado;", ['color' => 'FF0000']);
+                            $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
                         }
 
                         if (!empty($subitem['observacao'])) {
@@ -1565,156 +1571,156 @@ class EspecificacaoService
 
         $resumosAmostras = '';
 
-        if($request->tipo == 'amostras' || $request->tipo == 'completa'){
-            $section->addText(
-                "Amostras",
-                ['bold' => true, 'size' => 12],
-                ['spaceBefore' => 240, 'spaceAfter' => 240]
-            );
-            foreach ($dadosPorAmostra as $amostraNome => $amostras) {
-                $contador = 1; 
+        // if($request->tipo == 'amostras' || $request->tipo == 'completa'){
+        //     $section->addText(
+        //         "Amostras",
+        //         ['bold' => true, 'size' => 12],
+        //         ['spaceBefore' => 240, 'spaceAfter' => 240]
+        //     );
+        //     foreach ($dadosPorAmostra as $amostraNome => $amostras) {
+        //         $contador = 1; 
                 
-                foreach ($amostras as $amostrasDoIndice) {
-                    $resumoAmostras = '';
-                    $atributosAgrupados = [];
-                    $imagensExibidas = [];
-                    $amostraNomeExibido = false;
+        //         foreach ($amostras as $amostrasDoIndice) {
+        //             $resumoAmostras = '';
+        //             $atributosAgrupados = [];
+        //             $imagensExibidas = [];
+        //             $amostraNomeExibido = false;
 
 
-                    foreach ($amostrasDoIndice as $item) {
+        //             foreach ($amostrasDoIndice as $item) {
                         
-                        if (!$amostraNomeExibido) {
-                            $section->addText("{$item['amostra_nome']}", ['bold' => true]);
-                            $section->addText(
-                                "Modelo {$contador}",
-                                [
-                                    'size'  => 8,
-                                    'color' => 'FF0000',
-                                    'bold'  => false,
-                                ]
-                            );
+        //                 if (!$amostraNomeExibido) {
+        //                     $section->addText("{$item['amostra_nome']}", ['bold' => true]);
+        //                     $section->addText(
+        //                         "Modelo {$contador}",
+        //                         [
+        //                             'size'  => 8,
+        //                             'color' => 'FF0000',
+        //                             'bold'  => false,
+        //                         ]
+        //                     );
 
-                            $amostraNomeExibido = true;
-                        }
+        //                     $amostraNomeExibido = true;
+        //                 }
 
-                        if (isset($item['indice']['imagens']) && count($item['indice']['imagens']) > 0) {
-                            foreach ($item['indice']['imagens'] as $imagem) {
-                                if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                    $imgPath = public_path('assets/img/amostras/' . $imagem['imagem']);
-                                    $this->addImageToSection($section, $imgPath);
-                                    $imagensExibidas[] = $imagem['imagem'];
-                                }
-                            }
-                        }
+        //                 if (isset($item['indice']['imagens']) && count($item['indice']['imagens']) > 0) {
+        //                     foreach ($item['indice']['imagens'] as $imagem) {
+        //                         if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                             $imgPath = public_path('assets/img/amostras/' . $imagem['imagem']);
+        //                             $this->addImageToSection($section, $imgPath);
+        //                             $imagensExibidas[] = $imagem['imagem'];
+        //                         }
+        //                     }
+        //                 }
 
-                        if ($item['atributo_tipo'] == 'multiplos') {
-                            if(strtolower($item['conteudo']) != 'n/a'){
-                                $atributosAgrupados[$item['atributo_nome']][] = [
-                                    'sub_atributo_nome' => $item['sub_atributo_nome'],
-                                    'atributo_unidade' => $item['atributo_unidade'],
-                                    'conteudo' => $item['conteudo'],
-                                    'observacao' => $item['observacao_personalizada']
-                                ];
-                            }
-                        }
+        //                 if ($item['atributo_tipo'] == 'multiplos') {
+        //                     if(strtolower($item['conteudo']) != 'n/a'){
+        //                         $atributosAgrupados[$item['atributo_nome']][] = [
+        //                             'sub_atributo_nome' => $item['sub_atributo_nome'],
+        //                             'atributo_unidade' => $item['atributo_unidade'],
+        //                             'conteudo' => $item['conteudo'],
+        //                             'observacao' => $item['observacao_personalizada']
+        //                         ];
+        //                     }
+        //                 }
 
-                        if ($item['atributo_tipo'] == 'texto') {
-                            if (strtolower($item['conteudo']) != 'n/a') {
-                                $textRun = $section->addTextRun();
+        //                 if ($item['atributo_tipo'] == 'texto') {
+        //                     if (strtolower($item['conteudo']) != 'n/a') {
+        //                         $textRun = $section->addTextRun();
                         
-                                $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
+        //                         $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
                         
-                                if (!empty($item['conteudo'])) {
-                                    $textRun->addText($item['conteudo'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
-                                } else {
-                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
-                                }
+        //                         if (!empty($item['conteudo'])) {
+        //                             $textRun->addText($item['conteudo'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
+        //                         } else {
+        //                             $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
+        //                         }
                         
-                                if (!empty($item['observacao_personalizada'])) {
-                                    $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
-                                }
+        //                         if (!empty($item['observacao_personalizada'])) {
+        //                             $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
+        //                         }
                         
-                                if (!empty($item['imagens'])) {
-                                    foreach ($item['imagens'] as $imagem) {
-                                        if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                            $imgPath = public_path('assets/img/amostras/atributos/' . $imagem['imagem']);
-                                            $this->addImageToSection($section, $imgPath);
-                                            $imagensExibidas[] = $imagem['imagem'];
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        //                         if (!empty($item['imagens'])) {
+        //                             foreach ($item['imagens'] as $imagem) {
+        //                                 if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                                     $imgPath = public_path('assets/img/amostras/atributos/' . $imagem['imagem']);
+        //                                     $this->addImageToSection($section, $imgPath);
+        //                                     $imagensExibidas[] = $imagem['imagem'];
+        //                                 }
+        //                             }
+        //                         }
+        //                     }
+        //                 }
                         
-                        if ($item['atributo_tipo'] == 'selecionavel') {
-                            if (strtolower($item['sub_atributo_nome']) != 'n/a') {
-                                $textRun = $section->addTextRun();
+        //                 if ($item['atributo_tipo'] == 'selecionavel') {
+        //                     if (strtolower($item['sub_atributo_nome']) != 'n/a') {
+        //                         $textRun = $section->addTextRun();
                         
-                                $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
+        //                         $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
                         
-                                if (!empty($item['sub_atributo_nome'])) {
-                                    $textRun->addText($item['sub_atributo_nome'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
-                                } else {
-                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
-                                }
+        //                         if (!empty($item['sub_atributo_nome'])) {
+        //                             $textRun->addText($item['sub_atributo_nome'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
+        //                         } else {
+        //                             $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
+        //                         }
                         
-                                if (!empty($item['observacao_personalizada'])) {
-                                    $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
-                                }
+        //                         if (!empty($item['observacao_personalizada'])) {
+        //                             $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
+        //                         }
                         
-                                if (!empty($item['imagens'])) {
-                                    foreach ($item['imagens'] as $imagem) {
-                                        if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                            $imgPath = public_path('assets/img/amostras/atributos/' . $imagem['imagem']);
-                                            $this->addImageToSection($section, $imgPath);
-                                            $imagensExibidas[] = $imagem['imagem'];
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        //                         if (!empty($item['imagens'])) {
+        //                             foreach ($item['imagens'] as $imagem) {
+        //                                 if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                                     $imgPath = public_path('assets/img/amostras/atributos/' . $imagem['imagem']);
+        //                                     $this->addImageToSection($section, $imgPath);
+        //                                     $imagensExibidas[] = $imagem['imagem'];
+        //                                 }
+        //                             }
+        //                         }
+        //                     }
+        //                 }
                         
-                    }
+        //             }
 
-                    foreach ($atributosAgrupados as $atributoNome => $subatributos) {
-                        $section->addText("{$atributoNome}");
-                        foreach ($amostrasDoIndice as $itemImagem) {
-                            if ($itemImagem['atributo_nome'] === $atributoNome && !empty($itemImagem['imagens'])) {
-                                foreach ($itemImagem['imagens'] as $imagem) {
-                                    if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                        $imgPath = public_path('assets/img/amostras/atributos/' . $imagem['imagem']);
-                                        $this->addImageToSection($section, $imgPath);
-                                        $imagensExibidas[] = $imagem['imagem'];
-                                    }
-                                }
-                            }
-                        }
+        //             foreach ($atributosAgrupados as $atributoNome => $subatributos) {
+        //                 $section->addText("{$atributoNome}");
+        //                 foreach ($amostrasDoIndice as $itemImagem) {
+        //                     if ($itemImagem['atributo_nome'] === $atributoNome && !empty($itemImagem['imagens'])) {
+        //                         foreach ($itemImagem['imagens'] as $imagem) {
+        //                             if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                                 $imgPath = public_path('assets/img/amostras/atributos/' . $imagem['imagem']);
+        //                                 $this->addImageToSection($section, $imgPath);
+        //                                 $imagensExibidas[] = $imagem['imagem'];
+        //                             }
+        //                         }
+        //                     }
+        //                 }
 
-                        foreach ($subatributos as $sub) {
+        //                 foreach ($subatributos as $sub) {
 
-                            $textRun = $section->addTextRun();
+        //                     $textRun = $section->addTextRun();
                         
-                            $textRun->addText("{$sub['sub_atributo_nome']}: ", ['color' => '000000']);
+        //                     $textRun->addText("{$sub['sub_atributo_nome']}: ", ['color' => '000000']);
                         
-                            if (!empty($sub['conteudo'])) {
-                                $textRun->addText($sub['conteudo'] . (!empty($sub['atributo_unidade']) ? ' ' . $sub['atributo_unidade'] : '') . ';', ['color' => '000000']);
-                            } else {
-                                $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
-                            }
+        //                     if (!empty($sub['conteudo'])) {
+        //                         $textRun->addText($sub['conteudo'] . (!empty($sub['atributo_unidade']) ? ' ' . $sub['atributo_unidade'] : '') . ';', ['color' => '000000']);
+        //                     } else {
+        //                         $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
+        //                     }
                         
-                            if (!empty($sub['observacao'])) {
-                                $section->addText("\n\nOBS: {$sub['observacao']}");
-                            }
-                        }
+        //                     if (!empty($sub['observacao'])) {
+        //                         $section->addText("\n\nOBS: {$sub['observacao']}");
+        //                     }
+        //                 }
                         
-                    }
+        //             }
 
-                    $resumosAmostras .= "<h5 style='margin:5px 0px;'>{$amostraNome} {$contador}</h5>";
-                    $resumosAmostras .= $resumoAmostras;
-                    $contador++;
-                }
-            }
-        }
+        //             $resumosAmostras .= "<h5 style='margin:5px 0px;'>{$amostraNome} {$contador}</h5>";
+        //             $resumosAmostras .= $resumoAmostras;
+        //             $contador++;
+        //         }
+        //     }
+        // }
 
         $indiceProdutoId = AtributoProdutoIndiceEspecificacao::where('especificacao_id', $especificacao->id)->where('excluido', null)->pluck('id')
         ->toArray();
@@ -1729,155 +1735,155 @@ class EspecificacaoService
 
         $resumosProdutos = '';
 
-        if($request->tipo == 'produtos' || $request->tipo == 'completa'){
-            $section->addText(
-                "Produtos",
-                ['bold' => true, 'size' => 12],
-                ['spaceBefore' => 240, 'spaceAfter' => 240]
-            );
-            foreach ($dadosPorProduto as $produtoNome => $produtos) {
-                $contador = 1; 
+        // if($request->tipo == 'produtos' || $request->tipo == 'completa'){
+        //     $section->addText(
+        //         "Produtos",
+        //         ['bold' => true, 'size' => 12],
+        //         ['spaceBefore' => 240, 'spaceAfter' => 240]
+        //     );
+        //     foreach ($dadosPorProduto as $produtoNome => $produtos) {
+        //         $contador = 1; 
                 
-                foreach ($produtos as $produtosDoIndice) {
-                    $resumoProdutos = '';
-                    $atributosAgrupados = [];
-                    $imagensExibidas = [];
-                    $produtoNomeExibido = false;
+        //         foreach ($produtos as $produtosDoIndice) {
+        //             $resumoProdutos = '';
+        //             $atributosAgrupados = [];
+        //             $imagensExibidas = [];
+        //             $produtoNomeExibido = false;
         
-                    foreach ($produtosDoIndice as $item) {
+        //             foreach ($produtosDoIndice as $item) {
                         
-                        if (!$produtoNomeExibido) {
-                            $section->addText("{$item['produto_nome']}", ['bold' => true]);
-                            $section->addText(
-                                "Modelo {$contador}",
-                                [
-                                    'size'  => 8,
-                                    'color' => 'FF0000',
-                                    'bold'  => false,
-                                ]
-                            );
-                            $produtoNomeExibido = true;
-                        }
+        //                 if (!$produtoNomeExibido) {
+        //                     $section->addText("{$item['produto_nome']}", ['bold' => true]);
+        //                     $section->addText(
+        //                         "Modelo {$contador}",
+        //                         [
+        //                             'size'  => 8,
+        //                             'color' => 'FF0000',
+        //                             'bold'  => false,
+        //                         ]
+        //                     );
+        //                     $produtoNomeExibido = true;
+        //                 }
         
-                        if (isset($item['indice']['imagens']) && count($item['indice']['imagens']) > 0) {
-                            foreach ($item['indice']['imagens'] as $imagem) {
-                                if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                    $imgPath = public_path('assets/img/produtos/' . $imagem['imagem']);
-                                    $this->addImageToSection($section, $imgPath);
-                                    $imagensExibidas[] = $imagem['imagem'];
-                                }
-                            }
-                        }
+        //                 if (isset($item['indice']['imagens']) && count($item['indice']['imagens']) > 0) {
+        //                     foreach ($item['indice']['imagens'] as $imagem) {
+        //                         if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                             $imgPath = public_path('assets/img/produtos/' . $imagem['imagem']);
+        //                             $this->addImageToSection($section, $imgPath);
+        //                             $imagensExibidas[] = $imagem['imagem'];
+        //                         }
+        //                     }
+        //                 }
         
-                        if ($item['atributo_tipo'] == 'multiplos') {
-                            if(strtolower($item['conteudo']) != 'n/a'){
-                                $atributosAgrupados[$item['atributo_nome']][] = [
-                                    'sub_atributo_nome' => $item['sub_atributo_nome'],
-                                    'atributo_unidade' => $item['atributo_unidade'],
-                                    'conteudo' => $item['conteudo'],
-                                    'observacao' => $item['observacao_personalizada']
-                                ];
-                            }
-                        }
+        //                 if ($item['atributo_tipo'] == 'multiplos') {
+        //                     if(strtolower($item['conteudo']) != 'n/a'){
+        //                         $atributosAgrupados[$item['atributo_nome']][] = [
+        //                             'sub_atributo_nome' => $item['sub_atributo_nome'],
+        //                             'atributo_unidade' => $item['atributo_unidade'],
+        //                             'conteudo' => $item['conteudo'],
+        //                             'observacao' => $item['observacao_personalizada']
+        //                         ];
+        //                     }
+        //                 }
         
-                        if ($item['atributo_tipo'] == 'texto') {
-                            if (strtolower($item['conteudo']) != 'n/a') {
-                                $textRun = $section->addTextRun();
+        //                 if ($item['atributo_tipo'] == 'texto') {
+        //                     if (strtolower($item['conteudo']) != 'n/a') {
+        //                         $textRun = $section->addTextRun();
                         
-                                $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
+        //                         $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
                         
-                                if (!empty($item['conteudo'])) {
-                                    $textRun->addText($item['conteudo'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
-                                } else {
-                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
-                                }
+        //                         if (!empty($item['conteudo'])) {
+        //                             $textRun->addText($item['conteudo'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
+        //                         } else {
+        //                             $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
+        //                         }
                         
-                                if (!empty($item['observacao_personalizada'])) {
-                                    $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
-                                }
+        //                         if (!empty($item['observacao_personalizada'])) {
+        //                             $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
+        //                         }
                         
-                                if (!empty($item['imagens'])) {
-                                    foreach ($item['imagens'] as $imagem) {
-                                        if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                            $imgPath = public_path('assets/img/produtos/atributos/' . $imagem['imagem']);
-                                            $this->addImageToSection($section, $imgPath);
-                                            $imagensExibidas[] = $imagem['imagem'];
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        //                         if (!empty($item['imagens'])) {
+        //                             foreach ($item['imagens'] as $imagem) {
+        //                                 if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                                     $imgPath = public_path('assets/img/produtos/atributos/' . $imagem['imagem']);
+        //                                     $this->addImageToSection($section, $imgPath);
+        //                                     $imagensExibidas[] = $imagem['imagem'];
+        //                                 }
+        //                             }
+        //                         }
+        //                     }
+        //                 }
                         
                 
-                        if ($item['atributo_tipo'] == 'selecionavel') {
-                            if (strtolower($item['sub_atributo_nome']) != 'n/a') {
-                                $textRun = $section->addTextRun();
+        //                 if ($item['atributo_tipo'] == 'selecionavel') {
+        //                     if (strtolower($item['sub_atributo_nome']) != 'n/a') {
+        //                         $textRun = $section->addTextRun();
                         
-                                $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
+        //                         $textRun->addText("{$item['atributo_nome']}: ", ['color' => '000000']);
                         
-                                if (!empty($item['sub_atributo_nome'])) {
-                                    $textRun->addText($item['sub_atributo_nome'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
-                                } else {
-                                    $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
-                                }
+        //                         if (!empty($item['sub_atributo_nome'])) {
+        //                             $textRun->addText($item['sub_atributo_nome'] . (!empty($item['atributo_unidade']) ? ' ' . $item['atributo_unidade'] : '') . ';', ['color' => '000000']);
+        //                         } else {
+        //                             $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
+        //                         }
                         
-                                if (!empty($item['observacao_personalizada'])) {
-                                    $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
-                                }
+        //                         if (!empty($item['observacao_personalizada'])) {
+        //                             $section->addText("\n\nOBS: {$item['observacao_personalizada']}");
+        //                         }
                         
-                                if (!empty($item['imagens'])) {
-                                    foreach ($item['imagens'] as $imagem) {
-                                        if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                            $imgPath = public_path('assets/img/produtos/atributos/' . $imagem['imagem']);
-                                            $this->addImageToSection($section, $imgPath);
-                                            $imagensExibidas[] = $imagem['imagem'];
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        //                         if (!empty($item['imagens'])) {
+        //                             foreach ($item['imagens'] as $imagem) {
+        //                                 if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                                     $imgPath = public_path('assets/img/produtos/atributos/' . $imagem['imagem']);
+        //                                     $this->addImageToSection($section, $imgPath);
+        //                                     $imagensExibidas[] = $imagem['imagem'];
+        //                                 }
+        //                             }
+        //                         }
+        //                     }
+        //                 }
             
-                    }
+        //             }
         
-                    foreach ($atributosAgrupados as $atributoNome => $subatributos) {
-                        $section->addText("{$atributoNome}");
-                        foreach ($produtosDoIndice as $itemImagem) {
-                            if ($itemImagem['atributo_nome'] === $atributoNome && !empty($itemImagem['imagens'])) {
-                                foreach ($itemImagem['imagens'] as $imagem) {
-                                    if (!in_array($imagem['imagem'], $imagensExibidas)) {
-                                        $imgPath = public_path('assets/img/produtos/atributos/' . $imagem['imagem']);
-                                        $this->addImageToSection($section, $imgPath);
-                                        $imagensExibidas[] = $imagem['imagem'];
-                                    }
-                                }
-                            }
-                        }
+        //             foreach ($atributosAgrupados as $atributoNome => $subatributos) {
+        //                 $section->addText("{$atributoNome}");
+        //                 foreach ($produtosDoIndice as $itemImagem) {
+        //                     if ($itemImagem['atributo_nome'] === $atributoNome && !empty($itemImagem['imagens'])) {
+        //                         foreach ($itemImagem['imagens'] as $imagem) {
+        //                             if (!in_array($imagem['imagem'], $imagensExibidas)) {
+        //                                 $imgPath = public_path('assets/img/produtos/atributos/' . $imagem['imagem']);
+        //                                 $this->addImageToSection($section, $imgPath);
+        //                                 $imagensExibidas[] = $imagem['imagem'];
+        //                             }
+        //                         }
+        //                     }
+        //                 }
         
-                        foreach ($subatributos as $sub) {
+        //                 foreach ($subatributos as $sub) {
         
-                            $textRun = $section->addTextRun();
+        //                     $textRun = $section->addTextRun();
                         
-                            $textRun->addText("{$sub['sub_atributo_nome']}: ", ['color' => '000000']);
+        //                     $textRun->addText("{$sub['sub_atributo_nome']}: ", ['color' => '000000']);
                         
-                            if (!empty($sub['conteudo'])) {
-                                $textRun->addText($sub['conteudo'] . (!empty($sub['atributo_unidade']) ? ' ' . $sub['atributo_unidade'] : '') . ';', ['color' => '000000']);
-                            } else {
-                                $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
-                            }
+        //                     if (!empty($sub['conteudo'])) {
+        //                         $textRun->addText($sub['conteudo'] . (!empty($sub['atributo_unidade']) ? ' ' . $sub['atributo_unidade'] : '') . ';', ['color' => '000000']);
+        //                     } else {
+        //                         $textRun->addText(__('messages.nao_informado').';', ['color' => 'FF0000']);
+        //                     }
                         
-                            if (!empty($sub['observacao'])) {
-                                $section->addText("\n\nOBS: {$sub['observacao']}");
-                            }
-                        }
+        //                     if (!empty($sub['observacao'])) {
+        //                         $section->addText("\n\nOBS: {$sub['observacao']}");
+        //                     }
+        //                 }
                         
-                    }
+        //             }
         
-                    $resumosProdutos .= "<h5 style='margin:5px 0px;'>{$produtoNome} {$contador}</h5>";
-                    $resumosProdutos .= $resumoProdutos;
-                    $contador++; 
-                }
-            }
-        }
+        //             $resumosProdutos .= "<h5 style='margin:5px 0px;'>{$produtoNome} {$contador}</h5>";
+        //             $resumosProdutos .= $resumoProdutos;
+        //             $contador++; 
+        //         }
+        //     }
+        // }
 
         $fileName = 'resumo_especificacao_' . $id . '.docx';
         $tempFile = tempnam(sys_get_temp_dir(), 'word');
@@ -1996,4 +2002,177 @@ class EspecificacaoService
             throw $e;
         }
     }
+
+    public function get_amostra_pedido(array $dados){
+    
+        $idioma = $dados['lang'] ?? 'pt';
+    
+        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+
+        $amostrasPedido = AtributoAmostraIndicePedido::where('id', $dados['atributo_amostra_indice_pedido_id'])
+        ->whereNull('excluido')
+        ->first();
+
+        $amostras = AtributoAmostraPedido::where('indice_amostra_pedido_id', $amostrasPedido->id)
+        ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_pedido.atributo_id')
+        ->leftJoin('atributos_amostra_idiomas', function ($join) use($idiomaId) {
+            $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
+                ->where('atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_pedido.sub_atributo_id')
+        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) use($idiomaId) {
+            $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
+                ->where('sub_atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
+        ->leftJoin('amostras_idiomas', function ($join) use($idiomaId) {
+            $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
+                ->where('amostras_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->whereNull('atributos_amostra.excluido')
+        ->whereNull('sub_atributos_amostra.excluido')
+        ->select(
+            'atributos_amostra_pedido.id',
+            'atributos_amostra_pedido.indice_amostra_pedido_id',
+            'atributos_amostra_pedido.atributo_id',
+            'atributos_amostra_pedido.sub_atributo_id',
+            'atributos_amostra_pedido.observacao_personalizada',
+            'atributos_amostra_pedido.conteudo',
+            'atributos_amostra_idiomas.nome as atributo_nome',
+            'atributos_amostra_idiomas.unidade as atributo_unidade',
+            'atributos_amostra.tipo as atributo_tipo',
+            'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
+            'amostras_idiomas.nome as amostra_nome'
+        )
+        ->get()
+        ->map(function ($item) {
+            $item->imagens = ImagemAtributoAmostraPedido::where('atributo_amostra_id', $item->atributo_id)
+                ->where('indice_amostra_pedido_id', $item->indice_amostra_pedido_id)
+                ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_pedido_id']);
+            return $item;
+        });
+
+        $arquivosGerais = ImagemAmostraPedido::where('amostra_indice_pedido_id', $amostrasPedido->id)->get(['id', 'arquivo', 'tipo', 'amostra_indice_pedido_id']);
+
+        if(count($amostras) > 0) {
+            $amostrasAgrupadas2 = $amostras
+            ->groupBy('indice_amostra_pedido_id', 'asc')
+            ->map(function ($grupo) {
+                return $grupo->groupBy('amostra_nome');
+            });
+            $amostrasAgrupadas2 = $amostras
+            ->groupBy('amostra_nome')
+            ->map(function ($grupoPorNome) use ($arquivosGerais) {
+                return [
+                    $grupoPorNome
+                    ->groupBy('indice_amostra_pedido_id')
+                    ->map(function ($grupoPorIndice, $indice) use ($arquivosGerais) {
+                        
+                        return [
+                            'atributos' => $grupoPorIndice->values(),
+                            'imagens_gerais' => $arquivosGerais
+                                ->where('amostra_indice_pedido_id', $indice)
+                                ->where('tipo', 'imagem')
+                                ->values(),
+                            'documentos_gerais' => $arquivosGerais
+                                ->where('amostra_indice_pedido_id', $indice)
+                                ->where('tipo', 'documento')
+                                ->values(),
+                        ];
+                    }),
+                ];
+            });
+        }
+
+        return [
+            'amostra' => $amostrasAgrupadas2
+        ];
+    } 
+
+    public function get_produto_pedido(array $dados){
+    
+        $idioma = $dados['lang'] ?? 'pt';
+    
+        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+
+        $atributoProdutoIndice = AtributoProdutoIndicePedido::where('id', $dados['atributo_produto_indice_pedido_id'])
+        ->whereNull('excluido')
+        ->first();
+
+        $produtos = AtributoProdutoPedido::where('indice_produto_pedido_id', $atributoProdutoIndice->id)
+        ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produto_pedido.atributo_id')
+        ->leftJoin('atributos_produtos_idiomas', function ($join) use($idiomaId) {
+            $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
+                ->where('atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produto_pedido.sub_atributo_id')
+        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use($idiomaId) {
+            $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
+                ->where('sub_atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
+        ->leftJoin('produtos_idiomas', function ($join) use($idiomaId) {
+            $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
+                ->where('produtos_idiomas.idioma_id', '=', $idiomaId);
+        })
+        ->whereNull('atributos_produtos.excluido')
+        ->whereNull('sub_atributos_produtos.excluido')
+        ->select(
+            'atributos_produto_pedido.id',
+            'atributos_produto_pedido.indice_produto_pedido_id',
+            'atributos_produto_pedido.atributo_id',
+            'atributos_produto_pedido.sub_atributo_id',
+            'atributos_produto_pedido.observacao_personalizada',
+            'atributos_produto_pedido.conteudo',
+            'atributos_produtos_idiomas.nome as atributo_nome',
+            'atributos_produtos_idiomas.unidade as atributo_unidade',
+            'atributos_produtos.tipo as atributo_tipo',
+            'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
+            'produtos_idiomas.nome as produto_nome'
+        )
+        ->get()
+        ->map(function ($item) {
+            $item->imagens = ImagemAtributoProdutoPedido::where('atributo_produto_id', $item->atributo_id)
+                ->where('indice_produto_pedido_id', $item->indice_produto_pedido_id)
+                ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_pedido_id']);
+            return $item;
+        });
+
+        $imagensProdutosGerais = ImagemProdutoPedido::where('produto_indice_pedido_id', $atributoProdutoIndice->id)->get(['id', 'arquivo', 'tipo', 'produto_indice_pedido_id']);
+
+        if(count($produtos) > 0) {
+
+            $produtosAgrupados = $produtos->groupBy('indice_produto_pedido_id', 'asc')
+            ->map(function ($grupo) {
+                return $grupo->groupBy('produto_nome');
+            });
+
+            $produtosAgrupados = $produtos
+            ->groupBy('produto_nome')
+            ->map(function ($grupoPorNome) use ($imagensProdutosGerais) {
+                return [
+                    $grupoPorNome
+                    ->groupBy('indice_produto_pedido_id')
+                    ->map(function ($grupoPorIndice, $indice) use ($imagensProdutosGerais) {
+                        
+                        return [
+                            'atributos' => $grupoPorIndice->values(),
+                            'imagens_gerais' => $imagensProdutosGerais
+                                ->where('produto_indice_pedido_id', $indice)
+                                ->where('tipo', 'imagem')
+                                ->values(),
+                            'documentos_gerais' => $imagensProdutosGerais
+                                ->where('produto_indice_pedido_id', $indice)
+                                ->where('tipo', 'documento')
+                                ->values(),
+                        ];
+                    }),
+                ];
+            });
+        }
+
+        return [
+            'produto' => $produtosAgrupados
+        ];
+    } 
 }

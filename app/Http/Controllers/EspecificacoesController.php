@@ -170,6 +170,7 @@ class EspecificacoesController extends Controller
                 'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
             ]);
         }
+        
 
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],
@@ -544,7 +545,7 @@ class EspecificacoesController extends Controller
             $unidade = $item->caracteristica->caracteristicasIdiomas->first()->unidade ?? '';
 
             $valor = 'Não informado';
-            $nomeCaract = "<strong>{$nomeCaract}:</strong>";
+            $nomeCaract = "<span style='font-weight: 600; color: #000'>{$nomeCaract}:</span>";
             if ($tipo === 'texto') {
                 if (!empty($conteudo) && strtolower($conteudo) !== 'n/a') {
                     $valor = $conteudo;
@@ -555,14 +556,14 @@ class EspecificacoesController extends Controller
                 $agrupados[] = $linha;
 
             } elseif ($tipo === 'multiplos') {
-                $linha = "<strong>{$nomeAttr}:</strong> ";
-                $linha .= (!empty($conteudo) && strtolower($conteudo) !== 'n/a') ? $conteudo : 'Não informado';
+                $linha = "<span style='font-weight: 600; color: #000'>{$nomeAttr}:</span> ";
+                $linha .= (!empty($conteudo) && strtolower($conteudo) !== 'n/a') ? $conteudo : "<span style='color: #e2231a'>Não informado</span>";
                 if ($unidade) $linha .= " {$unidade}";
                 $linha .= ';';
                 $agrupados[$nomeCaract][] = $linha;
 
             } elseif ($tipo === 'selecionavel') {
-                $valor = $nomeAttr ?? 'Não informado';
+                $valor = $nomeAttr ?? "<span style='color: #e2231a'>Não informado</span>";
 
                 $linha = "{$nomeCaract} {$valor}";
                 if ($unidade && $valor !== 'Não informado'){
@@ -571,7 +572,7 @@ class EspecificacoesController extends Controller
                 $linha .= ';';
                 $agrupados[] = $linha;
             } else {
-                $linha = "{$nomeCaract} Não informado;";
+                $linha = "{$nomeCaract} <span style='color: #e2231a'>Não informado</span>;";
                 $agrupados[] = $linha;
             }
         }
@@ -609,5 +610,39 @@ class EspecificacoesController extends Controller
         }
 
         return $revisao;
+    }
+
+    public function get_amostra_pedido(Request $request, EspecificacaoService $especificacaoService)
+    {
+        $data = $request->only(['atributo_amostra_indice_pedido_id', 'lang']);
+        $amostraPedido = $especificacaoService->get_amostra_pedido($data);
+
+        if (!$amostraPedido) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Amostra não encontrada.',
+            ], 404);
+        }
+
+        return $amostraPedido;
+    }
+
+    public function get_produto_pedido(Request $request, EspecificacaoService $especificacaoService)
+    {
+        $data = $request->only(['atributo_produto_indice_pedido_id', 'lang']);
+        $produtoPedido = $especificacaoService->get_produto_pedido($data);
+
+        if (!$produtoPedido) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Produto não encontrado.',
+            ], 404);
+        }
+
+        return $produtoPedido;
     }
 }

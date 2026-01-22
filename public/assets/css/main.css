@@ -1706,7 +1706,7 @@ h6,
 .table td p {
   font-size: 14px;
   line-height: 1.5;
-  color: #5d657b;
+  color: #000;
 }
 .table td p a {
   color: inherit;
