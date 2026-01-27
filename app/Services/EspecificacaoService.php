@@ -593,24 +593,21 @@ class EspecificacaoService
 
     private function getAtributoAmostras($indiceAmostraId, $idiomaId)
     {
-        DB::statement('SET SQL_BIG_SELECTS=1');
-
-        return AtributoAmostraEspecificacao::whereIn('indice_amostra_id', $indiceAmostraId)
+        $amostras = AtributoAmostraEspecificacao::whereIn('indice_amostra_id', $indiceAmostraId)
         ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_especificacao.atributo_id')
-        ->leftJoin('atributos_amostra_idiomas', function ($join) use($idiomaId){
+        ->leftJoin('atributos_amostra_idiomas', function ($join) use ($idiomaId) {
             $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
-                ->where('atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
+                ->where('atributos_amostra_idiomas.idioma_id', $idiomaId);
         })
         ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_especificacao.sub_atributo_id')
-
-        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) use($idiomaId){
+        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) use ($idiomaId) {
             $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
-                ->where('sub_atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
+                ->where('sub_atributos_amostra_idiomas.idioma_id', $idiomaId);
         })
         ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
-        ->leftJoin('amostras_idiomas', function ($join) use($idiomaId){
+        ->leftJoin('amostras_idiomas', function ($join) use ($idiomaId) {
             $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
-                ->where('amostras_idiomas.idioma_id', '=', $idiomaId);
+                ->where('amostras_idiomas.idioma_id', $idiomaId);
         })
         ->whereNull('atributos_amostra.excluido')
         ->whereNull('sub_atributos_amostra.excluido')
@@ -628,37 +625,45 @@ class EspecificacaoService
             'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
             'amostras_idiomas.nome as amostra_nome'
         )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoAmostra::where('atributo_amostra_id', $item->atributo_id)
-                ->where('indice_amostra_id', $item->indice_amostra_id)
-                ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_id']);
+        ->get();
+
+        $imagens = ImagemAtributoAmostra::whereIn(
+            'atributo_amostra_id',
+            $amostras->pluck('atributo_id')->unique()
+        )
+        ->whereIn('indice_amostra_id', $indiceAmostraId)
+        ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_id'])
+        ->groupBy(function ($item) {
+            return $item->atributo_amostra_id . '_' . $item->indice_amostra_id;
+        });
+
+        $amostras = $amostras->map(function ($item) use ($imagens) {
+            $key = $item->atributo_id . '_' . $item->indice_amostra_id;
+            $item->imagens = $imagens[$key] ?? collect();
             return $item;
         });
+
+        return $amostras;
     }
 
     private function getAtributoProdutos($indiceProdutoId, $idiomaId){
 
-        DB::statement('SET SQL_BIG_SELECTS=1');
-        
-        return AtributoProdutoEspecificacao::whereIn('indice_produto_id', $indiceProdutoId)
+        $produtos = AtributoProdutoEspecificacao::whereIn('indice_produto_id', $indiceProdutoId)
         ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produtos_especificacao.atributo_produto_id')
-        ->leftJoin('atributos_produtos_idiomas', function ($join) use($idiomaId) {
+        ->leftJoin('atributos_produtos_idiomas', function ($join) use ($idiomaId) {
             $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
-                ->where('atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
+                ->where('atributos_produtos_idiomas.idioma_id', $idiomaId);
         })
         ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produtos_especificacao.sub_atributo_id')
-
-        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use($idiomaId) {
+        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use ($idiomaId) {
             $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
-                ->where('sub_atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
+                ->where('sub_atributos_produtos_idiomas.idioma_id', $idiomaId);
         })
         ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
-        ->leftJoin('produtos_idiomas', function ($join) use($idiomaId) {
+        ->leftJoin('produtos_idiomas', function ($join) use ($idiomaId) {
             $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
-                ->where('produtos_idiomas.idioma_id', '=', $idiomaId);
+                ->where('produtos_idiomas.idioma_id', $idiomaId);
         })
-
         ->whereNull('atributos_produtos.excluido')
         ->whereNull('sub_atributos_produtos.excluido')
         ->select(
@@ -674,13 +679,25 @@ class EspecificacaoService
             'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
             'produtos_idiomas.nome as produto_nome'
         )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoProduto::where('atributo_produto_id', $item->atributo_produto_id)
-                ->where('indice_produto_id', $item->indice_produto_id)
-                ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_id']);
+        ->get();
+
+        $imagens = ImagemAtributoProduto::whereIn(
+            'atributo_produto_id',
+            $produtos->pluck('atributo_produto_id')->unique()
+        )
+        ->whereIn('indice_produto_id', $indiceProdutoId)
+        ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_id'])
+        ->groupBy(function ($item) {
+            return $item->atributo_produto_id . '_' . $item->indice_produto_id;
+        });
+
+        $produtos = $produtos->map(function ($item) use ($imagens) {
+            $key = $item->atributo_produto_id . '_' . $item->indice_produto_id;
+            $item->imagens = $imagens[$key] ?? collect();
             return $item;
         });
+
+        return $produtos;
     }
 
     public function especificacao(int | string $id, array $dados)
@@ -1060,8 +1077,9 @@ class EspecificacaoService
         }])
         ->get();
 
-        $listaComparacao = [];
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        $listaComparacao = [];
         foreach ($maquinasComparacao as $maquina) {
             foreach ($maquina->expecificacoes as $especificacaoMaquina) {
 
@@ -1100,59 +1118,44 @@ class EspecificacaoService
                     }
                 }
 
-                $atributosComparaveis = AtributoEspecificacao::query()
-                ->where('atributos_especificacao.especificacao_id', $especificacaoMaquina->id)
-                ->where('atributos_especificacao.revisao_id', $especificacaoMaquina->revisao_selecionada_id)
-                ->whereIn('atributos_especificacao.caracteristica_id', $caracteristicasIds)
+                // $atributosComparaveis = AtributoEspecificacao::query()
+                // ->where('atributos_especificacao.especificacao_id', $especificacaoMaquina->id)
+                // ->where('atributos_especificacao.revisao_id', $especificacaoMaquina->revisao_selecionada_id)
+                // ->whereIn('atributos_especificacao.caracteristica_id', $caracteristicasIds)
+                // ->get();
 
-                ->join('atributos_idiomas as ai', 'ai.atributo_id', '=', 'atributos_especificacao.atributo_id')
-                ->join('caracteristicas as c', 'c.id', '=', 'atributos_especificacao.caracteristica_id')
-                ->join('caracteristicas_idiomas as ci', 'ci.caracteristica_id', '=', 'c.id')
+                // $nomesAtributos = $atributosComparaveis
+                // ->groupBy('caracteristica_nome')
+                // ->map(function ($itens) {
 
-                ->where('ai.idioma_id', $idiomaId)
-                ->where('ci.idioma_id', $idiomaId)
-                ->whereNull('c.excluido')
+                //     $tipo = $itens->first()->caracteristica_tipo;
+                //     $nome = $itens->first()->caracteristica_nome;
 
-                ->select([
-                    'ai.nome as atributo_nome',
-                    'ci.nome as caracteristica_nome',
-                    'c.tipo as caracteristica_tipo',
-                    'atributos_especificacao.conteudo as conteudo',
-                ])
-                ->get();
+                //     // 🔹 TEXTO
+                //     if ($tipo === 'texto') {
+                //         return "<b>{$nome}:</b> {$itens->first()->conteudo}";
+                //     }
 
-                $nomesAtributos = $atributosComparaveis
-                ->groupBy('caracteristica_nome')
-                ->map(function ($itens) {
+                //     // 🔹 SELECIONÁVEL (1)
+                //     if ($tipo === 'selecionavel') {
+                //         return "<b>{$nome}:</b> {$itens->first()->atributo_nome}";
+                //     }
 
-                    $tipo = $itens->first()->caracteristica_tipo;
-                    $nome = $itens->first()->caracteristica_nome;
-
-                    // 🔹 TEXTO
-                    if ($tipo === 'texto') {
-                        return "<b>{$nome}:</b> {$itens->first()->conteudo}";
-                    }
-
-                    // 🔹 SELECIONÁVEL (1)
-                    if ($tipo === 'selecionavel') {
-                        return "<b>{$nome}:</b> {$itens->first()->atributo_nome}";
-                    }
-
-                    // 🔹 MÚLTIPLOS (N)
-                    if ($tipo === 'multiplos') {
+                //     // 🔹 MÚLTIPLOS (N)
+                //     if ($tipo === 'multiplos') {
                         
-                        $atributos = $itens->map(function ($item) {
-                            return "<b>{$item->atributo_nome}: </b>{$item->conteudo} <br/>";
-                        });
+                //         $atributos = $itens->map(function ($item) {
+                //             return "<b>{$item->atributo_nome}: </b>{$item->conteudo} <br/>";
+                //         });
 
-                        return "<b>{$nome}: </b><br/>" . implode(' ', $atributos->toArray());
-                    }
+                //         return "<b>{$nome}: </b><br/>" . implode(' ', $atributos->toArray());
+                //     }
 
-                    return null;
-                })
-                ->filter()
-                ->values()
-                ->toArray();
+                //     return null;
+                // })
+                // ->filter()
+                // ->values()
+                // ->toArray();
 
                 $totalAtributos = 0;
                 $atributosIguais = 0;
@@ -1176,7 +1179,7 @@ class EspecificacaoService
                     'status' => $especificacao->status ?? __('messages.nao_informado'),
                     'porcentagem_similaridade' => round($porcentagem, 1),
                     'especificacao_id' => $especificacaoMaquina->id,
-                    'nomesAtributos' => $nomesAtributos
+                    'nomesAtributos' => []
                 ];
             }
         }
@@ -1184,131 +1187,17 @@ class EspecificacaoService
         $revisoes = Revisao::where('especificacao_id', $especificacao->id)
             ->whereNull('excluido')
             ->with([
-                'especificacoes.caracteristica.secao',
                 'usuario',
-                'especificacoesObservacoes.observacaoAnterior',
             ])
             ->get()
             ->map(function ($revisao) {
-                $revisao->especificacoes = $revisao->especificacoes
-                    ->sortBy(function ($item) {
-                        $comparavel = $item->caracteristica->comparavel ?? 0;
-                        $ordemSecao = $item->caracteristica->secao->ordem ?? 9999;
-                        return [
-                            $comparavel ? 0 : 1,
-                            $ordemSecao,
-                        ];
-                    })
-                    ->values();
-                return $revisao;
+               return [
+                   'id' => $revisao->id,
+                   'revisao' => $revisao->nome,
+                   'usuario' => optional($revisao->usuario)->nome ?? 'N/A',
+               ];
             });
-
-        $resumoItensRevisoes = [];
-
-        foreach ($revisoes as $revisao) {
-            $itens = []; 
-            $hasBeforeRevisao = $revisao->revisao_anterior_id ? true : false;
-            foreach ($revisao->especificacoes as $dado) {
-                $caracteristica = $this->getCaracteristica($dado, $idioma);
-                $atributo = $this->getAtributo($dado, $idioma);
-
-                $especificacaoAnterior = null;
-                $especificacaoAnteriorHasChanged = false;
-
-               if ($hasBeforeRevisao && $revisao->revisaoAnterior) {
-
-                    if ($caracteristica?->tipo === 'multiplos' && $dado->atributo_id) {
-
-                        $especificacaoAnterior = $revisao->revisaoAnterior
-                            ->especificacoes
-                            ->where('caracteristica_id', $dado->caracteristica_id)
-                            ->where('atributo_id', $dado->atributo_id)
-                            ->first();
-
-                            if($especificacaoAnterior && ($especificacaoAnterior->conteudo !== $dado->conteudo || $especificacaoAnterior->observacao_personalizada !== $dado->observacao_personalizada)) {
-                                $especificacaoAnteriorHasChanged = true;
-                            }
-
-                    } else {
-
-                        $especificacaoAnterior = $revisao->revisaoAnterior
-                            ->especificacoes
-                            ->firstWhere('caracteristica_id', $dado->caracteristica_id);
-
-                        if($especificacaoAnterior && ($especificacaoAnterior->conteudo !== $dado->conteudo || $especificacaoAnterior->observacao_personalizada !== $dado->observacao_personalizada || $especificacaoAnterior->atributo_id !== $dado->atributo_id)) {
-                            $especificacaoAnteriorHasChanged = true;
-                        }
-                    }
-                }
-
-                $atributoNomeRevisao = '';
-                $conteudoRevisao = '';
-                $observacaoRevisao = '';
-
-                if ($especificacaoAnterior) {
-
-                    $atributoAnterior = $this->getAtributo($especificacaoAnterior, $idioma);
-
-                    $atributoNomeRevisao = $atributoAnterior
-                        ?->atributosIdiomas
-                        ?->first()
-                        ?->nome ?? '';
-
-                    $conteudoRevisao = $especificacaoAnterior->conteudo ?? '';
-                    $observacaoRevisao = $especificacaoAnterior->observacao_personalizada ?? '';
-                }
-
-                $observacao = $dado['observacao_personalizada'] ?? '';
-                $conteudo = $dado['conteudo'] ?? '';
-
-                if ($caracteristica) {
-                    $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome ?? '';
-                    $unidade = $caracteristica->caracteristicasIdiomas->first()->unidade ?? '';
-                    $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? '';
-                    $caracteristicaId = $caracteristica->id ?? '';
-                    $excluido = $caracteristica->excluido ? true : false;
-                    $comparavel = $caracteristica->comparavel ? true : false;
-                    $tipo = $caracteristica->tipo ?? '';
-
-                    // if (strtolower($atributoNome) != 'n/a') {
-                        $itens[] = [
-                            'caracteristica_id' => $caracteristicaId,
-                            'caracteristica' => $caracteristicaNome,
-                            'unidade' => $unidade,
-                            'atributo' => $atributoNome,
-                            'observacao' => $observacao,
-                            'comparavel' => $comparavel,
-                            'conteudo' => $conteudo,
-                            'tipo' => $tipo,
-                            'excluido' => $excluido,
-                            'revisao_id' => $revisao->id,
-                            'revisao_anterior_id' => $revisao->revisaoAnterior ? $revisao->revisaoAnterior->id : null,
-                            'conteudoRevisao' => $conteudoRevisao,
-                            'observacaoRevisao' => $observacaoRevisao,
-                            'atributoNomeRevisao' => $atributoNomeRevisao,
-                            'especificacaoAnteriorHasChanged' => $especificacaoAnteriorHasChanged
-                        ];
-                    // }
-                }
-            }
-
-
-            // adiciona a revisão com seus itens
-            $resumoItensRevisoes[] = [
-                'id' => $revisao->id,
-                'revisao' => $revisao->nome,
-                'itens' => $itens,
-                'hasBeforeRevisao' => $hasBeforeRevisao,
-                'usuario' => $revisao->usuario->nome,
-                'observacoes' => $revisao->especificacoesObservacoes->map(function ($observacao) {
-                    return [
-                        'conteudo' => $observacao->conteudo,
-                        'conteudo_anterior' => $observacao->observacaoAnterior ? $observacao->observacaoAnterior->conteudo : null
-                    ];
-                }),
-            ];
-        }
-
+        
         //amostra de pedidos
         $amostrasPedido = AtributoAmostraIndicePedido::where('pedido_id', $especificacao->pedido_id)
         ->whereNull('excluido')
@@ -1358,7 +1247,6 @@ class EspecificacaoService
             'resumoItens',
             'dadosAgrupadoAmostras',
             'dadosAgrupadoProdutos',
-            'resumoItensRevisoes',
             'revisoes',
             'amostrasPedido',
             'especificacaoAmostrasPedido',
@@ -2003,176 +1891,480 @@ class EspecificacaoService
         }
     }
 
-    public function get_amostra_pedido(array $dados){
+    // public function get_amostra_pedido(array $dados){
     
-        $idioma = $dados['lang'] ?? 'pt';
+    //     $idioma = $dados['lang'] ?? 'pt';
     
-        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+    //     $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
 
-        $amostrasPedido = AtributoAmostraIndicePedido::where('id', $dados['atributo_amostra_indice_pedido_id'])
+    //     $amostrasPedido = AtributoAmostraIndicePedido::where('id', $dados['atributo_amostra_indice_pedido_id'])
+    //     ->whereNull('excluido')
+    //     ->first();
+
+    //     $amostras = AtributoAmostraPedido::where('indice_amostra_pedido_id', $amostrasPedido->id)
+    //     ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_pedido.atributo_id')
+    //     ->leftJoin('atributos_amostra_idiomas', function ($join) use ($idiomaId) {
+    //         $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
+    //             ->where('atributos_amostra_idiomas.idioma_id', $idiomaId);
+    //     })
+    //     ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_pedido.sub_atributo_id')
+    //     ->leftJoin('sub_atributos_amostra_idiomas', function ($join) use ($idiomaId) {
+    //         $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
+    //             ->where('sub_atributos_amostra_idiomas.idioma_id', $idiomaId);
+    //     })
+    //     ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
+    //     ->leftJoin('amostras_idiomas', function ($join) use ($idiomaId) {
+    //         $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
+    //             ->where('amostras_idiomas.idioma_id', $idiomaId);
+    //     })
+    //     ->whereNull('atributos_amostra.excluido')
+    //     ->whereNull('sub_atributos_amostra.excluido')
+    //     ->select(
+    //         'atributos_amostra_pedido.id',
+    //         'atributos_amostra_pedido.indice_amostra_pedido_id',
+    //         'atributos_amostra_pedido.atributo_id',
+    //         'atributos_amostra_pedido.sub_atributo_id',
+    //         'atributos_amostra_pedido.observacao_personalizada',
+    //         'atributos_amostra_pedido.conteudo',
+    //         'atributos_amostra_idiomas.nome as atributo_nome',
+    //         'atributos_amostra_idiomas.unidade as atributo_unidade',
+    //         'atributos_amostra.tipo as atributo_tipo',
+    //         'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
+    //         'amostras_idiomas.nome as amostra_nome'
+    //     )
+    //     ->get();
+
+
+    //     $arquivosGerais = ImagemAmostraPedido::where('amostra_indice_pedido_id', $amostrasPedido->id)->get(['id', 'arquivo', 'tipo', 'amostra_indice_pedido_id']);
+
+    //     if(count($amostras) > 0) {
+    //         $amostrasAgrupadas2 = $amostras
+    //         ->groupBy('indice_amostra_pedido_id', 'asc')
+    //         ->map(function ($grupo) {
+    //             return $grupo->groupBy('amostra_nome');
+    //         });
+    //         $amostrasAgrupadas2 = $amostras
+    //         ->groupBy('amostra_nome')
+    //         ->map(function ($grupoPorNome) use ($arquivosGerais) {
+    //             return [
+    //                 $grupoPorNome
+    //                 ->groupBy('indice_amostra_pedido_id')
+    //                 ->map(function ($grupoPorIndice, $indice) use ($arquivosGerais) {
+                        
+    //                     return [
+    //                         'atributos' => $grupoPorIndice->values(),
+    //                         'imagens_gerais' => $arquivosGerais
+    //                             ->where('amostra_indice_pedido_id', $indice)
+    //                             ->where('tipo', 'imagem')
+    //                             ->values(),
+    //                         'documentos_gerais' => $arquivosGerais
+    //                             ->where('amostra_indice_pedido_id', $indice)
+    //                             ->where('tipo', 'documento')
+    //                             ->values(),
+    //                     ];
+    //                 }),
+    //             ];
+    //         });
+    //     }
+
+    //     return [
+    //         'amostra' => $amostrasAgrupadas2
+    //     ];
+    // } 
+
+    public function get_amostra_pedido(array $dados)
+    {
+        $idioma = $dados['lang'] ?? 'pt';
+
+        $idiomaId = Idioma::where('codigo', $idioma)->value('id');
+
+        if (!$idiomaId) {
+            return null;
+        }
+
+        /** 🔹 Índice da amostra */
+        $indice = AtributoAmostraIndicePedido::with([
+            'atributos' => function ($q) {
+                $q->whereHas('atributo', function ($q) {
+                    $q->whereNull('excluido');
+                });
+            },
+            'atributos.atributo.atributosAmostrasIdiomas' => function ($q) use ($idiomaId) {
+                $q->where('idioma_id', $idiomaId);
+            },
+            'atributos.subAtributo.subAtributosAmostrasIdiomas' => function ($q) use ($idiomaId) {
+                $q->where('idioma_id', $idiomaId);
+            },
+            'atributos.atributo.amostra.amostrasIdiomas' => function ($q) use ($idiomaId) {
+                $q->where('idioma_id', $idiomaId);
+            },
+            'imagens'
+        ])
+        ->where('id', $dados['atributo_amostra_indice_pedido_id'])
         ->whereNull('excluido')
         ->first();
 
-        $amostras = AtributoAmostraPedido::where('indice_amostra_pedido_id', $amostrasPedido->id)
-        ->join('atributos_amostra', 'atributos_amostra.id', '=', 'atributos_amostra_pedido.atributo_id')
-        ->leftJoin('atributos_amostra_idiomas', function ($join) use($idiomaId) {
-            $join->on('atributos_amostra_idiomas.atributo_amostra_id', '=', 'atributos_amostra.id')
-                ->where('atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
-        })
-        ->leftJoin('sub_atributos_amostra', 'sub_atributos_amostra.id', '=', 'atributos_amostra_pedido.sub_atributo_id')
-        ->leftJoin('sub_atributos_amostra_idiomas', function ($join) use($idiomaId) {
-            $join->on('sub_atributos_amostra_idiomas.sub_atributos_amostra_id', '=', 'sub_atributos_amostra.id')
-                ->where('sub_atributos_amostra_idiomas.idioma_id', '=', $idiomaId);
-        })
-        ->leftJoin('amostras', 'amostras.id', '=', 'atributos_amostra.amostra_id')
-        ->leftJoin('amostras_idiomas', function ($join) use($idiomaId) {
-            $join->on('amostras_idiomas.amostra_id', '=', 'amostras.id')
-                ->where('amostras_idiomas.idioma_id', '=', $idiomaId);
-        })
-        ->whereNull('atributos_amostra.excluido')
-        ->whereNull('sub_atributos_amostra.excluido')
-        ->select(
-            'atributos_amostra_pedido.id',
-            'atributos_amostra_pedido.indice_amostra_pedido_id',
-            'atributos_amostra_pedido.atributo_id',
-            'atributos_amostra_pedido.sub_atributo_id',
-            'atributos_amostra_pedido.observacao_personalizada',
-            'atributos_amostra_pedido.conteudo',
-            'atributos_amostra_idiomas.nome as atributo_nome',
-            'atributos_amostra_idiomas.unidade as atributo_unidade',
-            'atributos_amostra.tipo as atributo_tipo',
-            'sub_atributos_amostra_idiomas.nome as sub_atributo_nome',
-            'amostras_idiomas.nome as amostra_nome'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoAmostraPedido::where('atributo_amostra_id', $item->atributo_id)
-                ->where('indice_amostra_pedido_id', $item->indice_amostra_pedido_id)
-                ->get(['id', 'imagem', 'atributo_amostra_id', 'indice_amostra_pedido_id']);
-            return $item;
-        });
-
-        $arquivosGerais = ImagemAmostraPedido::where('amostra_indice_pedido_id', $amostrasPedido->id)->get(['id', 'arquivo', 'tipo', 'amostra_indice_pedido_id']);
-
-        if(count($amostras) > 0) {
-            $amostrasAgrupadas2 = $amostras
-            ->groupBy('indice_amostra_pedido_id', 'asc')
-            ->map(function ($grupo) {
-                return $grupo->groupBy('amostra_nome');
-            });
-            $amostrasAgrupadas2 = $amostras
-            ->groupBy('amostra_nome')
-            ->map(function ($grupoPorNome) use ($arquivosGerais) {
-                return [
-                    $grupoPorNome
-                    ->groupBy('indice_amostra_pedido_id')
-                    ->map(function ($grupoPorIndice, $indice) use ($arquivosGerais) {
-                        
-                        return [
-                            'atributos' => $grupoPorIndice->values(),
-                            'imagens_gerais' => $arquivosGerais
-                                ->where('amostra_indice_pedido_id', $indice)
-                                ->where('tipo', 'imagem')
-                                ->values(),
-                            'documentos_gerais' => $arquivosGerais
-                                ->where('amostra_indice_pedido_id', $indice)
-                                ->where('tipo', 'documento')
-                                ->values(),
-                        ];
-                    }),
-                ];
-            });
+        if (!$indice) {
+            return null;
         }
 
+        /** 🔹 Arquivos gerais */
+        $arquivosGerais = ImagemAmostraPedido::where(
+            'amostra_indice_pedido_id',
+            $indice->id
+        )->get()
+        ->groupBy('tipo');
+
+        /** 🔹 Montagem dos dados */
+        $amostras = collect();
+
+        foreach ($indice->atributos as $atributoPedido) {
+
+            $atributo = $atributoPedido->atributo;
+            $subAtributo = $atributoPedido->subAtributo;
+
+            $atributoIdioma = $atributo?->atributosAmostrasIdiomas->first();
+            $subIdioma = $subAtributo?->subAtributosAmostrasIdiomas->first();
+            $amostraNome = $atributo?->amostra?->amostrasIdiomas->first()?->nome ?? 'N/A';
+
+            $amostras->push([
+                'id' => $atributoPedido->id,
+                'indice_amostra_pedido_id' => $atributoPedido->indice_amostra_pedido_id,
+                'atributo_id' => $atributoPedido->atributo_id,
+                'sub_atributo_id' => $atributoPedido->sub_atributo_id,
+                'conteudo' => $atributoPedido->conteudo,
+                'observacao_personalizada' => $atributoPedido->observacao_personalizada,
+                'atributo_nome' => $atributoIdioma->nome ?? null,
+                'atributo_unidade' => $atributoIdioma->unidade ?? null,
+                'atributo_tipo' => $atributo->tipo ?? null,
+                'sub_atributo_nome' => $subIdioma->nome ?? null,
+                'amostra_nome' => $amostraNome,
+            ]);
+        }
+
+        /** 🔹 Agrupamento final (igual ao original, só que limpo) */
+        $amostrasAgrupadas = $amostras
+            ->groupBy('amostra_nome')
+            ->map(function ($grupoPorNome) use ($arquivosGerais, $indice) {
+
+                return [
+                    $grupoPorNome
+                        ->groupBy('indice_amostra_pedido_id')
+                        ->map(function ($grupoPorIndice) use ($arquivosGerais, $indice) {
+
+                            return [
+                                'atributos' => $grupoPorIndice->values(),
+                                'imagens_gerais' => $arquivosGerais['imagem'] ?? collect(),
+                                'documentos_gerais' => $arquivosGerais['documento'] ?? collect(),
+                            ];
+                        })
+                ];
+            });
+
         return [
-            'amostra' => $amostrasAgrupadas2
+            'amostra' => $amostrasAgrupadas
         ];
-    } 
+    }
+
+    // public function get_produto_pedido(array $dados){
+    
+    //     $idioma = $dados['lang'] ?? 'pt';
+
+    //     $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+
+    //     $atributoProdutoIndice = AtributoProdutoIndicePedido::where('id', $dados['atributo_produto_indice_pedido_id'])
+    //     ->whereNull('excluido')
+    //     ->first();
+
+    //     $produtos = AtributoProdutoPedido::where('indice_produto_pedido_id', $atributoProdutoIndice->id)
+    //     ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produto_pedido.atributo_id')
+    //     ->leftJoin('atributos_produtos_idiomas', function ($join) use ($idiomaId) {
+    //         $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
+    //             ->where('atributos_produtos_idiomas.idioma_id', $idiomaId);
+    //     })
+    //     ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produto_pedido.sub_atributo_id')
+    //     ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use ($idiomaId) {
+    //         $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
+    //             ->where('sub_atributos_produtos_idiomas.idioma_id', $idiomaId);
+    //     })
+    //     ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
+    //     ->leftJoin('produtos_idiomas', function ($join) use ($idiomaId) {
+    //         $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
+    //             ->where('produtos_idiomas.idioma_id', $idiomaId);
+    //     })
+    //     ->whereNull('atributos_produtos.excluido')
+    //     ->whereNull('sub_atributos_produtos.excluido')
+    //     ->select(
+    //         'atributos_produto_pedido.id',
+    //         'atributos_produto_pedido.indice_produto_pedido_id',
+    //         'atributos_produto_pedido.atributo_id',
+    //         'atributos_produto_pedido.sub_atributo_id',
+    //         'atributos_produto_pedido.observacao_personalizada',
+    //         'atributos_produto_pedido.conteudo',
+    //         'atributos_produtos_idiomas.nome as atributo_nome',
+    //         'atributos_produtos_idiomas.unidade as atributo_unidade',
+    //         'atributos_produtos.tipo as atributo_tipo',
+    //         'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
+    //         'produtos_idiomas.nome as produto_nome'
+    //     )
+    //     ->get();
+
+    //     // $imagens = ImagemAtributoProdutoPedido::whereIn(
+    //     //     'atributo_produto_id',
+    //     //     $produtos->pluck('atributo_id')->unique()
+    //     // )
+    //     // ->where('indice_produto_pedido_id', $atributoProdutoIndice->id)
+    //     // ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_pedido_id'])
+    //     // ->groupBy('atributo_produto_id');
+
+    //     // $produtos = $produtos->map(function ($item) use ($imagens) {
+    //     //     $item->imagens = $imagens[$item->atributo_id] ?? collect();
+    //     //     return $item;
+    //     // });
+
+    //     $imagensProdutosGerais = ImagemProdutoPedido::where('produto_indice_pedido_id', $atributoProdutoIndice->id)->get(['id', 'arquivo', 'tipo', 'produto_indice_pedido_id']);
+
+    //     if(count($produtos) > 0) {
+
+    //         $produtosAgrupados = $produtos->groupBy('indice_produto_pedido_id', 'asc')
+    //         ->map(function ($grupo) {
+    //             return $grupo->groupBy('produto_nome');
+    //         });
+
+    //         $produtosAgrupados = $produtos
+    //         ->groupBy('produto_nome')
+    //         ->map(function ($grupoPorNome) use ($imagensProdutosGerais) {
+    //             return [
+    //                 $grupoPorNome
+    //                 ->groupBy('indice_produto_pedido_id')
+    //                 ->map(function ($grupoPorIndice, $indice) use ($imagensProdutosGerais) {
+                        
+    //                     return [
+    //                         'atributos' => $grupoPorIndice->values(),
+    //                         'imagens_gerais' => $imagensProdutosGerais
+    //                             ->where('produto_indice_pedido_id', $indice)
+    //                             ->where('tipo', 'imagem')
+    //                             ->values(),
+    //                         'documentos_gerais' => $imagensProdutosGerais
+    //                             ->where('produto_indice_pedido_id', $indice)
+    //                             ->where('tipo', 'documento')
+    //                             ->values(),
+    //                     ];
+    //                 }),
+    //             ];
+    //         });
+    //     }
+
+    //     return [
+    //         'produto' => $produtosAgrupados
+    //     ];
+    // } 
 
     public function get_produto_pedido(array $dados){
     
         $idioma = $dados['lang'] ?? 'pt';
-    
-        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
 
-        $atributoProdutoIndice = AtributoProdutoIndicePedido::where('id', $dados['atributo_produto_indice_pedido_id'])
+        $idiomaId = Idioma::where('codigo', $idioma)->value('id');
+
+        if (!$idiomaId) {
+            return null;
+        }
+
+        $indice = AtributoProdutoIndicePedido::with([
+            'atributos' => function ($q) {
+                $q->whereHas('atributo', function ($q) {
+                    $q->whereNull('excluido');
+                });
+            },
+            'atributos.atributo.atributosProdutosIdiomas' => function ($q) use ($idiomaId) {
+                $q->where('idioma_id', $idiomaId);
+            },
+            'atributos.subAtributo.subAtributosProdutosIdiomas' => function ($q) use ($idiomaId) {
+                $q->where('idioma_id', $idiomaId);
+            },
+            'atributos.atributo.produto.produtosIdiomas' => function ($q) use ($idiomaId) {
+                $q->where('idioma_id', $idiomaId);
+            },
+            'imagens'
+        ])
+        ->where('id', $dados['atributo_produto_indice_pedido_id'])
         ->whereNull('excluido')
         ->first();
 
-        $produtos = AtributoProdutoPedido::where('indice_produto_pedido_id', $atributoProdutoIndice->id)
-        ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produto_pedido.atributo_id')
-        ->leftJoin('atributos_produtos_idiomas', function ($join) use($idiomaId) {
-            $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
-                ->where('atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
-        })
-        ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produto_pedido.sub_atributo_id')
-        ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use($idiomaId) {
-            $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
-                ->where('sub_atributos_produtos_idiomas.idioma_id', '=', $idiomaId);
-        })
-        ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
-        ->leftJoin('produtos_idiomas', function ($join) use($idiomaId) {
-            $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
-                ->where('produtos_idiomas.idioma_id', '=', $idiomaId);
-        })
-        ->whereNull('atributos_produtos.excluido')
-        ->whereNull('sub_atributos_produtos.excluido')
-        ->select(
-            'atributos_produto_pedido.id',
-            'atributos_produto_pedido.indice_produto_pedido_id',
-            'atributos_produto_pedido.atributo_id',
-            'atributos_produto_pedido.sub_atributo_id',
-            'atributos_produto_pedido.observacao_personalizada',
-            'atributos_produto_pedido.conteudo',
-            'atributos_produtos_idiomas.nome as atributo_nome',
-            'atributos_produtos_idiomas.unidade as atributo_unidade',
-            'atributos_produtos.tipo as atributo_tipo',
-            'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
-            'produtos_idiomas.nome as produto_nome'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->imagens = ImagemAtributoProdutoPedido::where('atributo_produto_id', $item->atributo_id)
-                ->where('indice_produto_pedido_id', $item->indice_produto_pedido_id)
-                ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_pedido_id']);
-            return $item;
-        });
+        if (!$indice) {
+            return null;
+        }
 
-        $imagensProdutosGerais = ImagemProdutoPedido::where('produto_indice_pedido_id', $atributoProdutoIndice->id)->get(['id', 'arquivo', 'tipo', 'produto_indice_pedido_id']);
+        $arquivosGerais = ImagemProdutoPedido::where(
+            'produto_indice_pedido_id',
+            $indice->id
+        )->get()
+        ->groupBy('tipo');
 
-        if(count($produtos) > 0) {
+        /** 🔹 Montagem dos dados */
+        $produtos = collect();
 
-            $produtosAgrupados = $produtos->groupBy('indice_produto_pedido_id', 'asc')
-            ->map(function ($grupo) {
-                return $grupo->groupBy('produto_nome');
-            });
+        foreach ($indice->atributos as $atributoPedido) {
 
-            $produtosAgrupados = $produtos
+            $atributo = $atributoPedido->atributo;
+            $subAtributo = $atributoPedido->subAtributo;
+
+            $atributoIdioma = $atributo?->atributosProdutosIdiomas->first();
+            $subIdioma = $subAtributo?->subAtributosProdutosIdiomas->first();
+            $produtoNome = $atributo?->produto?->produtosIdiomas->first()?->nome ?? 'N/A';
+
+            $produtos->push([
+                'id' => $atributoPedido->id,
+                'indice_produto_pedido_id' => $atributoPedido->indice_produto_pedido_id,
+                'atributo_id' => $atributoPedido->atributo_id,
+                'sub_atributo_id' => $atributoPedido->sub_atributo_id,
+                'conteudo' => $atributoPedido->conteudo,
+                'observacao_personalizada' => $atributoPedido->observacao_personalizada,
+                'atributo_nome' => $atributoIdioma->nome ?? null,
+                'atributo_unidade' => $atributoIdioma->unidade ?? null,
+                'atributo_tipo' => $atributo->tipo ?? null,
+                'sub_atributo_nome' => $subIdioma->nome ?? null,
+                'produto_nome' => $produtoNome,
+            ]);
+        }
+
+        $produtosAgrupados = $produtos
             ->groupBy('produto_nome')
-            ->map(function ($grupoPorNome) use ($imagensProdutosGerais) {
+            ->map(function ($grupoPorNome) use ($arquivosGerais, $indice) {
+
                 return [
                     $grupoPorNome
-                    ->groupBy('indice_produto_pedido_id')
-                    ->map(function ($grupoPorIndice, $indice) use ($imagensProdutosGerais) {
-                        
-                        return [
-                            'atributos' => $grupoPorIndice->values(),
-                            'imagens_gerais' => $imagensProdutosGerais
-                                ->where('produto_indice_pedido_id', $indice)
-                                ->where('tipo', 'imagem')
-                                ->values(),
-                            'documentos_gerais' => $imagensProdutosGerais
-                                ->where('produto_indice_pedido_id', $indice)
-                                ->where('tipo', 'documento')
-                                ->values(),
-                        ];
-                    }),
+                        ->groupBy('indice_produto_pedido_id')
+                        ->map(function ($grupoPorIndice) use ($arquivosGerais, $indice) {
+
+                            return [
+                                'atributos' => $grupoPorIndice->values(),
+                                'imagens_gerais' => $arquivosGerais['imagem'] ?? collect(),
+                                'documentos_gerais' => $arquivosGerais['documento'] ?? collect(),
+                            ];
+                        })
                 ];
             });
-        }
 
         return [
             'produto' => $produtosAgrupados
         ];
     } 
+
+    public function get_revisao(array $dados){
+    
+        $idioma = $dados['lang'] ?? 'pt';
+
+        $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
+
+        $revisao = Revisao::where('id', $dados['revisao_id'])
+        ->whereNull('excluido')
+        ->with([
+            'especificacoes.caracteristica.secao',
+            'usuario',
+            'especificacoesObservacoes.observacaoAnterior',
+        ])
+        ->first();
+   
+        $hasBeforeRevisao = $revisao->revisao_anterior_id ? true : false;
+        $itens = [];
+        foreach ($revisao->especificacoes as $dado) {
+            $caracteristica = $this->getCaracteristica($dado, $idioma);
+            $atributo = $this->getAtributo($dado, $idioma);
+
+            $especificacaoAnterior = null;
+            $especificacaoAnteriorHasChanged = false;
+
+            if ($hasBeforeRevisao && $revisao->revisaoAnterior) {
+
+                if ($caracteristica?->tipo === 'multiplos' && $dado->atributo_id) {
+
+                    $especificacaoAnterior = $revisao->revisaoAnterior
+                        ->especificacoes
+                        ->where('caracteristica_id', $dado->caracteristica_id)
+                        ->where('atributo_id', $dado->atributo_id)
+                        ->first();
+
+                        if($especificacaoAnterior && ($especificacaoAnterior->conteudo !== $dado->conteudo || $especificacaoAnterior->observacao_personalizada !== $dado->observacao_personalizada)) {
+                            $especificacaoAnteriorHasChanged = true;
+                        }
+
+                } else {
+
+                    $especificacaoAnterior = $revisao->revisaoAnterior
+                        ->especificacoes
+                        ->firstWhere('caracteristica_id', $dado->caracteristica_id);
+
+                    if($especificacaoAnterior && ($especificacaoAnterior->conteudo !== $dado->conteudo || $especificacaoAnterior->observacao_personalizada !== $dado->observacao_personalizada || $especificacaoAnterior->atributo_id !== $dado->atributo_id)) {
+                        $especificacaoAnteriorHasChanged = true;
+                    }
+                }
+            }
+
+            $atributoNomeRevisao = '';
+            $conteudoRevisao = '';
+            $observacaoRevisao = '';
+
+            if ($especificacaoAnterior) {
+
+                $atributoAnterior = $this->getAtributo($especificacaoAnterior, $idioma);
+
+                $atributoNomeRevisao = $atributoAnterior
+                    ?->atributosIdiomas
+                    ?->first()
+                    ?->nome ?? '';
+
+                $conteudoRevisao = $especificacaoAnterior->conteudo ?? '';
+                $observacaoRevisao = $especificacaoAnterior->observacao_personalizada ?? '';
+            }
+
+            $observacao = $dado['observacao_personalizada'] ?? '';
+            $conteudo = $dado['conteudo'] ?? '';
+
+            if ($caracteristica) {
+                $caracteristicaNome = $caracteristica->caracteristicasIdiomas->first()->nome ?? '';
+                $unidade = $caracteristica->caracteristicasIdiomas->first()->unidade ?? '';
+                $atributoNome = $atributo?->atributosIdiomas?->first()->nome ?? '';
+                $caracteristicaId = $caracteristica->id ?? '';
+                $excluido = $caracteristica->excluido ? true : false;
+                $comparavel = $caracteristica->comparavel ? true : false;
+                $tipo = $caracteristica->tipo ?? '';
+
+                // if (strtolower($atributoNome) != 'n/a') {
+                    $itens[] = [
+                        'caracteristica_id' => $caracteristicaId,
+                        'caracteristica' => $caracteristicaNome,
+                        'unidade' => $unidade,
+                        'atributo' => $atributoNome,
+                        'observacao' => $observacao,
+                        'comparavel' => $comparavel,
+                        'conteudo' => $conteudo,
+                        'tipo' => $tipo,
+                        'excluido' => $excluido,
+                        'revisao_id' => $revisao->id,
+                        'revisao_anterior_id' => $revisao->revisaoAnterior ? $revisao->revisaoAnterior->id : null,
+                        'conteudoRevisao' => $conteudoRevisao,
+                        'observacaoRevisao' => $observacaoRevisao,
+                        'atributoNomeRevisao' => $atributoNomeRevisao,
+                        'especificacaoAnteriorHasChanged' => $especificacaoAnteriorHasChanged
+                    ];
+                // }
+            }
+        }
+
+        // adiciona a revisão com seus itens
+        $resumoRevisao = [
+            'id' => $revisao->id,
+            'itens' => $itens,
+            'hasBeforeRevisao' => $hasBeforeRevisao,
+            'observacoes' => $revisao->especificacoesObservacoes->map(function ($observacao) {
+                return [
+                    'conteudo' => $observacao->conteudo,
+                    'conteudo_anterior' => $observacao->observacaoAnterior ? $observacao->observacaoAnterior->conteudo : null
+                ];
+            }),
+        ];
+
+        return $resumoRevisao;
+    }
 }

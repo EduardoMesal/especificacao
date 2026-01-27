@@ -12,7 +12,7 @@ class AtributoAmostraEspecificacao extends Model
     public $timestamps = false;
 
     protected $table = 'atributos_amostra_especificacao';
-
+    
     protected $fillable = [
         'indice_amostra_id',
         'sub_atributo_id',
@@ -35,5 +35,4 @@ class AtributoAmostraEspecificacao extends Model
     {
         return $this->belongsTo(SubAtributoAmostra::class, 'sub_atributo_id');
     }
-
 }

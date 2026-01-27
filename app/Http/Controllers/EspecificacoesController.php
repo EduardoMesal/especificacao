@@ -170,7 +170,6 @@ class EspecificacoesController extends Controller
                 'error' => 'Nenhuma especificação ou máquina associada foi encontrada.'
             ]);
         }
-        
 
         return view('Especificacoes/especificacao', [
             'especificacao' => $query['especificacao'],
@@ -182,7 +181,6 @@ class EspecificacoesController extends Controller
             'resumoItens' => $query['resumoItens'],
             'dadosPorAmostra' => $query['dadosAgrupadoAmostras'],
             'dadosPorProduto' => $query['dadosAgrupadoProdutos'],
-            'resumoItensRevisoes' => $query['resumoItensRevisoes'],
             'revisoes' => $query['revisoes'],
             'amostrasPedido' => $query['amostrasPedido'],
             'especificacaoAmostrasPedido' => $query['especificacaoAmostrasPedido'],
@@ -644,5 +642,31 @@ class EspecificacoesController extends Controller
         }
 
         return $produtoPedido;
+    }
+
+    public function get_revisao(Request $request, EspecificacaoService $especificacaoService)
+    {
+        $data = $request->only(['revisao_id', 'lang']);
+        $rev = $especificacaoService->get_revisao($data);
+
+        if (!$rev) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Revisão não encontrada.',
+            ], 404);
+        }
+
+        $html = view(
+            'partials.revisao-modal',
+            compact('rev')
+        )->render();
+
+        return response()->json([
+            'success' => true,
+            'rev' => $html
+        ]);
+
     }
 }

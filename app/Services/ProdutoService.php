@@ -7,6 +7,8 @@ use App\Models\SubAtributoProduto;
 use App\Models\AtributoProdutoEspecificacao;
 use App\Models\AtributoProdutoIdioma;
 use App\Models\AtributoProdutoIndiceEspecificacao;
+use App\Models\AtributoProdutoIndicePedido;
+use App\Models\AtributoProdutoPedido;
 use App\Models\Idioma;
 use App\Models\ImagemProduto;
 use App\Models\ProdutoIdioma;
@@ -124,6 +126,9 @@ class ProdutoService
                 'criado' => Carbon::now(),
             ]);
 
+            $atributoProdutoPedido = AtributoProdutoIndicePedido::where('produto_id', $produtoId)->where('excluido', null)->get();
+            $novosAtributosCriados = [];
+
             if (isset($dados['att']) && is_array($dados['att'])) {
 
                 foreach ($dados['att'] as $item) {
@@ -140,6 +145,58 @@ class ProdutoService
                         'observacao' => $item['observacao_selecionavel'],
                         'criado' => date('Y-m-d H:i:s')
                     ]);
+
+                    $novosAtributosCriados[] = $newSubAttProduto->id;
+                }
+
+                if(count($novosAtributosCriados) > 0){
+                    if($dados['tipo'] == 'multiplos'){
+                        if($atributoProdutoPedido->count() > 0){
+                            foreach($atributoProdutoPedido as $pedidoId){
+                                foreach ($novosAtributosCriados as $subAtributoId) {
+                                    
+                                    // AtributoProdutoEspecificacao::create([
+                                    //     'indice_produto_id' => $especificacaoId,
+                                    //     'atributo_produto_id' => $atributoProduto->id,
+                                    //     'sub_atributo_id' => $subAtributoId,
+                                    //     'observacao_personalizada' => null,
+                                    //     'conteudo' => null,
+                                    // ]);
+
+                                    AtributoProdutoPedido::create([
+                                        'indice_produto_pedido_id' => $pedidoId->id,
+                                        'atributo_id' => $atributoProduto->id,
+                                        'sub_atributo_id' => $subAtributoId,
+                                        'observacao_personalizada' => null,
+                                        'conteudo' => null,
+                                    ]);
+                                    
+                                }
+                            }
+                        }
+                    }else{
+                        if($atributoProdutoPedido->count() > 0){
+
+                            foreach($atributoProdutoPedido as $pedidoId){
+                                
+                                // AtributoProdutoEspecificacao::create([
+                                //     'indice_produto_id' => $especificacaoId,
+                                //     'atributo_produto_id' => $atributoProduto->id,
+                                //     'sub_atributo_id' => null,
+                                //     'observacao_personalizada' => null,
+                                //     'conteudo' => null,
+                                // ]);
+
+                                AtributoProdutoPedido::create([
+                                    'indice_produto_pedido_id' => $pedidoId->id,
+                                    'atributo_id' => $atributoProduto->id,
+                                    'sub_atributo_id' => null,
+                                    'observacao_personalizada' => null,
+                                    'conteudo' => null,
+                                ]);
+                            }
+                        }
+                    }
                 }
                 
             }else{
@@ -155,6 +212,18 @@ class ProdutoService
                     'idioma_id' => 1,
                     'criado' => date('Y-m-d H:i:s')
                 ]);
+
+                if($atributoProdutoPedido->count() > 0){
+                    foreach ($atributoProdutoPedido as $pedidoId) {
+                        AtributoProdutoPedido::create([
+                            'indice_produto_pedido_id' => $pedidoId->id,
+                            'atributo_id' => $atributoProduto->id,
+                            'sub_atributo_id' => null,
+                            'observacao_personalizada' => null,
+                            'conteudo' => null,
+                        ]);
+                    }
+                }
             }
 
             DB::commit();
@@ -433,6 +502,8 @@ class ProdutoService
                 ->distinct()
                 ->pluck('id');
 
+                $atributoProdutoPedido = AtributoProdutoIndicePedido::where('produto_id', $atributoProduto->produto_id)->where('excluido', null)->get();
+
                 if (!$atributo_produto_idioma) {
                     AtributoProdutoIdioma::create([
                         'atributo_produto_id' => $atributoProduto->id,
@@ -457,6 +528,7 @@ class ProdutoService
 
                 if($hasChange == true){
                     AtributoProdutoEspecificacao::where('atributo_produto_id', $atributoProduto->id)->delete();
+                    AtributoProdutoPedido::where('atributo_id', $atributoProduto->id)->delete();
                     SubAtributoProduto::where('atributo_produto_id', $atributoProduto->id)->delete();
                 }
 
@@ -479,10 +551,20 @@ class ProdutoService
                                 ->update([
                                     'sub_atributo_id' => null
                                 ]);
+
+                                AtributoProdutoPedido::where('atributo_id', $atributoProduto->id)
+                                ->where('sub_atributo_id', $item)
+                                ->update([
+                                    'sub_atributo_id' => null
+                                ]);
                             }
 
                         }else{
                             AtributoProdutoEspecificacao::where('atributo_produto_id', $atributoProduto->id)
+                            ->whereIn('sub_atributo_id', $idsRemovidos)
+                            ->delete();
+
+                            AtributoProdutoPedido::where('atributo_id', $atributoProduto->id)
                             ->whereIn('sub_atributo_id', $idsRemovidos)
                             ->delete();
                         }
@@ -526,27 +608,47 @@ class ProdutoService
 
                     if(count($novosAtributosCriados) > 0){
                         if($dados['tipo'] == 'multiplos'){
-                            foreach ($atributoProdutosIndiceEspecificacoesId as $especificacaoId) {
-                                foreach ($novosAtributosCriados as $subAtributoId) {
-                                    AtributoProdutoEspecificacao::create([
-                                        'indice_produto_id' => $especificacaoId,
-                                        'atributo_produto_id' => $atributoProduto->id,
-                                        'sub_atributo_id' => $subAtributoId,
-                                        'observacao_personalizada' => null,
-                                        'conteudo' => null,
-                                    ]);
+                            if($atributoProdutoPedido->count() > 0){
+                                foreach ($atributoProdutoPedido as $pedidoId) {
+                                    foreach ($novosAtributosCriados as $subAtributoId) {
+                                        // AtributoProdutoEspecificacao::create([
+                                        //     'indice_produto_id' => $especificacaoId,
+                                        //     'atributo_produto_id' => $atributoProduto->id,
+                                        //     'sub_atributo_id' => $subAtributoId,
+                                        //     'observacao_personalizada' => null,
+                                        //     'conteudo' => null,
+                                        // ]);
+
+                                        AtributoProdutoPedido::create([
+                                            'indice_produto_pedido_id' => $pedidoId->id,
+                                            'atributo_id' => $atributoProduto->id,
+                                            'sub_atributo_id' => $subAtributoId,
+                                            'observacao_personalizada' => null,
+                                            'conteudo' => null,
+                                        ]);
+                                    }
                                 }
                             }
                         }else{
                             if($hasChange == true){
-                                foreach ($atributoProdutosIndiceEspecificacoesId as $especificacaoId) {
-                                    AtributoProdutoEspecificacao::create([
-                                        'indice_produto_id' => $especificacaoId,
-                                        'atributo_produto_id' => $atributoProduto->id,
-                                        'sub_atributo_id' => null,
-                                        'observacao_personalizada' => null,
-                                        'conteudo' => null,
-                                    ]);
+                                if($atributoProdutoPedido->count() > 0){
+                                    foreach ($atributoProdutoPedido as $pedidoId) {
+                                        // AtributoProdutoEspecificacao::create([
+                                        //     'indice_produto_id' => $especificacaoId,
+                                        //     'atributo_produto_id' => $atributoProduto->id,
+                                        //     'sub_atributo_id' => null,
+                                        //     'observacao_personalizada' => null,
+                                        //     'conteudo' => null,
+                                        // ]);
+
+                                        AtributoProdutoPedido::create([
+                                            'indice_produto_pedido_id' => $pedidoId->id,
+                                            'atributo_id' => $atributoProduto->id,
+                                            'sub_atributo_id' => null,
+                                            'observacao_personalizada' => null,
+                                            'conteudo' => null,
+                                        ]);
+                                    }
                                 }
                             }
                         }
@@ -592,13 +694,27 @@ class ProdutoService
 
                         $novosAtributosCriados[] = $novo->id;
 
-                        if(count($novosAtributosCriados) > 0){
-                            foreach ($atributoProdutosIndiceEspecificacoesId as $especificacaoId) {
+                        // if(count($novosAtributosCriados) > 0){
+                        //     foreach ($atributoProdutosIndiceEspecificacoesId as $especificacaoId) {
+                        //         foreach ($novosAtributosCriados as $subAtributoId) {
+                        //             AtributoProdutoEspecificacao::create([
+                        //                 'indice_produto_id' => $especificacaoId,
+                        //                 'atributo_produto_id' => $atributoProduto->id,
+                        //                 'sub_atributo_id' => $subAtributoId,
+                        //                 'observacao_personalizada' => null,
+                        //                 'conteudo' => null,
+                        //             ]);
+                        //         }
+                        //     }
+                        // }
+
+                        if(count($novosAtributosCriados) > 0 && count($atributoProdutoPedido) > 0){
+                            foreach ($atributoProdutoPedido as $pedidoId) {
                                 foreach ($novosAtributosCriados as $subAtributoId) {
-                                    AtributoProdutoEspecificacao::create([
-                                        'indice_produto_id' => $especificacaoId,
-                                        'atributo_produto_id' => $atributoProduto->id,
-                                        'sub_atributo_id' => $subAtributoId,
+                                    AtributoProdutoPedido::create([
+                                        'indice_produto_pedido_id' => $pedidoId->id,
+                                        'atributo_id' => $atributoProduto->id,
+                                        'sub_atributo_id' => null,
                                         'observacao_personalizada' => null,
                                         'conteudo' => null,
                                     ]);

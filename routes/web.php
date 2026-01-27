@@ -95,6 +95,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/comparar/{id}', [EspecificacoesController::class, 'comparacao'])->name('Especificacoes.comparacao');
         Route::get('/amostra/pedido/{id}', [EspecificacoesController::class, 'get_amostra_pedido'])->name('Especificacoes.amostraPedido');
         Route::get('/produto/pedido/{id}', [EspecificacoesController::class, 'get_produto_pedido'])->name('Especificacoes.produtoPedido');
+        Route::get('/revisao/{id}', [EspecificacoesController::class, 'get_revisao'])->name('Especificacoes.revisao-modal');
 
     });
 

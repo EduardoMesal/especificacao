@@ -7,6 +7,7 @@ use App\Models\Atributo;
 use App\Models\AtributoEspecificacao;
 use App\Models\AtributoIdioma;
 use App\Models\CaracteristicaIdioma;
+use App\Models\Especificacao;
 use App\Models\Idioma;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -351,6 +352,7 @@ class CaracteristicaService
                                         'especificacao_id' => $especificacaoId,
                                         'caracteristica_id' => $caracteristica->id,
                                         'atributo_id' => $atributoId,
+                                        'revisao_id' => Especificacao::where('id', $especificacaoId)->first()->revisao_selecionada_id,
                                         'observacao_personalizada' => null,
                                         'conteudo' => null,
                                     ]);
@@ -363,6 +365,7 @@ class CaracteristicaService
                                         'especificacao_id' => $especificacaoId,
                                         'caracteristica_id' => $caracteristica->id,
                                         'atributo_id' =>  null,
+                                        'revisao_id' => Especificacao::where('id', $especificacaoId)->first()->revisao_selecionada_id,
                                         'observacao_personalizada' => null,
                                         'conteudo' => null,
                                     ]);
@@ -419,6 +422,7 @@ class CaracteristicaService
                                     'especificacao_id' => $especificacaoId,
                                     'caracteristica_id' => $caracteristica->id,
                                     'atributo_id' => $atributoId,
+                                    'revisao_id' => Especificacao::where('id', $especificacaoId)->first()->revisao_selecionada_id,
                                     'observacao_personalizada' => null,
                                     'conteudo' => null,
                                 ]);

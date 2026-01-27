@@ -12,6 +12,8 @@ use App\Models\AtributoAmostraIndiceEspecificacao;
 use App\Models\SubAtributoAmostra;
 use App\Models\AtributoAmostraEspecificacao;
 use App\Models\AtributoAmostraIdioma;
+use App\Models\AtributoAmostraIndicePedido;
+use App\Models\AtributoAmostraPedido;
 use App\Models\Idioma;
 use App\Models\SubAtributoAmostraIdioma;
 use Illuminate\Support\Facades\DB;
@@ -125,6 +127,9 @@ class AmostraService
                 'criado' => Carbon::now(),
             ]);
 
+            $atributoAmostraPedido = AtributoAmostraIndicePedido::where('amostra_id', $amostraId)->where('excluido', null)->get();
+            $novosAtributosCriados = [];
+
             if (isset($dados['att']) && is_array($dados['att'])) {
                 foreach ($dados['att'] as $item) {
 
@@ -140,6 +145,56 @@ class AmostraService
                         'observacao' => $item['observacao_selecionavel'],
                         'criado' => date('Y-m-d H:i:s')
                     ]);
+                    
+                    $novosAtributosCriados[] = $newSubAttAmostra->id;
+                }
+
+                if(count($novosAtributosCriados) > 0){
+                    if($dados['tipo'] == 'multiplos'){
+                        if($atributoAmostraPedido->count() > 0){
+                            foreach($atributoAmostraPedido as $pedidoId){
+                                foreach ($novosAtributosCriados as $subAtributoId) {
+                                    
+                                    // AtributoAmostraEspecificacao::create([
+                                    //     'indice_amostra_id' => $especificacaoId,
+                                    //     'atributo_id' => $atributoAmostra->id,
+                                    //     'sub_atributo_id' => $subAtributoId,
+                                    //     'observacao_personalizada' => null,
+                                    //     'conteudo' => null,
+                                    // ]);
+
+                                    AtributoAmostraPedido::create([
+                                        'indice_amostra_pedido_id' => $pedidoId->id,
+                                        'atributo_id' => $atributoAmostra->id,
+                                        'sub_atributo_id' => $subAtributoId,
+                                        'observacao_personalizada' => null,
+                                        'conteudo' => null,
+                                    ]);
+                                    
+                                }
+                            }
+                        }
+                    }else{
+                        if($atributoAmostraPedido->count() > 0){
+
+                            foreach($atributoAmostraPedido as $pedidoId){
+                                // AtributoAmostraEspecificacao::create([
+                                //     'indice_amostra_id' => $especificacaoId,
+                                //     'atributo_id' => $atributoAmostra->id,
+                                //     'sub_atributo_id' => null,
+                                //     'observacao_personalizada' => null,
+                                //     'conteudo' => null,
+                                // ]);
+                                AtributoAmostraPedido::create([
+                                    'indice_amostra_pedido_id' => $pedidoId->id,
+                                    'atributo_id' => $atributoAmostra->id,
+                                    'sub_atributo_id' => null,
+                                    'observacao_personalizada' => null,
+                                    'conteudo' => null,
+                                ]);
+                            }
+                        }
+                    }
                 }
 
             } else {
@@ -156,6 +211,18 @@ class AmostraService
                     'idioma_id' => 1,
                     'criado' => date('Y-m-d H:i:s')
                 ]);
+
+                if($atributoAmostraPedido->count() > 0){
+                    foreach($atributoAmostraPedido as $pedidoId) {
+                        AtributoAmostraPedido::create([
+                            'indice_amostra_pedido_id' => $pedidoId->id,
+                            'atributo_id' => $atributoAmostra->id,
+                            'sub_atributo_id' => null,
+                            'observacao_personalizada' => null,
+                            'conteudo' => null,
+                        ]);
+                    }
+                }
             }
 
             DB::commit();
@@ -431,6 +498,8 @@ class AmostraService
                 ->distinct()
                 ->pluck('id');
 
+                $atributoAmostraPedido = AtributoAmostraIndicePedido::where('amostra_id', $atributoAmostra->amostra_id)->where('excluido', null)->get();
+
                 if (!$atributo_amostra_idioma) {
                     AtributoAmostraIdioma::create([
                         'atributo_amostra_id' => $atributoAmostra->id,
@@ -452,9 +521,9 @@ class AmostraService
                     $hasChange = true;
                 }
 
-
                 if($hasChange == true){
                     AtributoAmostraEspecificacao::where('atributo_id', $atributoAmostra->id)->delete();
+                    AtributoAmostraPedido::where('atributo_id', $atributoAmostra->id)->delete();
                     SubAtributoAmostra::where('atributo_id', $atributoAmostra->id)->delete();
                 }
 
@@ -477,12 +546,24 @@ class AmostraService
                                 ->update([
                                     'sub_atributo_id' => null
                                 ]);
+
+                                AtributoAmostraPedido::where('atributo_id', $atributoAmostra->id)
+                                ->where('sub_atributo_id', $item)
+                                ->update([
+                                    'sub_atributo_id' => null
+                                ]);
                             }
 
                         }else{
+
                             AtributoAmostraEspecificacao::where('atributo_id', $atributoAmostra->id)
                             ->whereIn('sub_atributo_id', $idsRemovidos)
                             ->delete();
+
+                            AtributoAmostraPedido::where('atributo_id', $atributoAmostra->id)
+                            ->whereIn('sub_atributo_id', $idsRemovidos)
+                            ->delete();
+
                         }
                     }
 
@@ -524,32 +605,52 @@ class AmostraService
 
                     if(count($novosAtributosCriados) > 0){
                         if($dados['tipo'] == 'multiplos'){
-                            foreach ($atributoAmostrasIndiceEspecificacoesId as $especificacaoId) {
-                                foreach ($novosAtributosCriados as $subAtributoId) {
-                                    AtributoAmostraEspecificacao::create([
-                                        'indice_amostra_id' => $especificacaoId,
-                                        'atributo_id' => $atributoAmostra->id,
-                                        'sub_atributo_id' => $subAtributoId,
-                                        'observacao_personalizada' => null,
-                                        'conteudo' => null,
-                                    ]);
+                            if($atributoAmostraPedido->count() > 0){
+                                foreach($atributoAmostraPedido as $pedidoId){
+                                    foreach ($novosAtributosCriados as $subAtributoId) {
+                                        // AtributoAmostraEspecificacao::create([
+                                        //     'indice_amostra_id' => $especificacaoId,
+                                        //     'atributo_id' => $atributoAmostra->id,
+                                        //     'sub_atributo_id' => $subAtributoId,
+                                        //     'observacao_personalizada' => null,
+                                        //     'conteudo' => null,
+                                        // ]);
+
+                                        AtributoAmostraPedido::create([
+                                            'indice_amostra_pedido_id' => $pedidoId->id,
+                                            'atributo_id' => $atributoAmostra->id,
+                                            'sub_atributo_id' => $subAtributoId,
+                                            'observacao_personalizada' => null,
+                                            'conteudo' => null,
+                                        ]);
+                                    }
                                 }
                             }
                         }else{
                             if($hasChange == true){
-                                foreach ($atributoAmostrasIndiceEspecificacoesId as $especificacaoId) {
-                                        AtributoAmostraEspecificacao::create([
-                                        'indice_amostra_id' => $especificacaoId,
-                                        'atributo_id' => $atributoAmostra->id,
-                                        'sub_atributo_id' => null,
-                                        'observacao_personalizada' => null,
-                                        'conteudo' => null,
-                                    ]);
+                                if($atributoAmostraPedido->count() > 0){
+
+                                    foreach($atributoAmostraPedido as $pedidoId){
+                                        // AtributoAmostraEspecificacao::create([
+                                        //     'indice_amostra_id' => $especificacaoId,
+                                        //     'atributo_id' => $atributoAmostra->id,
+                                        //     'sub_atributo_id' => null,
+                                        //     'observacao_personalizada' => null,
+                                        //     'conteudo' => null,
+                                        // ]);
+
+                                        AtributoAmostraPedido::create([
+                                            'indice_amostra_pedido_id' => $pedidoId->id,
+                                            'atributo_id' => $atributoAmostra->id,
+                                            'sub_atributo_id' => null,
+                                            'observacao_personalizada' => null,
+                                            'conteudo' => null,
+                                        ]);
+                                    }
                                 }
                             }
                         }
                     }
-                    
                 }
 
                 if ($dados['tipo'] == 'texto') {
@@ -591,13 +692,28 @@ class AmostraService
 
                         $novosAtributosCriados[] = $novo->id;
 
-                        if(count($novosAtributosCriados) > 0){
-                            foreach ($atributoAmostrasIndiceEspecificacoesId as $especificacaoId) {
+                        // if(count($novosAtributosCriados) > 0){
+                        //     foreach ($atributoAmostrasIndiceEspecificacoesId as $especificacaoId) {
+                        //         foreach ($novosAtributosCriados as $subAtributoId) {
+                        //             AtributoAmostraEspecificacao::create([
+                        //                 'indice_amostra_id' => $especificacaoId,
+                        //                 'atributo_id' => $atributoAmostra->id,
+                        //                 'sub_atributo_id' => $subAtributoId,
+                        //                 'observacao_personalizada' => null,
+                        //                 'conteudo' => null,
+                        //             ]);
+                        //         }
+                        //     }
+                        // }
+
+
+                        if(count($novosAtributosCriados) > 0 && $atributoAmostraPedido->count() > 0){
+                            foreach($atributoAmostraPedido as $pedidoId){
                                 foreach ($novosAtributosCriados as $subAtributoId) {
-                                    AtributoAmostraEspecificacao::create([
-                                        'indice_amostra_id' => $especificacaoId,
+                                    AtributoAmostraPedido::create([
+                                        'indice_amostra_pedido_id' => $pedidoId->id,
                                         'atributo_id' => $atributoAmostra->id,
-                                        'sub_atributo_id' => $subAtributoId,
+                                        'sub_atributo_id' => null,
                                         'observacao_personalizada' => null,
                                         'conteudo' => null,
                                     ]);
