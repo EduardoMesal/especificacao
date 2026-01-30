@@ -679,7 +679,7 @@
                                                                 </div>
 
                                                                 <div class="modal-body">
-                                                                    <div id="spinnerModalRevisao--{{ $item['id'] }}" class="text-center py-5 hidden">
+                                                                    <div id="spinnerModalRevisao--{{ $item['id'] }}" class="text-center py-5">
                                                                         <div class="spinner-border text-primary"></div>
                                                                     </div>
 
@@ -803,6 +803,9 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
+                                        <div class="contentPaginate mb-0 mt-4">
+                                            {{ $especificacoesMaquinas->links('vendor.pagination.custom') }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1461,12 +1464,13 @@ $(document).ready(function() {
     var table; 
 
     function initDataTable() {
+        
         if ($.fn.DataTable.isDataTable('#tabelaAmostras')) {
             table.destroy();
         }
 
-        // Inicializar o DataTable
         table = $('#tabelaAmostras').DataTable({
+            order: [[3, 'desc']],
             "columnDefs": [
                 {
                     "targets": 3, // Coluna de porcentagem
@@ -1490,19 +1494,20 @@ $(document).ready(function() {
                 "sProcessing": "Processando...",
                 "sSearch": "Buscar:",
                 "sZeroRecords": "Nenhum registro encontrado",
-                "oPaginate": {
-                    "sFirst": "Primeiro",
-                    "sLast": "Último",
-                    "sNext": "Próximo",
-                    "sPrevious": "Anterior"
-                },
+                // "oPaginate": {
+                //     "sFirst": "Primeiro",
+                //     "sLast": "Último",
+                //     "sNext": "Próximo",
+                //     "sPrevious": "Anterior"
+                // },
                 "oAria": {
                     "sSortAscending": ": ativar para ordenar a coluna em ordem crescente",
                     "sSortDescending": ": ativar para ordenar a coluna em ordem decrescente"
                 }
             },
+            paging: false,
             responsive: true,
-            pageLength: 30
+            // pageLength: 30
         });
     }
 
@@ -1582,7 +1587,7 @@ $(document).ready(function() {
 
     window.getRevisao = function(revisaoId) {
 
-        $("#spinnerModalRevisao--" + revisaoId).removeClass("hidden");
+        // $("#spinnerModalRevisao--" + revisaoId).removeClass("hidden");
 
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang') || 'pt';

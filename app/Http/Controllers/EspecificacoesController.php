@@ -187,6 +187,7 @@ class EspecificacoesController extends Controller
             'produtosPedido' => $query['produtosPedido'],
             'especificacaoProdutosPedido' => $query['especificacaoProdutosPedido'],
             'porcentagemResumo' => $query['porcentagemResumo'],
+            'especificacoesMaquinas' => $query['especificacoesMaquinas'],
         ]);
     }
 

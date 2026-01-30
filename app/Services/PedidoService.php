@@ -13,14 +13,15 @@ class PedidoService
 
     public function index(array $dados = []): array     {
         $pedidos = Pedido::where('excluido',  null)->orderBy('id', 'DESC')->with('cliente')->with('usuario');
-        $clientes = Cliente::where('excluido', null)->get();
         
         if (!empty($dados['nome'])) {
             $pedidos->where('nome', 'like', '%' . $dados['nome'] . '%');
         }
 
-        if (!empty($dados['cliente_id'])) {
-            $pedidos->where('cliente_id', $dados['cliente_id']);
+        if (!empty($dados['cliente_nome'])) {
+            $pedidos->whereHas('cliente', function ($query) use ($dados) {
+                $query->where('nome', 'LIKE', "%{$dados['cliente_nome']}%");
+            });
         }
 
         if(!empty($dados['usuario'])) {
@@ -69,7 +70,6 @@ class PedidoService
         
         $query = [
             'pedidos' => $pedidos->paginate(20)->withQueryString(),
-            'clientes' => $clientes 
         ];
 
         return $query;

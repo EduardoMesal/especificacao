@@ -21,20 +21,19 @@ class PedidosController extends Controller
     {
         $dados = [
             'nome' => $request->input('nome'),
-            'cliente_id' => $request->input('cliente_id'),
             'usuario' => $request->input('usuario'),
             'criado' => $request->input('criado'),
+            'cliente_nome' => $request->input('cliente_nome'),
         ];
 
         $query = $pedidoService->index($dados);
 
         return view('Pedidos/index', [
             'nome' => $dados['nome'] ?? '',
-            'cliente_id' => $dados['cliente_id'] ?? '',
             'criado' => $dados['criado'] ?? '',
             'pedidos' => $query['pedidos'],
-            'clientes' => $query['clientes'],
             'usuario' => $query['usuario'] ?? '',
+            'cliente_nome' => $dados['cliente_nome'] ?? '',
         ]);
     }
 

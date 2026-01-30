@@ -1066,122 +1066,91 @@ class EspecificacaoService
         ->pluck('atributos_idiomas.nome')
         ->toArray();
 
+        // $maquinasComparacao = Maquina::where('id', $especificacao->maquina->id)
+        // ->whereNull('excluido')
+        // ->with(['expecificacoes' => function ($query) use($atributosIds, $especificacao){
+        //     $query->whereNull('excluido')->where('id', '!=', $especificacao->id)
+        //         ->whereHas('atributos', function ($q) use($atributosIds){
+        //             $q->whereIn('atributo_id', $atributosIds);
+        //         });
+        // }])
+        // ->get();
 
         $maquinasComparacao = Maquina::where('id', $especificacao->maquina->id)
         ->whereNull('excluido')
-        ->with(['expecificacoes' => function ($query) use($atributosIds, $especificacao){
-            $query->whereNull('excluido')->where('id', '!=', $especificacao->id)
-                ->whereHas('atributos', function ($q) use($atributosIds){
-                    $q->whereIn('atributo_id', $atributosIds);
-                });
-        }])
-        ->get();
+        ->first();
 
+        $especificacoesMaquinas = $maquinasComparacao->expecificacoes()
+        ->whereNull('excluido')
+        ->where('id', '!=', $especificacao->id)
+        ->whereHas('atributos', function ($q) use ($atributosIds) {
+            $q->whereIn('atributo_id', $atributosIds);
+        })
+        ->orderBy('criado', 'desc')
+        ->paginate(10);
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $listaComparacao = [];
-        foreach ($maquinasComparacao as $maquina) {
-            foreach ($maquina->expecificacoes as $especificacaoMaquina) {
+        foreach ($especificacoesMaquinas as $especificacaoMaquina) {
 
-                $atributosEspecificacaoMaquina = AtributoEspecificacao::where('especificacao_id', $especificacaoMaquina->id)->where('revisao_id', $especificacaoMaquina->revisao_selecionada_id)
-                    ->join('caracteristicas', 'atributos_especificacao.caracteristica_id', '=', 'caracteristicas.id')
-                    ->with(['caracteristica' => function ($query) {
-                        $query->select('id', 'tipo', 'excluido');
-                    }])
-                    ->with(['atributo' => function ($query) use($idioma) {
-                        $query->whereNull('excluido')
-                        ->with([
-                            'atributosIdiomas' => function ($q) use($idioma)  {
-                                $q->where('nome', 'not like', '%N/A%')->where('nome', 'not like', '%n/a%')
-                                ->whereHas('idiomas', function ($query) use($idioma) {
-                                    $query->where('codigo', $idioma);
-                                });
-                            }
-                        ]);
-                    }])
-                    ->get();
-
-                $atributosEspecificacaoMaquinaIds = [];
-
-                foreach ($atributosEspecificacaoMaquina as $atributo) {
-                    $tipo = $atributo->caracteristica->tipo ?? null;
-                    $caracteristicaId = $atributo->caracteristica_id;
-
-                    if (in_array($tipo, ['texto', 'multiplos'])) {
-                        $conteudoLower = strtolower($atributo->conteudo); 
-                        
-                        if ($conteudoLower !== 'n/a') {
-                            $atributosEspecificacaoMaquinaIds[$caracteristicaId][] = strval($conteudoLower);
+            $atributosEspecificacaoMaquina = AtributoEspecificacao::where('especificacao_id', $especificacaoMaquina->id)->where('revisao_id', $especificacaoMaquina->revisao_selecionada_id)
+                ->join('caracteristicas', 'atributos_especificacao.caracteristica_id', '=', 'caracteristicas.id')
+                ->with(['caracteristica' => function ($query) {
+                    $query->select('id', 'tipo', 'excluido');
+                }])
+                ->with(['atributo' => function ($query) use($idioma) {
+                    $query->whereNull('excluido')
+                    ->with([
+                        'atributosIdiomas' => function ($q) use($idioma)  {
+                            $q->where('nome', 'not like', '%N/A%')->where('nome', 'not like', '%n/a%')
+                            ->whereHas('idiomas', function ($query) use($idioma) {
+                                $query->where('codigo', $idioma);
+                            });
                         }
-                    } elseif ($tipo === 'selecionavel') {
-                        $atributosEspecificacaoMaquinaIds[$caracteristicaId][] = strval($atributo->atributo_id);
+                    ]);
+                }])
+                ->get();
+
+            $atributosEspecificacaoMaquinaIds = [];
+
+            foreach ($atributosEspecificacaoMaquina as $atributo) {
+                $tipo = $atributo->caracteristica->tipo ?? null;
+                $caracteristicaId = $atributo->caracteristica_id;
+
+                if (in_array($tipo, ['texto', 'multiplos'])) {
+                    $conteudoLower = strtolower($atributo->conteudo); 
+                    
+                    if ($conteudoLower !== 'n/a') {
+                        $atributosEspecificacaoMaquinaIds[$caracteristicaId][] = strval($conteudoLower);
                     }
+                } elseif ($tipo === 'selecionavel') {
+                    $atributosEspecificacaoMaquinaIds[$caracteristicaId][] = strval($atributo->atributo_id);
                 }
-
-                // $atributosComparaveis = AtributoEspecificacao::query()
-                // ->where('atributos_especificacao.especificacao_id', $especificacaoMaquina->id)
-                // ->where('atributos_especificacao.revisao_id', $especificacaoMaquina->revisao_selecionada_id)
-                // ->whereIn('atributos_especificacao.caracteristica_id', $caracteristicasIds)
-                // ->get();
-
-                // $nomesAtributos = $atributosComparaveis
-                // ->groupBy('caracteristica_nome')
-                // ->map(function ($itens) {
-
-                //     $tipo = $itens->first()->caracteristica_tipo;
-                //     $nome = $itens->first()->caracteristica_nome;
-
-                //     // 🔹 TEXTO
-                //     if ($tipo === 'texto') {
-                //         return "<b>{$nome}:</b> {$itens->first()->conteudo}";
-                //     }
-
-                //     // 🔹 SELECIONÁVEL (1)
-                //     if ($tipo === 'selecionavel') {
-                //         return "<b>{$nome}:</b> {$itens->first()->atributo_nome}";
-                //     }
-
-                //     // 🔹 MÚLTIPLOS (N)
-                //     if ($tipo === 'multiplos') {
-                        
-                //         $atributos = $itens->map(function ($item) {
-                //             return "<b>{$item->atributo_nome}: </b>{$item->conteudo} <br/>";
-                //         });
-
-                //         return "<b>{$nome}: </b><br/>" . implode(' ', $atributos->toArray());
-                //     }
-
-                //     return null;
-                // })
-                // ->filter()
-                // ->values()
-                // ->toArray();
-
-                $totalAtributos = 0;
-                $atributosIguais = 0;
-
-                foreach ($atributosEspecificacaoPrincipal as $caracteristicaId => $valoresPrincipais) {
-                    $totalAtributos += count($valoresPrincipais);
-
-                    $valoresMaquina = $atributosEspecificacaoMaquinaIds[$caracteristicaId] ?? [];
-
-                    foreach ($valoresPrincipais as $index => $valorPrincipal) {
-                        if (isset($valoresMaquina[$index]) && $valorPrincipal === $valoresMaquina[$index]) {
-                            $atributosIguais++;
-                        }
-                    }
-                }
-
-                $porcentagem = $totalAtributos > 0 ? ($atributosIguais / $totalAtributos) * 100 : 0;
-                $listaComparacao[] = [
-                    'maquina' => optional($especificacao->maquina->maquinasIdiomas->first())->nome ?? 'N/A',
-                    'serie' => $especificacaoMaquina->serie ?? null,
-                    'status' => $especificacao->status ?? __('messages.nao_informado'),
-                    'porcentagem_similaridade' => round($porcentagem, 1),
-                    'especificacao_id' => $especificacaoMaquina->id,
-                    'nomesAtributos' => []
-                ];
             }
+
+            $totalAtributos = 0;
+            $atributosIguais = 0;
+
+            foreach ($atributosEspecificacaoPrincipal as $caracteristicaId => $valoresPrincipais) {
+                $totalAtributos += count($valoresPrincipais);
+
+                $valoresMaquina = $atributosEspecificacaoMaquinaIds[$caracteristicaId] ?? [];
+
+                foreach ($valoresPrincipais as $index => $valorPrincipal) {
+                    if (isset($valoresMaquina[$index]) && $valorPrincipal === $valoresMaquina[$index]) {
+                        $atributosIguais++;
+                    }
+                }
+            }
+
+            $porcentagem = $totalAtributos > 0 ? ($atributosIguais / $totalAtributos) * 100 : 0;
+            $listaComparacao[] = [
+                'maquina' => optional($maquinasComparacao->maquinasIdiomas->first())->nome ?? 'N/A',
+                'serie' => $especificacaoMaquina->serie ?? null,
+                'status' => $especificacao->status ?? __('messages.nao_informado'),
+                'porcentagem_similaridade' => round($porcentagem, 1),
+                'especificacao_id' => $especificacaoMaquina->id,
+                'nomesAtributos' => [],
+            ];
         }
 
         $revisoes = Revisao::where('especificacao_id', $especificacao->id)
@@ -1253,6 +1222,8 @@ class EspecificacaoService
             'produtosPedido',
             'especificacaoProdutosPedido',
             'porcentagemResumo',
+            'maquinasComparacao',
+            'especificacoesMaquinas'
         );
     }
 
@@ -1998,7 +1969,7 @@ class EspecificacaoService
             'atributos.atributo.amostra.amostrasIdiomas' => function ($q) use ($idiomaId) {
                 $q->where('idioma_id', $idiomaId);
             },
-            'imagens'
+            // 'imagens'
         ])
         ->where('id', $dados['atributo_amostra_indice_pedido_id'])
         ->whereNull('excluido')
@@ -2026,6 +1997,10 @@ class EspecificacaoService
             $atributoIdioma = $atributo?->atributosAmostrasIdiomas->first();
             $subIdioma = $subAtributo?->subAtributosAmostrasIdiomas->first();
             $amostraNome = $atributo?->amostra?->amostrasIdiomas->first()?->nome ?? 'N/A';
+
+            if(strtolower($subIdioma?->nome) === 'n/a' || strtolower($atributoPedido?->conteudo) === 'n/a') {
+                continue;   
+            }
 
             $amostras->push([
                 'id' => $atributoPedido->id,
@@ -2185,7 +2160,7 @@ class EspecificacaoService
             'atributos.atributo.produto.produtosIdiomas' => function ($q) use ($idiomaId) {
                 $q->where('idioma_id', $idiomaId);
             },
-            'imagens'
+            // 'imagens'
         ])
         ->where('id', $dados['atributo_produto_indice_pedido_id'])
         ->whereNull('excluido')
@@ -2212,6 +2187,10 @@ class EspecificacaoService
             $atributoIdioma = $atributo?->atributosProdutosIdiomas->first();
             $subIdioma = $subAtributo?->subAtributosProdutosIdiomas->first();
             $produtoNome = $atributo?->produto?->produtosIdiomas->first()?->nome ?? 'N/A';
+
+            if(strtolower($subIdioma?->nome) === 'n/a' || strtolower($atributoPedido?->conteudo) === 'n/a') {
+                continue;   
+            }
 
             $produtos->push([
                 'id' => $atributoPedido->id,

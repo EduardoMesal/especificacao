@@ -34,7 +34,9 @@ tr td:not(:first-child):not(:last-child) {
   width: fit-content;
   position: relative;
 }
-
+ul.pagination{
+  margin-bottom: 0px !important;
+}
 .filepond--file-info .filepond--file-info-main{
   color: white !important;
 }
