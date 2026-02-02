@@ -231,7 +231,6 @@ class EspecificacaoService
 
                 $dadosFormatados = [];
                 $dadosFormatadosObservacoes = [];
-                $statusNotFinished = 0;
                 foreach ($dados['caracteristicas'] as $caracteristica) {
                     $caracteristicaId = $caracteristica['caracteristica_id'];
 
@@ -247,9 +246,6 @@ class EspecificacaoService
                                 'especificacao_id' => $especificacao->id,
                             ];
 
-                            if($atributo['atributo_id'] == null){
-                                $statusNotFinished = $statusNotFinished + 1;
-                            }
                         }
 
                     // Caso 2: atributo_texto (objeto)
@@ -264,10 +260,6 @@ class EspecificacaoService
                             'especificacao_id' => $especificacao->id,
                         ];
 
-                        if($atributoTexto['conteudo'] == null){
-                            $statusNotFinished = $statusNotFinished + 1;
-                        }
-
                     // Caso 3: entrada simples
                     } else {
                         $dadosFormatados[] = [
@@ -278,18 +270,8 @@ class EspecificacaoService
                             'conteudo' => $caracteristica['conteudo'] ?? null,
                             'especificacao_id' => $especificacao->id,
                         ];
-
-                        if($caracteristica['atributo_id'] == null){
-                            $statusNotFinished = $statusNotFinished + 1;
-                        }
+                       
                     }
-                }
-
-                if($statusNotFinished > 0){
-                    $especificacao->status = 'Em andamento';
-                } else {
-                    $especificacao->status = 'Finalizada';
-                    $especificacao->finalizada = Carbon::now();
                 }
 
                 $especificacao->save();
@@ -408,7 +390,7 @@ class EspecificacaoService
             
             if ($especificacao) {
 
-                if ($dados['pedido_id'] && $dados['pedido_id'] !== $especificacao->pedido_id) {
+                if (isset($dados['pedido_id']) && $dados['pedido_id'] != $especificacao->pedido_id) {
                     $especificacao->pedido_id = $dados['pedido_id'];
                     EspecificacaoAmostraPedido::where('especificacao_id', $especificacao->id)->delete();
                     EspecificacaoProdutoPedido::where('especificacao_id', $especificacao->id)->delete();
@@ -416,14 +398,11 @@ class EspecificacaoService
 
                 $especificacao->serie = $dados['serie'];
                 $especificacao->codigo_focco = $dados['codigo_focco'];
-
                 $response = $especificacao->save();
 
                 if (!$response) {
                     throw new \Exception('Erro ao salvar os dados.');
                 }
-
-                $alteracoes = []; 
 
                 $getRevisao = Revisao::where('especificacao_id', $especificacao->id)->where('excluido', null)->count();
 
@@ -440,8 +419,6 @@ class EspecificacaoService
                     $especificacao->save();
                 }
 
-                $statusNotFinished = 0;
-                
                 foreach ($dados['caracteristicas'] as $caracteristicaId => $caracteristica) {
 
                     if (isset($caracteristica['atributo_texto'])) {
@@ -456,10 +433,6 @@ class EspecificacaoService
                             'observacao_personalizada' => $atributo['observacao_personalizada'] ?? null,
                             'revisao_id' => $revisao->id,
                         ]);
-
-                        if($atributo['atributo_id'] == null){
-                            $statusNotFinished = $statusNotFinished + 1;
-                        }
 
                         continue;
                     }
@@ -481,18 +454,9 @@ class EspecificacaoService
                                 'revisao_id' => $revisao->id,
                             ]);
 
-                            if($atributo['atributo_id'] == null){
-                                $statusNotFinished = $statusNotFinished + 1;
-                            }
                         }
                     }
                 
-                    if (!empty($alteracoes)) {
-                        $revisao->save();
-                        // foreach ($alteracoes as $a) {
-                        //     // $this->createEspecificacaoHistorico($especificacao->id, $user->id, $a->atributo_id, $a->caracteristica_id);
-                        // }
-                    }
                 }
 
                 if(isset($dados['att']) && count($dados['att']) > 0){
@@ -515,14 +479,6 @@ class EspecificacaoService
                             'criado' => date('Y-m-d H:i:s')
                         ]);
                     }
-                }
-
-                if($statusNotFinished > 0){
-                    $especificacao->status = 'Em andamento';
-                    $especificacao->finalizada = null;
-                } else {
-                    $especificacao->status = 'Finalizada';
-                    $especificacao->finalizada = Carbon::now();
                 }
 
                 DB::commit();
@@ -956,7 +912,26 @@ class EspecificacaoService
             } 
         }
 
-        $porcentagemResumo = count($resumoItens) > 0 ? ($resumoItensInseridos / count($resumoItens)) * 100 : 0;
+        $getIndicesPedidoAmostras = EspecificacaoAmostraPedido::where('especificacao_id', $especificacao->id)->pluck('atributo_amostra_indice_pedido_id')->toArray();
+        $resumoAmostrasItens = 0;
+        
+        foreach($getIndicesPedidoAmostras as $indiceAmostra){
+            $getA = $this->get_amostra_pedido(['atributo_amostra_indice_pedido_id' => $indiceAmostra, 'lang' => $idioma]);
+            $resumoAmostrasItens = $resumoAmostrasItens + $getA['resumoItens'];
+            $resumoItensInseridos = $resumoItensInseridos + $getA['resumoItensInseridos'];
+        }
+
+        $getIndicesPedidoProdutos = EspecificacaoProdutoPedido::where('especificacao_id', $especificacao->id)->pluck('atributo_produto_indice_pedido_id')->toArray();
+        $resumoProdutosItens = 0;
+        
+        foreach($getIndicesPedidoProdutos as $indiceProduto){
+            $getP = $this->get_produto_pedido(['atributo_produto_indice_pedido_id' => $indiceProduto, 'lang' => $idioma]);
+            $resumoProdutosItens = $resumoProdutosItens + $getP['resumoItens'];
+            $resumoItensInseridos = $resumoItensInseridos + $getP['resumoItensInseridos'];
+        }
+        
+        $resumoItensFinal =  count($resumoItens) + $resumoAmostrasItens + $resumoProdutosItens;
+        $porcentagemResumo = $resumoItensFinal > 0 ? ($resumoItensInseridos / $resumoItensFinal) * 100 : 0;
 
         $porcentagemResumo = number_format($porcentagemResumo, 1, '.', '');
 
@@ -1185,8 +1160,6 @@ class EspecificacaoService
         }])
         ->get();
 
-        $especificacaoAmostrasPedido = EspecificacaoAmostraPedido::where('especificacao_id', $especificacao->id)->pluck('atributo_amostra_indice_pedido_id')->toArray();
-
         $produtosPedido = AtributoProdutoIndicePedido::where('pedido_id', $especificacao->pedido_id)
         ->whereNull('excluido')
         ->whereHas('produto', function($query) {
@@ -1204,8 +1177,6 @@ class EspecificacaoService
         }])
         ->get();
 
-        $especificacaoProdutosPedido = EspecificacaoProdutoPedido::where('especificacao_id', $especificacao->id)->pluck('atributo_produto_indice_pedido_id')->toArray();
-        
         return compact(
             'especificacao',
             'listaComparacao',
@@ -1218,9 +1189,9 @@ class EspecificacaoService
             'dadosAgrupadoProdutos',
             'revisoes',
             'amostrasPedido',
-            'especificacaoAmostrasPedido',
+            'getIndicesPedidoAmostras',
             'produtosPedido',
-            'especificacaoProdutosPedido',
+            'getIndicesPedidoProdutos',
             'porcentagemResumo',
             'maquinasComparacao',
             'especificacoesMaquinas'
@@ -1943,8 +1914,8 @@ class EspecificacaoService
     //     ];
     // } 
 
-    public function get_amostra_pedido(array $dados)
-    {
+
+    public function get_amostra_pedido(array $dados){
         $idioma = $dados['lang'] ?? 'pt';
 
         $idiomaId = Idioma::where('codigo', $idioma)->value('id');
@@ -1988,6 +1959,8 @@ class EspecificacaoService
 
         /** 🔹 Montagem dos dados */
         $amostras = collect();
+        
+        $resumoItensInseridos = 0;
 
         foreach ($indice->atributos as $atributoPedido) {
 
@@ -2000,6 +1973,20 @@ class EspecificacaoService
 
             if(strtolower($subIdioma?->nome) === 'n/a' || strtolower($atributoPedido?->conteudo) === 'n/a') {
                 continue;   
+            }
+
+            if($atributo->tipo === "texto"){
+                if(!empty($atributoPedido->conteudo)){
+                    $resumoItensInseridos += 1;
+                }
+            }else if ($atributo->tipo === "multiplos"){
+                if(!empty($atributoPedido->conteudo)){
+                    $resumoItensInseridos += 1;
+                }
+            }else if ($atributo->tipo === "selecionavel"){
+                if(!empty($subIdioma->nome)){
+                    $resumoItensInseridos += 1;
+                }
             }
 
             $amostras->push([
@@ -2037,103 +2024,11 @@ class EspecificacaoService
             });
 
         return [
-            'amostra' => $amostrasAgrupadas
+            'amostra' => $amostrasAgrupadas,
+            'resumoItens' => $amostras->count(),
+            'resumoItensInseridos' => $resumoItensInseridos
         ];
     }
-
-    // public function get_produto_pedido(array $dados){
-    
-    //     $idioma = $dados['lang'] ?? 'pt';
-
-    //     $idiomaId = Idioma::where('codigo', $idioma)->first()->id;
-
-    //     $atributoProdutoIndice = AtributoProdutoIndicePedido::where('id', $dados['atributo_produto_indice_pedido_id'])
-    //     ->whereNull('excluido')
-    //     ->first();
-
-    //     $produtos = AtributoProdutoPedido::where('indice_produto_pedido_id', $atributoProdutoIndice->id)
-    //     ->join('atributos_produtos', 'atributos_produtos.id', '=', 'atributos_produto_pedido.atributo_id')
-    //     ->leftJoin('atributos_produtos_idiomas', function ($join) use ($idiomaId) {
-    //         $join->on('atributos_produtos_idiomas.atributo_produto_id', '=', 'atributos_produtos.id')
-    //             ->where('atributos_produtos_idiomas.idioma_id', $idiomaId);
-    //     })
-    //     ->leftJoin('sub_atributos_produtos', 'sub_atributos_produtos.id', '=', 'atributos_produto_pedido.sub_atributo_id')
-    //     ->leftJoin('sub_atributos_produtos_idiomas', function ($join) use ($idiomaId) {
-    //         $join->on('sub_atributos_produtos_idiomas.sub_atributos_produtos_id', '=', 'sub_atributos_produtos.id')
-    //             ->where('sub_atributos_produtos_idiomas.idioma_id', $idiomaId);
-    //     })
-    //     ->leftJoin('produtos', 'produtos.id', '=', 'atributos_produtos.produto_id')
-    //     ->leftJoin('produtos_idiomas', function ($join) use ($idiomaId) {
-    //         $join->on('produtos_idiomas.produto_id', '=', 'produtos.id')
-    //             ->where('produtos_idiomas.idioma_id', $idiomaId);
-    //     })
-    //     ->whereNull('atributos_produtos.excluido')
-    //     ->whereNull('sub_atributos_produtos.excluido')
-    //     ->select(
-    //         'atributos_produto_pedido.id',
-    //         'atributos_produto_pedido.indice_produto_pedido_id',
-    //         'atributos_produto_pedido.atributo_id',
-    //         'atributos_produto_pedido.sub_atributo_id',
-    //         'atributos_produto_pedido.observacao_personalizada',
-    //         'atributos_produto_pedido.conteudo',
-    //         'atributos_produtos_idiomas.nome as atributo_nome',
-    //         'atributos_produtos_idiomas.unidade as atributo_unidade',
-    //         'atributos_produtos.tipo as atributo_tipo',
-    //         'sub_atributos_produtos_idiomas.nome as sub_atributo_nome',
-    //         'produtos_idiomas.nome as produto_nome'
-    //     )
-    //     ->get();
-
-    //     // $imagens = ImagemAtributoProdutoPedido::whereIn(
-    //     //     'atributo_produto_id',
-    //     //     $produtos->pluck('atributo_id')->unique()
-    //     // )
-    //     // ->where('indice_produto_pedido_id', $atributoProdutoIndice->id)
-    //     // ->get(['id', 'imagem', 'atributo_produto_id', 'indice_produto_pedido_id'])
-    //     // ->groupBy('atributo_produto_id');
-
-    //     // $produtos = $produtos->map(function ($item) use ($imagens) {
-    //     //     $item->imagens = $imagens[$item->atributo_id] ?? collect();
-    //     //     return $item;
-    //     // });
-
-    //     $imagensProdutosGerais = ImagemProdutoPedido::where('produto_indice_pedido_id', $atributoProdutoIndice->id)->get(['id', 'arquivo', 'tipo', 'produto_indice_pedido_id']);
-
-    //     if(count($produtos) > 0) {
-
-    //         $produtosAgrupados = $produtos->groupBy('indice_produto_pedido_id', 'asc')
-    //         ->map(function ($grupo) {
-    //             return $grupo->groupBy('produto_nome');
-    //         });
-
-    //         $produtosAgrupados = $produtos
-    //         ->groupBy('produto_nome')
-    //         ->map(function ($grupoPorNome) use ($imagensProdutosGerais) {
-    //             return [
-    //                 $grupoPorNome
-    //                 ->groupBy('indice_produto_pedido_id')
-    //                 ->map(function ($grupoPorIndice, $indice) use ($imagensProdutosGerais) {
-                        
-    //                     return [
-    //                         'atributos' => $grupoPorIndice->values(),
-    //                         'imagens_gerais' => $imagensProdutosGerais
-    //                             ->where('produto_indice_pedido_id', $indice)
-    //                             ->where('tipo', 'imagem')
-    //                             ->values(),
-    //                         'documentos_gerais' => $imagensProdutosGerais
-    //                             ->where('produto_indice_pedido_id', $indice)
-    //                             ->where('tipo', 'documento')
-    //                             ->values(),
-    //                     ];
-    //                 }),
-    //             ];
-    //         });
-    //     }
-
-    //     return [
-    //         'produto' => $produtosAgrupados
-    //     ];
-    // } 
 
     public function get_produto_pedido(array $dados){
     
@@ -2144,6 +2039,8 @@ class EspecificacaoService
         if (!$idiomaId) {
             return null;
         }
+
+        $resumoItensInseridos = 0;
 
         $indice = AtributoProdutoIndicePedido::with([
             'atributos' => function ($q) {
@@ -2192,6 +2089,20 @@ class EspecificacaoService
                 continue;   
             }
 
+            if($atributo->tipo === "texto"){
+                if(!empty($atributoPedido->conteudo)){
+                    $resumoItensInseridos += 1;
+                }
+            }else if ($atributo->tipo === "multiplos"){
+                if(!empty($atributoPedido->conteudo)){
+                    $resumoItensInseridos += 1;
+                }
+            }else if ($atributo->tipo === "selecionavel"){
+                if(!empty($subIdioma->nome)){
+                    $resumoItensInseridos += 1;
+                }
+            }
+
             $produtos->push([
                 'id' => $atributoPedido->id,
                 'indice_produto_pedido_id' => $atributoPedido->indice_produto_pedido_id,
@@ -2226,7 +2137,9 @@ class EspecificacaoService
             });
 
         return [
-            'produto' => $produtosAgrupados
+            'produto' => $produtosAgrupados,
+            'resumoItens' => $produtos->count(),
+            'resumoItensInseridos' => $resumoItensInseridos
         ];
     } 
 

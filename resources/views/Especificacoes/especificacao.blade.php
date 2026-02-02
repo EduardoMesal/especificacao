@@ -651,7 +651,7 @@
                                         <tbody>
                                             @if(count($revisoes) > 0)
                                                 @foreach($revisoes as $item)
-                                                    <tr onclick="getRevisao({{ $item['id'] }})" data-bs-toggle="modal" data-bs-target="#modalRevisao--{{$item['id']}}">
+                                                    <tr onclick="getRevisao(this, {{ $item['id'] }})" data-bs-toggle="modal" data-bs-target="#modalRevisao--{{$item['id']}}" data-open="false">
                                                         <td>
                                                             <div class="d-flex gap-3 align-items-center">
                                                                 <div class="d-flex align-items-center">
@@ -762,7 +762,7 @@
                                                         <td>{{ $amostra['serie'] }}</td>
                                                         <td data-order="{{ $amostra['porcentagem_similaridade'] }}">{{ $amostra['porcentagem_similaridade'] }}%</td>
                                                         <td>
-                                                            <button class="btn btn-light" onclick="getComparacao({{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}">
+                                                            <button class="btn btn-light" onclick="getComparacao(this, {{ $amostra['especificacao_id'] }})" data-bs-toggle="modal" data-bs-target="#modalComparacao--{{$amostra['especificacao_id']}}" data-open="false">
                                                                 Ver comparação
                                                             </button>    
                                                             <div class="modal fade" id="modalComparacao--{{$amostra['especificacao_id']}}" role="dialog">
@@ -1067,7 +1067,7 @@
                                                         </div>
                                                         <div class="d-flex align-items-center">
                                                             <div class="d-flex justify-content-start flex-column">
-                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6" onclick="getAmostra({{ $item->id }})" data-bs-toggle="modal" data-bs-target="#modalAmostra--{{$item->id}}">
+                                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6" onclick="getAmostra(this, {{ $item->id }})" data-bs-toggle="modal" data-bs-target="#modalAmostra--{{$item->id}}" data-open="false">
                                                                     {!! $item->id !!}) {{optional($item->amostra->amostrasIdiomas->first())->nome }}
                                                                 </span>
                                                             </div>
@@ -1187,7 +1187,7 @@
                                                         </div>
                                                         <div class="d-flex align-items-center">
                                                             <div class="d-flex justify-content-start flex-column">
-                                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6" onclick="getProduto({{ $item->id }})" data-bs-toggle="modal" data-bs-target="#modalProduto--{{$item->id}}">
+                                                                 <span class="text-gray-800 text-hover-primary mb-1 fs-6" onclick="getProduto(this, {{ $item->id }})" data-bs-toggle="modal" data-bs-target="#modalProduto--{{$item->id}}" data-open="false">
                                                                     {!! $item->id !!}) {{optional($item->produto->produtosIdiomas->first())->nome }}
                                                                 </span>
                                                             </div>
@@ -1389,7 +1389,6 @@
         </div>    
     </div>
 </section>
-
 @endsection
 
 @section('plugins')
@@ -1519,96 +1518,103 @@ $(document).ready(function() {
     
     $(window).scrollTop(0);
 
-    window.getComparacao = function(especificacaoId) {
+    window.getComparacao = function(el, especificacaoId) {
+        const $el = $(el);
         $("#spinnerModal--" + especificacaoId + "").removeClass("hidden");
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang') || 'pt';
-        $.ajax({
-            url: `/especificacoes/comparar/${especificacaoId}`,
-            method: 'GET',
-            data: {
-                especificacaoBaseId: @json($especificacao->id),
-                idioma: lang 
-            },
-            success: function(response) {
-               $("#spinnerModal--" + especificacaoId + "").addClass("hidden");
+        if ($el.data('open') === false) {
+            $.ajax({
+                url: `/especificacoes/comparar/${especificacaoId}`,
+                method: 'GET',
+                data: {
+                    especificacaoBaseId: @json($especificacao->id),
+                    idioma: lang 
+                },
+                success: function(response) {
+                    $("#spinnerModal--" + especificacaoId + "").addClass("hidden");
+                    
+                    $el.data('open', true);
 
-                const container = $(`#modalComparacao--${especificacaoId} .modal-body`);
+                    const container = $(`#modalComparacao--${especificacaoId} .modal-body`);
 
-                const iguaisHtml = `
-                    <h5 class="mb-2">Características Iguais</h5>
-                    <ul class="list-group resumoContent">
-                        ${response.iguais.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
-                    </ul>
-                `;
-
-                let diferentesHtml = '';
-
-                if (response.diferentes.comparado.length > 0 || response.diferentes.base.length > 0) {
-                    diferentesHtml += `
-                        <h5 class="mt-4 mb-4">Características Diferentes</h5>
-                        <div class="row">
+                    const iguaisHtml = `
+                        <h5 class="mb-2">Características Iguais</h5>
+                        <ul class="list-group resumoContent">
+                            ${response.iguais.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
+                        </ul>
                     `;
 
-                    if (response.diferentes.comparado.length > 0) {
+                    let diferentesHtml = '';
+
+                    if (response.diferentes.comparado.length > 0 || response.diferentes.base.length > 0) {
                         diferentesHtml += `
-                            <div class="col">
-                                <h6 class="mb-2">Especificação ${especificacaoId}</h6>
-                                <ul class="list-group resumoContent">
-                                    ${response.diferentes.comparado.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
-                                </ul>
-                            </div>
+                            <h5 class="mt-4 mb-4">Características Diferentes</h5>
+                            <div class="row">
                         `;
+
+                        if (response.diferentes.comparado.length > 0) {
+                            diferentesHtml += `
+                                <div class="col">
+                                    <h6 class="mb-2">Especificação ${especificacaoId}</h6>
+                                    <ul class="list-group resumoContent">
+                                        ${response.diferentes.comparado.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `;
+                        }
+
+                        if (response.diferentes.base.length > 0) {
+                            diferentesHtml += `
+                                <div class="col">
+                                    <h6 class="mb-2">Especificação ${@json($especificacao->id)}</h6>
+                                    <ul class="list-group resumoContent">
+                                        ${response.diferentes.base.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `;
+                        }
+
+                        diferentesHtml += `</div>`;
                     }
 
-                    if (response.diferentes.base.length > 0) {
-                        diferentesHtml += `
-                            <div class="col">
-                                <h6 class="mb-2">Especificação ${@json($especificacao->id)}</h6>
-                                <ul class="list-group resumoContent">
-                                    ${response.diferentes.base.map(i => `<li style="margin-left:0px; color: #000;" class="p-3 bg-light rounded-2 border border-light position-relative">${i}</li>`).join('')}
-                                </ul>
-                            </div>
-                        `;
-                    }
+                    container.html(iguaisHtml + diferentesHtml);
+                },
 
-                    diferentesHtml += `</div>`;
+                error: function(err) {
+                $("#spinnerModal--" + especificacaoId + "").addClass("hidden");
+                    console.error('Erro ao buscar comparação:', err);
                 }
-
-                container.html(iguaisHtml + diferentesHtml);
-            },
-
-            error: function(err) {
-               $("#spinnerModal--" + especificacaoId + "").addClass("hidden");
-                console.error('Erro ao buscar comparação:', err);
-            }
-        });
+            });
+        }
     }
 
-    window.getRevisao = function(revisaoId) {
-
+    window.getRevisao = function(el, revisaoId) {
+        const $el = $(el);
         // $("#spinnerModalRevisao--" + revisaoId).removeClass("hidden");
 
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang') || 'pt';
 
-        $.ajax({
-            url: `/especificacoes/revisao/${revisaoId}`,
-            method: 'GET',
-            data: {
-                revisao_id: revisaoId,
-                lang: lang
-            },
-            success: function (response) {
-                $("#spinnerModalRevisao--" + revisaoId).addClass("hidden");
-
-                $("#modalRevisaoContent--" + revisaoId).html(response.rev);
-            },
-            error: function () {
-                $("#spinnerModalRevisao--" + revisaoId).addClass("hidden");
-                $("#modalRevisaoContent--" + revisaoId).html('<div class="alert alert-danger">Erro inesperado</div>');
-            }
-        });
+        if ($el.data('open') === false) {
+            $.ajax({
+                url: `/especificacoes/revisao/${revisaoId}`,
+                method: 'GET',
+                data: {
+                    revisao_id: revisaoId,
+                    lang: lang
+                },
+                success: function (response) {
+                    $("#spinnerModalRevisao--" + revisaoId).addClass("hidden");
+                    $el.data('open', true);
+                    $("#modalRevisaoContent--" + revisaoId).html(response.rev);
+                },
+                error: function () {
+                    $("#spinnerModalRevisao--" + revisaoId).addClass("hidden");
+                    $("#modalRevisaoContent--" + revisaoId).html('<div class="alert alert-danger">Erro inesperado</div>');
+                }
+            });
+        }
     };
 
     function agruparMultiplos(atributos) {
@@ -1804,96 +1810,108 @@ $(document).ready(function() {
         container.html(html);
     }
 
-    window.getAmostra = function(amostraPedidoId) {
+    window.getAmostra = function(el, amostraPedidoId) {
+        const $el = $(el);
         $("#spinnerModal--" + amostraPedidoId + "").removeClass("hidden");
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang') || 'pt';
-        $.ajax({
-            url: `/especificacoes/amostra/pedido/${amostraPedidoId}`,
-            method: 'GET',
-            data: {
-                atributo_amostra_indice_pedido_id: amostraPedidoId,
-                lang: lang 
-            },
-            success: function (response) {
-                $("#spinnerModal--" + amostraPedidoId).addClass("hidden");
 
-                getContentModal(amostraPedidoId, response.amostra, 'modalAmostra', 'amostras');
+        if ($el.data('open') === false) {
+            $.ajax({
+                url: `/especificacoes/amostra/pedido/${amostraPedidoId}`,
+                method: 'GET',
+                data: {
+                    atributo_amostra_indice_pedido_id: amostraPedidoId,
+                    lang: lang 
+                },
+                success: function (response) {
+                    $("#spinnerModal--" + amostraPedidoId).addClass("hidden");
+                    //mudar data-open
+                    $el.data('open', true);
+                    getContentModal(amostraPedidoId, response.amostra, 'modalAmostra', 'amostras');
 
-                let modalAbertoId = null;
+                    let modalAbertoId = null;
 
-                document.addEventListener('shown.bs.modal', function(event) {
-                    const modal = event.target;
-                    modalAbertoId = modal.id;
+                    document.addEventListener('shown.bs.modal', function(event) {
+                        const modal = event.target;
+                        modalAbertoId = modal.id;
 
-                    const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
+                        const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
 
-                    galleriesModal.forEach(gallery => {
-                        if (!gallery.dataset.lgInit) {
-                            lightGallery(gallery, {
-                                selector: 'a.light-item',
-                                plugins: [lgZoom, lgThumbnail],
-                                speed: 400,
-                                download: false,
-                            });
+                        galleriesModal.forEach(gallery => {
+                            if (!gallery.dataset.lgInit) {
+                                lightGallery(gallery, {
+                                    selector: 'a.light-item',
+                                    plugins: [lgZoom, lgThumbnail],
+                                    speed: 400,
+                                    download: false,
+                                });
 
-                            gallery.dataset.lgInit = "true";
-                        }
+                                gallery.dataset.lgInit = "true";
+                            }
+                        });
                     });
-                });
-            },
+                },
 
-            error: function(err) {
-               $("#spinnerModal--" + amostraPedidoId + "").addClass("hidden");
-                console.error('Erro ao buscar amostras:', err);
-            }
-        });
+                error: function(err) {
+                $("#spinnerModal--" + amostraPedidoId + "").addClass("hidden");
+                    console.error('Erro ao buscar amostras:', err);
+                }
+            });
+        }
+       
     }
 
-    window.getProduto = function(produtoPedidoId) {
+    window.getProduto = function(el, produtoPedidoId) {
+        const $el = $(el);
         $("#spinnerModal--" + produtoPedidoId + "").removeClass("hidden");
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang') || 'pt';
-        $.ajax({
-            url: `/especificacoes/produto/pedido/${produtoPedidoId}`,
-            method: 'GET',
-            data: {
-                atributo_produto_indice_pedido_id: produtoPedidoId,
-                lang: lang 
-            },
-            success: function (response) {
-                $("#spinnerModal--" + produtoPedidoId).addClass("hidden");
+        
+        if ($el.data('open') === false) {
+            $.ajax({
+                url: `/especificacoes/produto/pedido/${produtoPedidoId}`,
+                method: 'GET',
+                data: {
+                    atributo_produto_indice_pedido_id: produtoPedidoId,
+                    lang: lang 
+                },
+                success: function (response) {
+                    $("#spinnerModal--" + produtoPedidoId).addClass("hidden");
 
-                getContentModal(produtoPedidoId, response.produto, 'modalProduto', 'produtos');
+                    $el.data('open', true);
+                    
+                    getContentModal(produtoPedidoId, response.produto, 'modalProduto', 'produtos');
 
-                let modalAbertoId = null;
+                    let modalAbertoId = null;
 
-                document.addEventListener('shown.bs.modal', function(event) {
-                    const modal = event.target;
-                    modalAbertoId = modal.id;
+                    document.addEventListener('shown.bs.modal', function(event) {
+                        const modal = event.target;
+                        modalAbertoId = modal.id;
 
-                    const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
+                        const galleriesModal = modal.querySelectorAll('.galleryPedidoModal');
 
-                    galleriesModal.forEach(gallery => {
-                        if (!gallery.dataset.lgInit) {
-                            lightGallery(gallery, {
-                                selector: 'a.light-item',
-                                plugins: [lgZoom, lgThumbnail],
-                                speed: 400,
-                                download: false,
-                            });
+                        galleriesModal.forEach(gallery => {
+                            if (!gallery.dataset.lgInit) {
+                                lightGallery(gallery, {
+                                    selector: 'a.light-item',
+                                    plugins: [lgZoom, lgThumbnail],
+                                    speed: 400,
+                                    download: false,
+                                });
 
-                            gallery.dataset.lgInit = "true";
-                        }
+                                gallery.dataset.lgInit = "true";
+                            }
+                        });
                     });
-                });
-            },
+                },
 
-            error: function(err) {
-               $("#spinnerModal--" + produtoPedidoId + "").addClass("hidden");
-                console.error('Erro ao buscar produtos:', err);
-            }
-        });
+                error: function(err) {
+                $("#spinnerModal--" + produtoPedidoId + "").addClass("hidden");
+                    console.error('Erro ao buscar produtos:', err);
+                }
+            });
+        }
     }
 
     window.exportarParaWord = function(modalId, especificacaoId, serie = null) {

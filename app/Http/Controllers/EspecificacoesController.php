@@ -129,6 +129,7 @@ class EspecificacoesController extends Controller
         $user = Auth::User();
 
         try {
+            // return $request->all();
             $data = $request->only(['cliente_id', 'codigo_focco', 'serie', 'caracteristicas', 'att', 'pedido_id', 'att_ids_originais']);
             $especificacaoService->editar($data, $id, $user);
             return response()->json([
@@ -183,9 +184,9 @@ class EspecificacoesController extends Controller
             'dadosPorProduto' => $query['dadosAgrupadoProdutos'],
             'revisoes' => $query['revisoes'],
             'amostrasPedido' => $query['amostrasPedido'],
-            'especificacaoAmostrasPedido' => $query['especificacaoAmostrasPedido'],
+            'especificacaoAmostrasPedido' => $query['getIndicesPedidoAmostras'],
             'produtosPedido' => $query['produtosPedido'],
-            'especificacaoProdutosPedido' => $query['especificacaoProdutosPedido'],
+            'especificacaoProdutosPedido' => $query['getIndicesPedidoProdutos'],
             'porcentagemResumo' => $query['porcentagemResumo'],
             'especificacoesMaquinas' => $query['especificacoesMaquinas'],
         ]);
@@ -385,9 +386,7 @@ class EspecificacoesController extends Controller
                 $query->whereNull('excluido')
                 ->with([
                     'atributosIdiomas' => function ($q) use($idioma) {
-                        $q->where('nome', 'not like', '%N/A%')
-                        ->where('nome', 'not like', '%n/a%')
-                        ->whereHas('idiomas', function ($sub) use($idioma) {
+                        $q->whereHas('idiomas', function ($sub) use($idioma) {
                             $sub->where('codigo', $idioma);
                         })
                         ->limit(1);
@@ -422,9 +421,7 @@ class EspecificacoesController extends Controller
                 $query->whereNull('excluido')
                 ->with([
                     'atributosIdiomas' => function ($q) use($idioma) {
-                        $q->where('nome', 'not like', '%N/A%')
-                        ->where('nome', 'not like', '%n/a%')
-                        ->whereHas('idiomas', function ($sub) use($idioma) {
+                        $q->whereHas('idiomas', function ($sub) use($idioma) {
                             $sub->where('codigo', $idioma);
                         });
                     },
@@ -543,20 +540,22 @@ class EspecificacoesController extends Controller
             $conteudo = $item->conteudo ?? null;
             $unidade = $item->caracteristica->caracteristicasIdiomas->first()->unidade ?? '';
 
-            $valor = 'Não informado';
+            $valor = '';
             $nomeCaract = "<span style='font-weight: 600; color: #000'>{$nomeCaract}:</span>";
             if ($tipo === 'texto') {
-                if (!empty($conteudo) && strtolower($conteudo) !== 'n/a') {
+                if (!empty($conteudo) && strtolower($conteudo)) {
                     $valor = $conteudo;
+                }else{
+                    $valor = "<span style='color: #e2231a'>Não informado</span>";
                 }
                 $linha = "{$nomeCaract} {$valor}";
-                if ($unidade && $valor !== 'Não informado') $linha .= " {$unidade}";
+                if ($unidade && $valor !== "<span style='color: #e2231a'>Não informado</span>") $linha .= " {$unidade}";
                 $linha .= ';';
                 $agrupados[] = $linha;
 
             } elseif ($tipo === 'multiplos') {
                 $linha = "<span style='font-weight: 600; color: #000'>{$nomeAttr}:</span> ";
-                $linha .= (!empty($conteudo) && strtolower($conteudo) !== 'n/a') ? $conteudo : "<span style='color: #e2231a'>Não informado</span>";
+                $linha .= (!empty($conteudo) && strtolower($conteudo)) ? $conteudo : "<span style='color: #e2231a'>Não informado</span>";
                 if ($unidade) $linha .= " {$unidade}";
                 $linha .= ';';
                 $agrupados[$nomeCaract][] = $linha;
@@ -565,7 +564,7 @@ class EspecificacoesController extends Controller
                 $valor = $nomeAttr ?? "<span style='color: #e2231a'>Não informado</span>";
 
                 $linha = "{$nomeCaract} {$valor}";
-                if ($unidade && $valor !== 'Não informado'){
+                if ($unidade && $valor !== "<span style='color: #e2231a'>Não informado</span>"){
                     $linha .= " {$unidade}";
                 }
                 $linha .= ';';
