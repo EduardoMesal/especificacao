@@ -18,6 +18,7 @@ use Intervention\Image\Facades\Image;
 use App\Services\ProdutoService;
 use App\Services\DeleteDefaultService;
 use App\Services\PedidoProdutoService;
+use Illuminate\Support\Facades\Storage;
 
 class PedidosProdutosController extends Controller
 {   
@@ -312,7 +313,9 @@ class PedidosProdutosController extends Controller
                 if ($response) {
                     DB::commit();
                     if($hasMoreThanOneImg == false){
-                        File::delete(public_path("/assets/img/produtos/pedido/" . $oldImg->arquivo));
+                        // File::delete(public_path("/assets/img/produtos/pedido/" . $oldImg->arquivo));
+                        Storage::disk('ftp_media')->delete("produtos/pedido/" . $oldImg->arquivo);
+
                     }
                     return response()->json([
                         'success' => true,

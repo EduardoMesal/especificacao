@@ -44,6 +44,11 @@ class Maquina extends Model
         return $this->hasMany(Especificacao::class, 'maquina_id');
     }
 
+    public function imagens()
+    {
+        return $this->hasMany(MaquinaImagem::class, 'maquina_id');
+    }
+
     public function equipamento()
     {
         return $this->belongsTo(EquipamentoOrigem::class, 'equipamento_id');

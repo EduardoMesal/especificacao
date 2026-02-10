@@ -2,6 +2,8 @@
 @section('title', 'Criar máquina')
 
 @section('css')
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -20,7 +22,7 @@
                                             <h2 class="">Crie uma máquina</h2>
                                         </div>
                                         <div class="row g-9">
-                                            <div class="row mb-5 imgArea">
+                                            <!-- <div class="row mb-5 imgArea">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                     <span>Imagem</span>
                                                 </label>
@@ -44,7 +46,7 @@
                                                     <input type="hidden" id="cropped-image" name="cropped_image">
                                                     <button type="hidden" id="trocar-button" style="display: none;">Trocar</button>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="col-md-4 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                     <span class="required">Nome</span>
@@ -115,6 +117,12 @@
                                                 </label>
                                                 <textarea name="observacao" id="texto-2" class="form-control ckText"></textarea>
                                             </div>
+                                            <div class="col-md-12 imgArea" style="margin-top: 30px;">
+                                                <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                    <span class="">Imagens</span>
+                                                </label>
+                                                <input type="file" class="filepond" accept=".jpg,.jpeg,.png" name="imagens[]" multiple>
+                                            </div>
                                         </div>
                                         <div class="text-center pt-30">
                                             <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
@@ -135,6 +143,8 @@
 @endsection
 
 @section('plugins')
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
 <script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
 <script>

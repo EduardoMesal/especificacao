@@ -333,16 +333,17 @@ class EspecificacaoService
                                 ]);
                             }
                         ]);
-                    }
-                ])->with([
+                    },
                     'maquinasIdiomas' => function ($q)  {
                         $q->whereHas('idiomas', function ($query) {
                             $query->where('codigo', 'pt');
                         });
                     },
+                    'imagens' => function ($q)  {
+                        $q->where('excluido', null);
+                    },
                 ]);
             },
-            
         ])
         ->first();
 
@@ -398,6 +399,7 @@ class EspecificacaoService
 
                 $especificacao->serie = $dados['serie'];
                 $especificacao->codigo_focco = $dados['codigo_focco'];
+                $especificacao->maquina_imagem_id = $dados['maquina_imagem_id'] ?? null;
                 $response = $especificacao->save();
 
                 if (!$response) {

@@ -27,6 +27,7 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    'ftp_media_url' => env('FTP_MEDIA_URL', 'production'),
 
     /*
     |--------------------------------------------------------------------------

@@ -12,12 +12,14 @@ use App\Models\ProdutoMaquina;
 use App\Models\AtributoEspecificacao;
 use App\Models\Idioma;
 use App\Models\MaquinaIdioma;
+use App\Models\MaquinaImagem;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 class MaquinaService
 {
 
@@ -140,28 +142,40 @@ class MaquinaService
                 $slug = $slug . '-' . ($count + 1);
             }
 
-            $photoName = null;
-
-            if (isset($dados['imagem']) && $dados['imagem'] && $dados['imagem']->isValid()) {
-
-                $imagem = $dados['imagem'];
-                $extension = $dados['imagem']->extension();
-
-                $dest = public_path('assets/img/maquinas');
-                $photoName = md5(time() . rand(0, 9999)) . '.' . $extension;
-
-                $img = Image::make($imagem->getRealPath());
-                $img->save($dest . '/' . $photoName);
-            }
-
             $maquina = Maquina::create([
                 'criado' => Carbon::now(),
                 'slug' => $slug,
                 'ncm' => $dados['ncm'],
                 'equipamento_id' => $dados['equipamento_id'],
-                'imagem' => $photoName,
                 'criado' => Carbon::now(),
             ]);
+
+            $photoName = null;
+
+            if (isset($dados['imagens']) && $dados['imagens']) {
+
+                foreach ($dados['imagens'] as $img) {
+                    $imagem = $img;
+                    $extension = $imagem->extension();
+
+                    // $dest = public_path('assets/img/maquinas');
+                    $photoName = md5(time() . rand(0, 9999)) . '.' . $extension;
+
+                    $newImg = Image::make($imagem->getRealPath());
+                    // $newImg->save($dest . '/' . $photoName);
+                    $imageStream = (string) $newImg->encode($extension, 90);
+
+                    Storage::disk('ftp_media')->put(
+                        'maquinas/' . $photoName,
+                        $imageStream
+                    );
+
+                    MaquinaImagem::create([
+                        'maquina_id' => $maquina->id,
+                        'imagem' => $photoName
+                    ]);
+                }
+            }
 
             $response = $maquina->save();
             
@@ -235,6 +249,9 @@ class MaquinaService
                 });
             },
         ])
+        ->with('imagens', function ($q) {
+            $q->whereNull('excluido');
+        })
         ->first();
         
         $criadoEm = $maquina->criado;
@@ -390,7 +407,6 @@ class MaquinaService
                     }
 
                     $maquina->slug = $slug;
-                 
                 }
 
                 if ($dados['equipamento_id'] && $dados['equipamento_id'] !== $maquina->equipamento_id) {
@@ -401,17 +417,31 @@ class MaquinaService
                     $maquina->ncm = $dados['ncm'];
                 }
 
-                if (isset($dados['imagem']) && $dados['imagem'] && $dados['imagem']->isValid()) {
-                    $imagem = $dados['imagem'];
-                    $extension = $dados['imagem']->extension();
-                    File::delete(public_path("/assets/img/maquinas/" . $maquina->imagem));
-                    $dest = public_path('assets/img/maquinas');
-                    $photoName = md5(time() . rand(0, 9999)) . '.' . $extension;
-        
-                    $img = Image::make($imagem->getRealPath());
-                    $img->save($dest . '/' . $photoName);
-        
-                    $maquina->imagem = $photoName;
+                if (isset($dados['imagens']) && $dados['imagens']) {
+                    foreach ($dados['imagens'] as $img) {
+                        $imagem = $img;
+                        $extension = $imagem->extension();
+                        
+                        // File::delete(public_path("/assets/img/maquinas/" . $maquina->imagem));
+                        // Storage::disk('ftp_media')->delete("maquinas/" . $maquina->imagem);
+                        // $dest = public_path('assets/img/maquinas');
+                        $photoName = md5(time() . rand(0, 9999)) . '.' . $extension;
+            
+                        $newImg = Image::make($imagem->getRealPath());
+                        // $newImg->save($dest . '/' . $photoName);
+
+                        $imageStream = (string) $newImg->encode($extension, 90);
+
+                        Storage::disk('ftp_media')->put(
+                            'maquinas/' . $photoName,
+                            $imageStream
+                        );
+                        
+                        MaquinaImagem::create([
+                            'maquina_id' => $maquina->id,
+                            'imagem' => $photoName
+                        ]);
+                    }
                 }
 
                 if (isset($dados['caracteristicas']) && is_array($dados['caracteristicas'])) {

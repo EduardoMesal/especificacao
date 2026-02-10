@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class PedidoProdutoService
 {
@@ -152,18 +153,25 @@ class PedidoProdutoService
                     $extension = strtolower($arquivo->getClientOriginalExtension());
                     $nomeArquivo = md5(uniqid() . time()) . '.' . $extension;
 
-                    $dest = public_path('assets/img/produtos/pedido');
+                    // $dest = public_path('assets/img/produtos/pedido');
 
-                    if (!file_exists($dest)) {
-                        mkdir($dest, 0755, true);
-                    }
+                    // if (!file_exists($dest)) {
+                    //     mkdir($dest, 0755, true);
+                    // }
 
                     $type = '';
 
                     if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
 
                         $image = Image::make($arquivo->getRealPath());
-                        $image->save($dest . '/' . $nomeArquivo);
+                        // $image->save($dest . '/' . $nomeArquivo);
+                        $imageStream = (string) $image->encode($extension, 90);
+
+                        Storage::disk('ftp_media')->put(
+                            'produtos/pedido/' . $nomeArquivo,
+                            $imageStream
+                        );
+
                         $type = 'imagem';
                     } 
 
@@ -171,14 +179,17 @@ class PedidoProdutoService
                         $nomeArquivo = $arquivo->getClientOriginalName();
                         $hasFileName = 1;
 
-                        while (file_exists($dest . '/' . $nomeArquivo)) {
+                        // while (file_exists($dest . '/' . $nomeArquivo)) {
+                        while (Storage::disk('ftp_media')->exists('produtos/pedido/' . $nomeArquivo)) {
                             $nomeBase   = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME);
                             $nomeArquivo = $nomeBase . '_' . $hasFileName . '.' . $extension;
 
                             $hasFileName++;
                         }
 
-                        $arquivo->move($dest, $nomeArquivo);
+                        // $arquivo->move($dest, $nomeArquivo);
+                        Storage::disk('ftp_media')->put('produtos/pedido/' . $nomeArquivo, file_get_contents($arquivo->getRealPath()));
+
                         $type = 'documento';
                     }
 
@@ -379,18 +390,24 @@ class PedidoProdutoService
                     $extension = strtolower($arquivo->getClientOriginalExtension());
                     $nomeArquivo = md5(uniqid() . time()) . '.' . $extension;
 
-                    $dest = public_path('assets/img/produtos/pedido');
+                    // $dest = public_path('assets/img/produtos/pedido');
 
-                    if (!file_exists($dest)) {
-                        mkdir($dest, 0755, true);
-                    }
+                    // if (!file_exists($dest)) {
+                    //     mkdir($dest, 0755, true);
+                    // }
 
                     $type = '';
 
                     if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
 
                         $image = Image::make($arquivo->getRealPath());
-                        $image->save($dest . '/' . $nomeArquivo);
+                        // $image->save($dest . '/' . $nomeArquivo);
+                        $imageStream = (string) $image->encode($extension, 90);
+
+                        Storage::disk('ftp_media')->put(
+                            'produtos/pedido/' . $nomeArquivo,
+                            $imageStream
+                        );
                         $type = 'imagem';
                     } 
 
@@ -398,14 +415,16 @@ class PedidoProdutoService
                         $nomeArquivo = $arquivo->getClientOriginalName();
                         $hasFileName = 1;
 
-                        while (file_exists($dest . '/' . $nomeArquivo)) {
+                        while (Storage::disk('ftp_media')->exists('produtos/pedido/' . $nomeArquivo)) {
                             $nomeBase   = pathinfo($arquivo->getClientOriginalName(), PATHINFO_FILENAME);
                             $nomeArquivo = $nomeBase . '_' . $hasFileName . '.' . $extension;
 
                             $hasFileName++;
                         }
 
-                        $arquivo->move($dest, $nomeArquivo);
+                        // $arquivo->move($dest, $nomeArquivo);
+                        Storage::disk('ftp_media')->put('produtos/pedido/' . $nomeArquivo, file_get_contents($arquivo->getRealPath()));
+
                         $type = 'documento';
                     }
 

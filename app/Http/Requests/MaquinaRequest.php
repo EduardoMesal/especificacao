@@ -31,6 +31,7 @@ class MaquinaRequest extends FormRequest
             'ncm' => 'required',
             'equipamento_id' => 'required|exists:equipamento_origem,id',
             'caracteristicas' => 'required|array',
+            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             // 'caracteristicas.*' => 'exists:caracteristicas,id',
         ];
     }
@@ -44,6 +45,9 @@ class MaquinaRequest extends FormRequest
             'equipamento_id.required' => 'Preencha o campo equipamento de origem.',
             'equipamento_id.exists' => 'O equipamento de origem selecionado não existe.',
             'caracteristicas.required' => 'Selecione pelo menos uma característica.',
+            'imagens.*.image' => 'Por favor, selecione uma imagem válida.',
+            'imagens.*.mimes' => 'Os formatos de imagem válidos são: JPG e PNG.',
+            'imagens.*.max' => 'Por favor, envie um arquivo menor que 2MB.',
             // 'caracteristicas.*.exists' => 'Uma ou mais características selecionadas são inválidas.',
         ];
     }

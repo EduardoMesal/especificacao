@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        'ftp_media' => [
+            'driver'   => 'ftp',
+            'host'     => env('FTP_MEDIA_HOST'),
+            'username' => env('FTP_MEDIA_USERNAME'),
+            'password' => env('FTP_MEDIA_PASSWORD'),
+            'port'     => 21,
+            'root'     => '/www/media/especificacoes',
+            'passive'  => true,
+            'ssl'      => false,
+            'timeout'  => 30,
+        ],
+
     ],
 
     /*

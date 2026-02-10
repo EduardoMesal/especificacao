@@ -17,6 +17,7 @@ use Intervention\Image\Facades\Image;
 use App\Services\AmostraService;
 use App\Services\DeleteDefaultService;
 use App\Services\PedidoAmostraService;
+use Illuminate\Support\Facades\Storage;
 
 class PedidosAmostrasController extends Controller
 {   
@@ -312,7 +313,8 @@ class PedidosAmostrasController extends Controller
                 if ($response) {
                     DB::commit();
                     if($hasMoreThanOneImg == false){
-                        File::delete(public_path("/assets/img/amostras/pedido/" . $oldImg->arquivo));
+                        // File::delete(public_path("/assets/img/amostras/pedido/" . $oldImg->arquivo));
+                        Storage::disk('ftp_media')->delete("amostras/pedido/" . $oldImg->arquivo);
                     }
                     return response()->json([
                         'success' => true,

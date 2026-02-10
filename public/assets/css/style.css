@@ -2441,7 +2441,13 @@ form {
 .list-group li:not(:last-child) {
   margin-bottom: 10px !important;
 }
-
+.card-style .activeImage{
+  border: 2px solid #e2231a !important;
+}
+.custom-control-input {
+  display: none;
+  cursor: pointer;
+}
 @media only screen and (max-width: 1200px) {
   .modalHeight {
     max-height: 80%;

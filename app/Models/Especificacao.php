@@ -18,6 +18,7 @@ class Especificacao extends Model
         'pedido_id',
         'codigo_focco',
         'serie',
+        'maquina_imagem_id',
         'status',
         'finalizada',
         'revisao_selecionada_id',
@@ -70,5 +71,10 @@ class Especificacao extends Model
     public function pedido()
     {
         return $this->belongsTo(Pedido::class, 'pedido_id');
+    }
+
+    public function maquinaImagem()
+    {
+        return $this->belongsTo(MaquinaImagem::class, 'maquina_imagem_id');
     }
 }

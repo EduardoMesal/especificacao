@@ -3,6 +3,8 @@
 
 @section('css')
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/multi-select.css') }}" />
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -40,7 +42,7 @@
                                             </div>
                                         </div>
                                         <div class="row g-9 mb-8">
-                                            <div class="row imgArea my-5">
+                                            <!-- <div class="row imgArea my-5">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                     <span>Imagem</span>
                                                 </label>
@@ -48,9 +50,9 @@
                                                     <div class="fileupload-new thumbnail" data-kt-image-input="true">
                                                         <div class="bgCropper">
                                                             @if($maquina->imagem != null)
-                                                            <img id="image-preview" src="{{ mixAssets('assets/img/maquinas/' . $maquina->imagem) }}" style=" max-width: 480px; max-width: 100%;" alt="">
+                                                                <img id="image-preview" src="{{env('FTP_MEDIA_URL') .'/maquinas/'. $maquina->imagem}}" style=" max-width: 480px; max-width: 100%;" alt="">
                                                             @else
-                                                            <img id="image-preview" src="{{ mixAssets('assets/img/logo-site.png') }}" style=" max-width: 480px; max-width: 100%;" alt="">
+                                                                <img id="image-preview" src="{{ mixAssets('assets/img/logo-site.png') }}" style=" max-width: 480px; max-width: 100%;" alt="">
                                                             @endif
                                                             <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow editCrop" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Mudar imagem">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
@@ -68,7 +70,7 @@
                                                     <input type="hidden" id="cropped-image" name="cropped_image">
                                                     <button type="hidden" id="trocar-button" style="display: none;">Trocar</button>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="col-md-4 fv-row input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                     <span class="required">Nome</span>
@@ -130,6 +132,12 @@
                                                 </textarea>
                                             </div>
                                         </div>
+                                        <div class="col-md-12 imgArea" style="margin-top: 30px;">
+                                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                                <span class="">Imagens</span>
+                                            </label>
+                                            <input type="file" class="filepond" accept=".jpg,.jpeg,.png" name="imagens[]" multiple>
+                                        </div>
                                         <div class="text-center pt-30">
                                             <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
                                                 <span class="indicator-label">Atualizar</span>
@@ -145,10 +153,65 @@
         </div>
     </div>
 </div>
+<div class="section pt-40">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card-style">
+                    <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-5">
+                                <h2>Imagens</h2>
+                            </div>
+                            <div class="schedules-area pt-7 imgsAmostra">
+                                <div class="row" id="contentSortableProjects">
+                                    @if(count($maquina['imagens']) > 0)
+                                    <div id="galleryPedido" class="row">
+                                        @foreach ($maquina['imagens'] as $key => $item)
+                                        <div class="col-md-4 col-xxl-3 mb-4 projectContent">
+                                            <div class="card-style">
+                                                <div class="card-body d-flex flex-center flex-column">
+                                                    <a
+                                                        href="{{env('FTP_MEDIA_URL') .'/maquinas/'. $item['imagem']}}"
+                                                        class="light-item"
+                                                        data-sub-html="Imagem {{ $key + 1 }}">
+                                                        <img
+                                                            class="imgProject img-fluid"
+                                                            src="{{env('FTP_MEDIA_URL') .'/maquinas/'. $item['imagem']}}" />
+                                                    </a>
+                                                    <div class="d-flex justify-content-center gap-2 align-items-center mt-2" style="width: 100%;">
+                                                        <form class="responseAjax"
+                                                            action="{{ route('Maquinas.excluir_imagens', ['id' => $item['id']]) }}"
+                                                            method="post">
+                                                            @csrf
+                                                            <button class="btn btn-sm btn-primary deleteBt" type="submit">
+                                                                <i class="bi bi-trash"></i> Excluir
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    @else
+                                    <p>Nenhuma imagem inserida!</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
 @section('plugins')
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="{{ mixAssets('/assets/js/jquery.mask.min.js') }}"></script>
 <script src="{{ mixAssets('/assets/js/mask.js') }}"></script>
 <script src="{{ mixAssets('/assets/js/jquery.multi-select.js') }}"></script>

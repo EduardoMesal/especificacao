@@ -1649,7 +1649,7 @@ $(document).ready(function() {
     
     function getContentModal(itemPedidoId, response, idName, tipo) {
         const container = $(`#${idName}--${itemPedidoId} .modal-body`);
-        const urlBase = window.APP_URL_ESPECIFICACAO || '';
+        const urlBase = "{{ config('app.ftp_media_url') }}";
         let html = `<ul class="list-group">`;
 
         Object.entries(response).forEach(([nomeAmostra, pedidos]) => {
@@ -1686,7 +1686,7 @@ $(document).ready(function() {
                             if (attr.imagens?.length) {
                                 html += `<div>`;
                                 attr.imagens.forEach(img => {
-                                    html += `<img src="${urlBase}/assets/img/${tipo}/atributos/pedido/${img.imagem}" class="layout" style="margin:10px 0;">`;
+                                    html += `<img src="${urlBase}${tipo}/pedido/${img.imagem}" class="layout" style="margin:10px 0;">`;
                                 });
                                 html += `</div>`;
                             }
@@ -1720,7 +1720,7 @@ $(document).ready(function() {
                             if (attr.imagens?.length) {
                                 html += `<div>`;
                                 attr.imagens.forEach(img => {
-                                    html += `<img src="${urlBase}/assets/img/${tipo}/atributos/pedido/${img.arquivo}" class="layout" style="margin:10px 0;">`;
+                                    html += `<img src="${urlBase}/${tipo}/pedido/${img.arquivo}" class="layout" style="margin:10px 0;">`;
                                 });
                                 html += `</div>`;
                             }
@@ -1741,7 +1741,7 @@ $(document).ready(function() {
                         `;
                         
                         dados.imagens_gerais.forEach((attr, index) => {
-                            const imgUrl = `${urlBase}/assets/img/${tipo}/pedido/${attr.arquivo}`;
+                            const imgUrl = `${urlBase}/${tipo}/pedido/${attr.arquivo}`;
                             html += `
                                 <div class="col-md-4 mb-3 projectContent">
                                     <div class="card-style">
@@ -1784,7 +1784,7 @@ $(document).ready(function() {
                         `;
 
                         dados.documentos_gerais.forEach((attr, index) => {
-                            const imgUrl = `${urlBase}/assets/img/${tipo}/pedido/${attr.arquivo}`;
+                            const imgUrl = `${urlBase}/${tipo}/pedido/${attr.arquivo}`;
                             html += `
                                 <tbody style="padding: 15px !important;">
                                     <tr>

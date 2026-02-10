@@ -76,9 +76,9 @@
                                                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                             <span>{{ optional($a->atributosProdutosIdiomas->first())->nome }} @if(optional($a->atributosProdutosIdiomas->first())->unidade) | {!! optional($a->atributosProdutosIdiomas->first())->unidade !!} @endif</span>
                                                         </label>
-                                                        <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
+                                                        <!-- <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
                                                             <i class="bi bi-image-fill"></i>
-                                                        </div>
+                                                        </div> -->
                                                     </div>
                                                     @foreach($a->subAtributos as $sub)
                                                         @php
@@ -115,9 +115,9 @@
                                                         <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
                                                             <div class="d-flex gap-2 align-items-center">
                                                                 <span>{!! optional($a->atributosProdutosIdiomas->first())->nome !!}@if(optional($a->atributosProdutosIdiomas->first())->unidade) | {!! optional($a->atributosProdutosIdiomas->first())->unidade !!} @endif</span>
-                                                                <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
+                                                                <!-- <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
                                                                     <i class="bi bi-image-fill"></i>
-                                                                </div>
+                                                                </div> -->
                                                             </div>
                                                         </div>
                                                         <input type="text" class="form-control form-control-solid textAtributo" placeholder="Preencha o campo texto" name="produtosAtributo[{{ $key }}][conteudo]" value="{{ $a->atributoProdutoPedidos->conteudo ?? '' }}" />
@@ -143,9 +143,9 @@
                                                         <div class="d-flex fs-6 fw-bold mb-2 d-flex justify-content-between">
                                                             <div class="d-flex gap-2 align-items-center">
                                                                 <span>{!! optional($a->atributosProdutosIdiomas->first())->nome !!}@if( optional($a->atributosProdutosIdiomas->first())->unidade) | {!!  optional($a->atributosProdutosIdiomas->first())->unidade !!} @endif</span>
-                                                                <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
+                                                                <!-- <div style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem--{{$a->id}}">
                                                                     <i class="bi bi-image-fill"></i>
-                                                                </div>
+                                                                </div> -->
                                                             </div>
                                                         </div>
                                                         <select class="form-select form-select-solid selectAtributo"
@@ -291,14 +291,13 @@
                                         <div class="col-md-4 col-xxl-3 mb-4 projectContent">
                                             <div class="card-style">
                                                 <div class="card-body d-flex flex-center flex-column">
-
                                                     <a
-                                                        href="{{ mixAssets('assets/img/produtos/pedido/' . $item['arquivo']) }}"
+                                                        href="{{env('FTP_MEDIA_URL') .'/produtos/pedido/'. $item['arquivo']}}"
                                                         class="light-item"
                                                         data-sub-html="Imagem {{ $key + 1 }}">
                                                         <img
                                                             class="imgProject img-fluid"
-                                                            src="{{ mixAssets('assets/img/produtos/pedido/' . $item['arquivo']) }}" />
+                                                            src="{{env('FTP_MEDIA_URL') .'/produtos/pedido/'. $item['arquivo']}}" />
                                                     </a>
 
                                                     <div class="d-flex justify-content-center gap-2 align-items-center mt-2" style="width: 100%;">
@@ -358,7 +357,7 @@
                                                     <tbody>
                                                         <tr style="padding: 15px !important;">
                                                             <td>
-                                                                <a target="_blank" href="{{ mixAssets('assets/img/produtos/pedido/' . $item['arquivo']) }}">
+                                                                <a target="_blank" href="{{env('FTP_MEDIA_URL') .'/produtos/pedido/'. $item['arquivo']}}">
                                                                 {{$item['arquivo']}}
                                                                 </a>
                                                             </td>

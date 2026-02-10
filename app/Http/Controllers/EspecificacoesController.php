@@ -116,6 +116,7 @@ class EspecificacoesController extends Controller
         //         'error' => 'Nenhum cliente foi encontrado.'
         //     ]);
         // }
+
         return view('Especificacoes/editar', [
             'especificacao' => $query['especificacao'],
             // 'clientes' => $query['clientes'],
@@ -130,7 +131,7 @@ class EspecificacoesController extends Controller
 
         try {
             // return $request->all();
-            $data = $request->only(['cliente_id', 'codigo_focco', 'serie', 'caracteristicas', 'att', 'pedido_id', 'att_ids_originais']);
+            $data = $request->only(['cliente_id', 'codigo_focco', 'serie', 'caracteristicas', 'att', 'pedido_id', 'att_ids_originais', 'maquina_imagem_id']);
             $especificacaoService->editar($data, $id, $user);
             return response()->json([
                 'success' => true,
@@ -462,8 +463,7 @@ class EspecificacoesController extends Controller
                 $iguais = false;
 
                 if ($tipo === 'texto') {
-                    $iguais = trim(strtolower($attrComparado->conteudo ?? '')) ===
-                            trim(strtolower($attrBase->conteudo ?? ''));
+                    $iguais = trim(strtolower($attrComparado->conteudo ?? '')) === trim(strtolower($attrBase->conteudo ?? ''));
                 }
 
                 if ($tipo === 'selecionavel') {

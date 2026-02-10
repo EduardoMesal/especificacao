@@ -18,8 +18,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\MaquinaRequest;
+use App\Models\MaquinaImagem;
 use App\Services\MaquinaService;
 use App\Services\DeleteDefaultService;
+use Illuminate\Support\Facades\Storage;
 
 class MaquinasController extends Controller
 {
@@ -57,7 +59,7 @@ class MaquinasController extends Controller
     {
         try {
     
-            $data = $request->only(['imagem', 'nome', 'ncm', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
+            $data = $request->only(['imagens', 'nome', 'ncm', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
 
             $maquinaService->criar($data);
 
@@ -109,7 +111,7 @@ class MaquinasController extends Controller
     {
         try {
     
-            $data = $request->only(['imagem', 'nome', 'ncm', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
+            $data = $request->only(['imagens', 'nome', 'ncm', 'equipamento_id', 'caracteristicas', 'amostras', 'produtos', 'observacao']);
             $idioma = $request->get('lang', 'pt');
 
             $maquinaService->editar($data, $id, $idioma);
@@ -181,5 +183,72 @@ class MaquinasController extends Controller
             ], 500);
         }
         
+    }
+
+    public function excluir_imagem($id)
+    {
+        if (!$id) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'ID não fornecido',
+            ], 400);
+        }
+
+        $imagem = MaquinaImagem::where('id', $id)->first();
+        
+        if (!$imagem) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'message' => 'Imagem não encontrada',
+            ], 404);
+        }
+
+        if ($imagem) {
+
+            try {
+                DB::beginTransaction();
+                $oldImg = $imagem;
+                $response = $imagem->delete();
+
+                if (!$response) {
+                    throw new \Exception('Erro ao excluir a imagem.');
+                }
+
+                if ($response) {
+                    DB::commit();
+                        // File::delete(public_path("/assets/img/amostras/pedido/" . $oldImg->arquivo));
+                    Storage::disk('ftp_media')->delete("maquinas/" . $oldImg->imagem);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'title' => 'Feito',
+                        'icon' => 'success',
+                        'message' => 'Excluído com sucesso',
+                    ], 200);
+                }
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+        
+                return response()->json([
+                    'success' => false,
+                    'title' => 'Oops...',
+                    'icon' => 'error',
+                    'erro' => $e->getMessage(),
+                    'message' => 'Ocorreu um erro durante o processamento. Tente novamente.',
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'title' => 'Oops...',
+            'icon' => 'error',
+            'message' => 'Falha ao excluir imagem',
+        ], 500);
     }
 }
