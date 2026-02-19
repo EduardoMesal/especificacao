@@ -47,7 +47,7 @@
                         @endcomponent
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0 table-hover">
                             <thead>
                                 <tr>
                                     <th class="th-info">

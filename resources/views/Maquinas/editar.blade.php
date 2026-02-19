@@ -160,7 +160,7 @@
                 <div class="card-style">
                     <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h2>Imagens</h2>
                             </div>
                             <div class="schedules-area pt-7 imgsAmostra">
@@ -168,7 +168,7 @@
                                     @if(count($maquina['imagens']) > 0)
                                     <div id="galleryPedido" class="row">
                                         @foreach ($maquina['imagens'] as $key => $item)
-                                        <div class="col-md-4 col-xxl-3 mb-4 projectContent">
+                                        <div class="col-md-6 col-xxl-3 mb-4 projectContent position-relative">
                                             <div class="card-style">
                                                 <div class="card-body d-flex flex-center flex-column">
                                                     <a
@@ -176,22 +176,32 @@
                                                         class="light-item"
                                                         data-sub-html="Imagem {{ $key + 1 }}">
                                                         <img
-                                                            class="imgProject img-fluid"
-                                                            src="{{env('FTP_MEDIA_URL') .'/maquinas/'. $item['imagem']}}" />
+                                                        class="imgProject img-fluid"
+                                                        style="margin-bottom: 0px;"
+                                                        src="{{env('FTP_MEDIA_URL') .'/maquinas/'. $item['imagem']}}" />
                                                     </a>
-                                                    <div class="d-flex justify-content-center gap-2 align-items-center mt-2" style="width: 100%;">
-                                                        <form class="responseAjax"
-                                                            action="{{ route('Maquinas.excluir_imagens', ['id' => $item['id']]) }}"
-                                                            method="post">
-                                                            @csrf
-                                                            <button class="btn btn-sm btn-primary deleteBt" type="submit">
-                                                                <i class="bi bi-trash"></i> Excluir
-                                                            </button>
-                                                        </form>
+                                                    <div class="inputAreaImagem d-flex">
+                                                        <input placeholder="Nome" type="text" class="form-control form-control-solid" name="nome" value="{{$item['nome']}}">
+                                                        <button class="sendName form-control form-control-solid" data-id="{{$item['id']}}" >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="buttonRemove">
+                                                <form class="responseAjax"
+                                                    action="{{ route('Maquinas.excluir_imagens', ['id' => $item['id']]) }}"
+                                                    method="post">
+                                                    @csrf
+                                                    <button class="deleteBt" type="submit">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
+                                        
                                         @endforeach
                                     </div>
                                     @else
@@ -243,6 +253,41 @@
             $(".removeCrop").hide();
             $("#image-preview").attr("src", defaultImage); 
         });
+
+        $('.sendName').on('click', function(e) {
+            const id = $(this).data('id');
+            const nome = $(this).closest('.inputAreaImagem').find('input').val();
+
+            $.ajax({
+                url: "{{ route('Maquinas.atualizar_imagem_nome') }}",
+                method: 'POST',
+                data: {
+                    maquina_imagem_id: id,
+                    nome: nome,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Editado com sucesso!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: 'white',
+                        color: '#60d66a',
+                        iconColor: '#60d66a', 
+                        customClass: {
+                            popup: 'custom-toast'
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        })
     });
 </script>
 @endsection

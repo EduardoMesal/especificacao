@@ -19,9 +19,12 @@
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/multi-select.css') }}" />
 	<link rel="stylesheet" href="{{ mixAssets('assets/css/plugins.bundle.css') }}" />
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-zoom.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lg-thumbnail.css">
+	<!-- <link rel="stylesheet" href="{{ mixAssets('assets/css/lightgallery.css') }}" /> -->
+	<link rel="stylesheet" href="{{ mixAssets('assets/css/lightgallery-zoom.css') }}" />
+	<link rel="stylesheet" href="{{ mixAssets('assets/css/lightgallery-thumbnail.css') }}" />
+
 	@yield('css')
 </head>
 
@@ -479,9 +482,9 @@
 	<script src="{{ mixAssets('assets/js/main.js') }}"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 	
-	<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.js"></script>
+	<script src="{{ mixAssets('assets/js/lightgallery.js') }}"></script>
+	<script src="{{ mixAssets('assets/js/lightgallery-zoom.js') }}"></script>
+	<script src="{{ mixAssets('assets/js/lightgallery-thumbnail.js') }}"></script>
 	
 	<script src="{{ mixAssets('assets/js/functions.js') }}"></script>
 

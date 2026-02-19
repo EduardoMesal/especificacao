@@ -15,6 +15,7 @@ class MaquinaImagem extends Model
     protected $table = 'maquinas_imagens';
 
     protected $fillable = [
+        'nome',
         'imagem',
         'maquina_id',
         'criado',

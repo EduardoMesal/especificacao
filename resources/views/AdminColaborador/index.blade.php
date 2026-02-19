@@ -44,7 +44,7 @@
                             <div class="card-body pt-3 pb-4">
                                 <div class="table-responsive">
                                     @if(count($usuarios) > 0)
-                                    <table class="table">
+                                    <table class="table table-hover">
                                         <thead>
                                             <tr class="fs-7 fw-bold text-gray-500 border-bottom-0">
                                                 <th class="p-0 min-w-150px"></th>

@@ -107,6 +107,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/editar/{id}', [MaquinasController::class, 'editar_action'])->name('Maquinas.editar_action');
         Route::post('/excluir/{id}', [MaquinasController::class, 'excluir'])->name('Maquinas.excluir');
         Route::post('/imagens/excluir/{id}', [MaquinasController::class, 'excluir_imagem'])->name('Maquinas.excluir_imagens');
+        Route::post('/atualizar_imagem', [MaquinasController::class, 'atualizar_imagem_nome'])->name('Maquinas.atualizar_imagem_nome');
     });
 
     Route::prefix('/equipamentos')->group(function () {

@@ -667,6 +667,5 @@ class EspecificacoesController extends Controller
             'success' => true,
             'rev' => $html
         ]);
-
     }
 }

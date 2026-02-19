@@ -251,4 +251,29 @@ class MaquinasController extends Controller
             'message' => 'Falha ao excluir imagem',
         ], 500);
     }
+
+    public function atualizar_imagem_nome(Request $request, MaquinaService $maquinaService)
+    {
+        try {
+
+            $data = $request->only(['nome', 'maquina_imagem_id']);
+            $maquinaService->atualizar_imagem_nome($data);
+
+            return response()->json([
+                'success' => true,
+                'title' => 'Feito',
+                'icon' => 'success',
+                'message' => 'Cadastro feito com sucesso',
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Oops...',
+                'icon' => 'error',
+                'erro' => $e->getMessage(),
+                'message' => 'Ocorreu um erro durante o processamento. Tente novamente.',
+            ], 500);
+        }
+    }
 }

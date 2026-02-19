@@ -63,7 +63,7 @@
                                 <div class="fs-6 text-gray-800 mb-2">Especificações relacionadas</div>
                             </div>
                         </div>
-                        <table class="table">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th class="th-info">
@@ -267,7 +267,7 @@
                                 <div class="fs-6 text-gray-800 mb-2">Especificações de amostras</div>
                             </div>
                         </div>
-                        <table class="table">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th class="th-info">
@@ -364,7 +364,7 @@
                                 <div class="fs-6 text-gray-800 mb-2">Especificações de produtos</div>
                             </div>
                         </div>
-                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                        <table class="table table-row-dashed align-middle gs-0 gy-4 my-0 table-hover">
                             <thead>
                                 <tr>
                                     <th class="th-info">

@@ -577,4 +577,29 @@ class MaquinaService
             throw $e;
         }
     }
+
+     public function atualizar_imagem_nome(array $dados)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $maquinaImagem = MaquinaImagem::where('id', $dados['maquina_imagem_id'])->where('excluido', null)->first();
+
+            if (!$maquinaImagem) {
+                throw new \Exception('Nenhuma maquina foi encontrada.', 404);
+            }
+
+            $maquinaImagem->update([
+                'nome' => $dados['nome'] ?? null, 
+            ]);
+
+            DB::commit();
+
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
 }

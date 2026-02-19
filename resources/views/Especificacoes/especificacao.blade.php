@@ -637,7 +637,7 @@
                          <div id="collapseRevisoes" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0 table-hover">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
@@ -724,7 +724,7 @@
                             <div class="accordion-body" id="similares">
                                 <div class="tab-pane" id="similares" role="tabpanel">
                                     <div class="table-responsive">
-                                        <table id="tabelaAmostras" class="table">
+                                        <table id="tabelaAmostras" class="table table-hover">
                                             <thead>
                                                 <tr>
                                                     <th class="th-info">Espec. ID</th>
@@ -960,7 +960,7 @@
                                 </div>
                                 @if(count($produtosEspecificacoes) > 0)
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table">
+                                    <table class="table table-hover">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
@@ -1042,7 +1042,7 @@
                         <div id="collapseEspecsAmostras" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0 table-hover">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
@@ -1162,7 +1162,7 @@
                         <div id="collapseEspecsProdutos" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-4 my-0 table-hover">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
@@ -1281,7 +1281,7 @@
                         <div id="collapsePedido" class="accordion-collapse collapse">
                             <div class="accordion-body">
                                 <div class="table-wrapper table-responsive">
-                                    <table class="table">
+                                    <table class="table table-hover">
                                         <thead>
                                             <tr>
                                                 <th class="th-info">
@@ -1773,7 +1773,7 @@ $(document).ready(function() {
                         html += 
                         `
                             <div class="table-wrapper table-responsive">
-                                <table class="table striped-table mb-0">
+                                <table class="table striped-table mb-0 table-hover">
                                     <thead>
                                         <tr>
                                             <th>

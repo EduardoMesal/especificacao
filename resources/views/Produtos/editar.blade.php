@@ -91,7 +91,7 @@
                         </div>
                     </div>
                     <div class="table-wrapper table-responsive">
-                        <table class="table">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th class="th-info">

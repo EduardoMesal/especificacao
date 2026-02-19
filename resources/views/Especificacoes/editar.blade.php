@@ -358,12 +358,13 @@
                                                     </label>
                                                     <div class="row">
                                                     @foreach($especificacao->maquina->imagens as $item)
-                                                        <div class="col-md-4">
+                                                        <div class="col-md-4 imgsAmostra">
                                                             <div class="card-style {{$item->id == $especificacao->maquina_imagem_id ? 'activeImage' : ''}}" style="cursor: pointer;">
                                                                 <div class="card-body d-flex flex-center flex-column">
                                                                     <input type="checkbox" class="custom-control-input" value="{{$item->id}}" {{$item->id == $especificacao->maquina_imagem_id ? 'checked' : ''}} id="{{$item->id}}" name="maquina_imagem_id">
                                                                     <label class="custom-control-label" for="{{$item->id}}">
-                                                                        <img src="{{env('FTP_MEDIA_URL') .'/maquinas/'. $item->imagem}}" class="img-fluid" style="cursor: pointer;">
+                                                                        <p style="min-height: 50px; text-align: center; margin-bottom: 0px;">{{$item->nome ?? 'Nome não informado'}}</p>
+                                                                        <img src="{{env('FTP_MEDIA_URL') .'/maquinas/'. $item->imagem}}" class="imgProject img-fluid" style="cursor: pointer;">
                                                                     </label>
                                                                 </div>
                                                             </div>
@@ -425,7 +426,7 @@
             }
         });
 
-       $('.custom-control-input').on('change', function () {
+        $('.custom-control-input').on('change', function () {
             if ($(this).is(':checked')) {
                 $('.custom-control-input').not(this).prop('checked', false);
                 $('.card-style').removeClass('activeImage');
@@ -434,8 +435,6 @@
                 $(this).closest('.card-style').removeClass('activeImage');
             }
         });
-
-
     });
 </script>
 @endsection

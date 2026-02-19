@@ -129,7 +129,7 @@
                     ])
                     @endcomponent
                     <div class="table-wrapper table-responsive">
-                        <table class="table">
+                        <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th class="th-info">

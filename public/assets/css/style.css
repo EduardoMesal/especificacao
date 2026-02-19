@@ -24,7 +24,49 @@ tr td:not(:first-child):not(:last-child) {
   width: 160px;
   fill: #e2231a !important;
 }
+.table-hover tbody tr:hover {
+  background-color: #f9fafb !important;
+}
+.inputAreaImagem{
+  margin: 10px auto;
+  max-width: 250px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.inputAreaImagem button{
+  width: 45px;
+  border-left: 1px solid rgb(219, 224, 232) !important;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+.inputAreaImagem button svg{
+  fill: rgb(219, 224, 232) !important;
+  z-index: 999;
+  position: relative;
+}
+.inputAreaImagem input{
+  width: calc(100% - 45px);
+  border-right: 0px !important;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
 
+.buttonRemove{
+  position: absolute;
+  top: 0px;
+  right: 12px;
+  z-index: 999;
+}
+.buttonRemove button{
+  background-color: #e2231a !important;
+  color: white;
+  border: 0px !important;
+  box-shadow: 0px 12px 24px -4px rgba(145, 158, 171, 0.12), 0px 0px 2px 0px rgba(145, 158, 171, 0.2);
+  border-top-right-radius: 7px;
+  padding: 4px;
+}
 /* .card-statistics .border-right {
   border-right: 1px solid #ebedf2;
   height: 100%;
