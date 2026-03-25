@@ -28,7 +28,7 @@
                                             </div>
                                             <div class="col-md-6 fv-row selectArea input-style-1">
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                                                    <span class="required">Pedido</span>
+                                                    <span class="">Pedido</span>
                                                 </label>
                                                 <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Selecionar pedido" name="pedido_id">
                                                     <option></option>

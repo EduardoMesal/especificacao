@@ -161,9 +161,9 @@
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 data-bs-custom-class="custom-tooltip"
-                                                data-bs-title="{{ $item->pedido->cliente->nome }}"
+                                                data-bs-title="{{ $item->pedido->cliente->nome ?? '-' }}"
                                                 class="text-gray-800 text-hover-primary mb-1 fs-6 limite-texto" style="width: 150px">
-                                                    @if($item->pedido->cliente->nome)
+                                                    @if($item->pedido)
                                                         {!! $item->pedido->cliente->nome !!}
                                                         @else
                                                         -
@@ -231,9 +231,9 @@
                                 @endif
                             </tbody>
                         </table>
-                        <div class="contentPaginate">
-                            {{ $especificacoes->links('vendor.pagination.custom') }}
-                        </div>
+                    </div>
+                    <div class="contentPaginate">
+                        {{ $especificacoes->links('vendor.pagination.custom') }}
                     </div>
                 </div>
             </div>

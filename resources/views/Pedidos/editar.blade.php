@@ -24,7 +24,7 @@
                                                 <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                                     <span class="required">N° pedido</span>
                                                 </label>
-                                                <input type="number" value="{{$pedido->nome}}" class="form-control form-control-solid" placeholder="Preencha o campo número do pedido" name="nome" />
+                                                <input type="number" value="{{intval($pedido->nome)}}" class="form-control form-control-solid" placeholder="Preencha o campo número do pedido" name="nome" />
                                             </div>
                                             <div class="col-md-6 fv-row selectArea input-style-1">
                                                 <label class="fs-6 fw-bold mb-2">Cliente</label>

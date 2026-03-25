@@ -77,6 +77,7 @@
                             </div>
                             <div class="content">
                                 <h6 class="mb-10 text-bold">Cliente</h6>
+                                @if($especificacao->pedido)
                                 @php
                                     $clientName = $especificacao->pedido->cliente->nome;
                                 @endphp
@@ -93,6 +94,9 @@
                                         @endif
                                     </p>
                                 </div>
+                                @else
+                                -
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -1284,9 +1288,9 @@
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
-                                                <th class="th-info">
+                                                <!-- <th class="th-info">
                                                     <h6>Id</h6>
-                                                </th>
+                                                </th> -->
                                                 <th class="th-info">
                                                     <h6>N° pedido</h6>
                                                 </th>
@@ -1301,7 +1305,7 @@
                                         <tbody>
                                             @if(!empty($especificacao->pedido))
                                             <tr data-href="{{route('Pedidos.editar', ['id' => $especificacao->pedido->id])}}">
-                                                <td>
+                                                <!-- <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex justify-content-start flex-column">
                                                             <span class="text-gray-800 text-hover-primary mb-1 fs-6">
@@ -1309,7 +1313,7 @@
                                                             </span>
                                                         </div>
                                                     </div>
-                                                </td>
+                                                </td> -->
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex justify-content-start flex-column">

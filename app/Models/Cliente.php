@@ -16,6 +16,7 @@ class Cliente extends Model
 
     protected $fillable = [
         'nome',
+        'cliente_focco_id',
         'cnpj',
         'ie',
         'criado',

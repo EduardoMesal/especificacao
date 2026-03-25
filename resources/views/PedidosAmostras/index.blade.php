@@ -161,9 +161,9 @@
                                 @endif
                             </tbody>
                         </table>
-                        <div class="contentPaginate">
-                            {{ $amostras->links('vendor.pagination.custom') }}
-                        </div>
+                    </div>
+                    <div class="contentPaginate">
+                        {{ $amostras->links('vendor.pagination.custom') }}
                     </div>
                 </div>
             </div>

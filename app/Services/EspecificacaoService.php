@@ -207,7 +207,7 @@ class EspecificacaoService
             $especificacao->status = 'Em andamento';
             $especificacao->codigo_focco = $dados['codigo_focco'] ?? null;
             $especificacao->serie = $dados['serie'] ?? null;
-            $especificacao->pedido_id = $dados['pedido_id'];
+            $especificacao->pedido_id = $dados['pedido_id'] ?? null;
             $especificacao->maquina_id = $maquinaID;
             $especificacao->usuario_id = Auth::user()->id;
 

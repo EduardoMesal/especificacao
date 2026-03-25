@@ -53,9 +53,6 @@
                             <thead>
                                 <tr>
                                     <th class="th-info">
-                                        <h6>Id</h6>
-                                    </th>
-                                    <th class="th-info">
                                         <h6>N° pedido</h6>
                                     </th>
                                     <th class="th-info">
@@ -76,15 +73,6 @@
                                 @if(count($pedidos) > 0)
                                 @foreach($pedidos as $item)
                                 <tr data-href="{{route('Pedidos.editar', ['id' => $item->id])}}">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="d-flex justify-content-start flex-column">
-                                                <span class="text-gray-800 text-hover-primary mb-1 fs-6">
-                                                    {!! $item->id !!}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex justify-content-start flex-column">
@@ -161,9 +149,9 @@
                                 @endif
                             </tbody>
                         </table>
-                        <div class="contentPaginate">
-                            {{ $pedidos->links('vendor.pagination.custom') }}
-                        </div>
+                    </div>
+                    <div class="contentPaginate">
+                        {{ $pedidos->links('vendor.pagination.custom') }}
                     </div>
                 </div>
             </div>

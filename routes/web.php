@@ -15,6 +15,8 @@ use App\Http\Controllers\ProdutosController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\EspecificacoesProdutosController;
 use App\Http\Controllers\EspecificacoesAmostrasController;
+use App\Http\Controllers\FoccoClientesController;
+use App\Http\Controllers\FoccoPedidosController;
 use App\Http\Controllers\PedidosAmostrasController;
 use App\Http\Controllers\PropostasController;
 use App\Http\Controllers\PedidosController;
@@ -260,3 +262,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/editar/{id}', [UsuariosController::class, 'editar_action'])->name('Usuario.editar_action');
     });
 });
+
+
+Route::get('/foccoerp/mesal/clientes', [FoccoClientesController::class, 'clientes'])->name('foccoerp.clientes');
+Route::get('/foccoerp/mesal/pedidos', [FoccoPedidosController::class, 'pedidos'])->name('foccoerp.pedidos');

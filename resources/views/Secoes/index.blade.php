@@ -120,12 +120,12 @@
                                 @endif
                             </tbody>
                         </table>
-                        @if($secoes->hasPages())
+                    </div>
+                    @if($secoes->hasPages())
                         <div class="contentPaginate mt-5 mb-5">
                             {{ $secoes->links('vendor.pagination.custom') }}
                         </div>
-                        @endif
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>

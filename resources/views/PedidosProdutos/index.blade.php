@@ -161,9 +161,9 @@
                                 @endif
                             </tbody>
                         </table>
-                        <div class="contentPaginate">
-                            {{ $produtos->links('vendor.pagination.custom') }}
-                        </div>
+                    </div>
+                    <div class="contentPaginate">
+                        {{ $produtos->links('vendor.pagination.custom') }}
                     </div>
                 </div>
             </div>

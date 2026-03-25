@@ -77,7 +77,7 @@ class PedidoService
 
     public function get_criar()
     {
-        $clientes = Cliente::where('excluido', null)->get();
+        $clientes = Cliente::select('id', 'nome')->where('excluido', null)->get();
 
         return $clientes;
     }
@@ -151,7 +151,7 @@ class PedidoService
             }])
             ->first();
 
-        $clientes = Cliente::where('excluido', null)->get();
+        $clientes = Cliente::select('id', 'nome')->where('excluido', null)->get();
 
         return compact('pedido', 'clientes');
     }

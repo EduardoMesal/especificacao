@@ -23,7 +23,7 @@ class EspecificacoesControllerRequest extends FormRequest
         $id = $this->route('id');
 
         return [
-            'pedido_id' => 'required',
+            // 'pedido_id' => 'required',
             'caracteristicas.*.observacao_personalizada' => 'nullable',
             'att' => 'nullable|array',
             'att.*.observacao' => 'required_with:att',
@@ -43,7 +43,7 @@ class EspecificacoesControllerRequest extends FormRequest
         $isEdit = $this->isEdit();
         
         $messages = [
-            'pedido_id.required' => 'Preencha o campo pedido.',
+            // 'pedido_id.required' => 'Preencha o campo pedido.',
             'att.*.observacao.required_with' => 'Preencha o campo observação.',
             'serie.unique' => 'Já existe uma serie com esse valor.',
         ];
