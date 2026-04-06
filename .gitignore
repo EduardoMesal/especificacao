@@ -5,6 +5,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/logs
 /vendor
 .env
 .env.backup
@@ -24,3 +25,4 @@ yarn-error.log
 .zip
 .rar
 .sql
+.git
