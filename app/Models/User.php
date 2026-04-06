@@ -28,6 +28,7 @@ class User extends Authenticatable
         'usuario_focco_id',
         'login_focco',
         'token',
+        'two_factor_attempts',
         'modificado',
         'excluido'
     ];
